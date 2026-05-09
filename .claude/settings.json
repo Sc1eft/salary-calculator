@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git commit -m ' *)",
+      "Bash(curl -s http://localhost:8080/index.html)",
+      "Bash(curl -so /dev/null -w \"%{http_code}\" http://localhost:8080/)",
+      "Bash(netstat -ano)",
+      "Bash(python -m http.server 8081)",
+      "Bash(curl -sI http://localhost:8081/)",
+      "Bash(curl -sI http://localhost:8080/)",
+      "Bash(curl -s http://localhost:8080/)",
+      "Bash(taskkill //F //IM python.exe)",
+      "Bash(taskkill //F //IM python3.exe)"
+    ]
+  }
+}
