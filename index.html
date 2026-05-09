@@ -1,0 +1,3429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💰 工资计算器</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#F59E0B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="工资计算器">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --gold: #F59E0B;
+  --gold-dark: #D97706;
+  --gold-light: #FDE68A;
+  --blue: #1E40AF;
+  --blue-light: #DBEAFE;
+  --green: #10B981;
+  --green-dim: #34D399;
+  --green-light: #D1FAE5;
+  --red: #EF4444;
+  --red-light: #FEE2E2;
+  --purple: #7C3AED;
+  --purple-light: #EDE9FE;
+  --pink: #EC4899;
+  --gray-50: #F8FAFC;
+  --gray-100: #F1F5F9;
+  --gray-200: #E2E8F0;
+  --gray-300: #CBD5E1;
+  --gray-500: #64748B;
+  --gray-700: #334155;
+  --gray-900: #0F172A;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+[data-theme="dark"] {
+  --gray-50: #0F172A;
+  --gray-100: #1E293B;
+  --gray-200: #334155;
+  --gray-300: #475569;
+  --gray-500: #94A3B8;
+  --gray-700: #CBD5E1;
+  --gray-900: #F1F5F9;
+  --shadow: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -2px rgba(0,0,0,0.2);
+}
+[data-theme="dark"] body {
+  background: linear-gradient(135deg, #0B1120 0%, #1E293B 50%, #0B1120 100%);
+}
+[data-theme="dark"] header { background: linear-gradient(135deg, #B45309, #92400E); }
+[data-theme="dark"] .card {
+  background: rgba(30, 41, 59, 0.88);
+  border-color: rgba(71, 85, 105, 0.3);
+}
+[data-theme="dark"] .earned-box {
+  background: linear-gradient(135deg, #422006, #5B210E);
+  border-color: #78350F;
+}
+[data-theme="dark"] .salary-input-group input,
+[data-theme="dark"] .setting-item input,
+[data-theme="dark"] .setting-item select { background: #1E293B; color: #F1F5F9; border-color: #475569; }
+[data-theme="dark"] .settings-panel,
+[data-theme="dark"] .purchase-item,
+[data-theme="dark"] .wish-item,
+[data-theme="dark"] .cal-cell,
+[data-theme="dark"] .badge-item,
+[data-theme="dark"] .modal-box,
+[data-theme="dark"] .onboard-step { background: #1E293B; }
+[data-theme="dark"] .cal-cell.has-record { background: #422006; }
+[data-theme="dark"] .cal-cell.today { background: #5B210E; }
+[data-theme="dark"] .settings-toggle,
+[data-theme="dark"] .wish-img-btn,
+[data-theme="dark"] .cal-nav .cal-btn,
+[data-theme="dark"] .btn-outline-sm { background: #334155; }
+[data-theme="dark"] .wish-item-img-wrap,
+[data-theme="dark"] .stat-card { background: #0F172A; }
+[data-theme="dark"] .stat-card.highlight { background: linear-gradient(135deg, #422006, #5B210E); }
+[data-theme="dark"] .timer-box.work { background: rgba(30, 64, 175, 0.25); }
+[data-theme="dark"] .timer-box.break { background: rgba(16, 185, 129, 0.15); }
+[data-theme="dark"] .timer-box.overtime { background: rgba(124, 58, 237, 0.2); }
+[data-theme="dark"] .ring-bg { stroke: #334155; }
+[data-theme="dark"] .purchase-teaser { background: rgba(124, 58, 237, 0.15); }
+[data-theme="dark"] .day-edit-input { background: #1E293B; color: #F1F5F9; border-color: #475569; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif;
+  background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 50%, #FFFBEB 100%);
+  min-height: 100vh;
+  color: var(--gray-900);
+  padding-bottom: 40px;
+}
+
+header {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: white;
+  padding: 24px 20px 30px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+header::after {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+  pointer-events: none;
+}
+header h1 { font-size: 28px; font-weight: 700; letter-spacing: 1px; }
+header p { font-size: 14px; opacity: 0.9; margin-top: 4px; }
+
+main {
+  max-width: 480px;
+  margin: -16px auto 0;
+  padding: 0 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.card {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(255,255,255,0.6);
+  transition: transform 0.2s;
+}
+.card:hover { transform: translateY(-1px); }
+.card h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card h2 .badge-count {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--gray-500);
+  background: var(--gray-100);
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: auto;
+}
+
+/* ========= Salary Section ========= */
+#salary-section { text-align: center; }
+#salary-section .rate-info {
+  font-size: 13px;
+  color: var(--gray-500);
+  margin-top: 8px;
+  line-height: 1.6;
+}
+.salary-input-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px;
+}
+.salary-input-group input {
+  width: 170px;
+  padding: 10px 14px;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s;
+  background: white;
+}
+.salary-input-group input:focus { border-color: var(--gold); }
+.salary-input-group input::placeholder {
+  font-weight: 400; font-size: 14px; color: var(--gray-300);
+}
+
+/* Settings toggle */
+.settings-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--gray-500);
+  background: var(--gray-100);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.settings-toggle:hover { background: var(--gray-200); color: var(--gray-700); }
+.settings-toggle .arrow { transition: transform 0.3s; display: inline-block; }
+.settings-toggle .arrow.open { transform: rotate(180deg); }
+
+.settings-panel {
+  margin-top: 12px;
+  padding: 16px;
+  background: var(--gray-50);
+  border-radius: var(--radius-sm);
+  display: none;
+  text-align: left;
+}
+.settings-panel.open { display: block; }
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.setting-item label {
+  display: block;
+  font-size: 12px;
+  color: var(--gray-500);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.setting-item input, .setting-item select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  outline: none;
+  background: white;
+  transition: border-color 0.2s;
+}
+.setting-item input:focus { border-color: var(--gold); }
+
+/* ========= Monthly Progress ========= */
+.monthly-progress {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.ring-container {
+  flex-shrink: 0;
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+.ring-container svg { transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: var(--gray-200); stroke-width: 8; }
+.ring-fg {
+  fill: none;
+  stroke: url(#goldGrad);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s ease;
+}
+.ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.ring-center .pct {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--gold-dark);
+}
+.ring-center .pct-label {
+  font-size: 10px;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+.monthly-stats { flex: 1; min-width: 0; }
+.monthly-stats .stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--gray-100);
+}
+.monthly-stats .stat-row:last-child { border-bottom: none; }
+.monthly-stats .stat-label { color: var(--gray-500); }
+.monthly-stats .stat-value { font-weight: 600; color: var(--gray-700); }
+.monthly-stats .stat-value.gold { color: var(--gold-dark); }
+
+/* ========= Tracker ========= */
+.timer-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.timer-box {
+  flex: 1;
+  text-align: center;
+  padding: 10px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--gray-50);
+}
+.timer-box.work { background: var(--blue-light); }
+.timer-box.break { background: var(--green-light); }
+.timer-box.overtime { background: var(--purple-light); }
+.timer-box .label {
+  font-size: 11px;
+  color: var(--gray-500);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.timer-box .value {
+  font-size: 22px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  margin-top: 1px;
+}
+.timer-box.work .value { color: var(--blue); }
+.timer-box.break .value { color: var(--green); }
+.timer-box.overtime .value { color: var(--purple); }
+
+.earned-box {
+  text-align: center;
+  padding: 14px;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--gold-light);
+  position: relative;
+  overflow: hidden;
+}
+.earned-box .label {
+  font-size: 12px;
+  color: var(--gold-dark);
+  font-weight: 500;
+}
+.earned-box .value {
+  font-size: 34px;
+  font-weight: 800;
+  color: var(--gold-dark);
+  font-variant-numeric: tabular-nums;
+}
+.earned-breakdown {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 6px;
+  font-size: 12px;
+}
+.earned-breakdown span { font-weight: 500; }
+.earned-breakdown .normal { color: var(--blue); }
+.earned-breakdown .overtime { color: var(--purple); }
+
+.status-badge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 6px;
+}
+.status-badge.idle { background: var(--gray-200); color: var(--gray-500); }
+.status-badge.working { background: var(--blue-light); color: var(--blue); }
+.status-badge.break-state { background: var(--green-light); color: var(--green); }
+.status-badge.ended { background: #FCE4EC; color: #C62828; }
+
+.controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.btn {
+  flex: 1;
+  padding: 12px 8px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn:active { transform: scale(0.96); }
+.btn-inactive { opacity: 0.35; cursor: not-allowed; transform: none; }
+.btn-inactive:active { transform: none; }
+.btn-primary { background: var(--gold); color: white; }
+.btn-primary:hover:not(:disabled) { background: var(--gold-dark); }
+.btn-success { background: var(--green); color: white; }
+.btn-success:hover:not(:disabled) { background: #059669; }
+.btn-warning { background: var(--gold); color: white; }
+.btn-warning:hover:not(:disabled) { background: var(--gold-dark); }
+.btn-danger { background: var(--red); color: white; }
+.btn-danger:hover:not(:disabled) { background: #DC2626; }
+.btn-outline-sm {
+  padding: 6px 12px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  background: transparent;
+  cursor: pointer;
+  color: var(--gray-500);
+  transition: all 0.2s;
+}
+.btn-outline-sm:hover { border-color: var(--gray-300); background: var(--gray-50); }
+
+/* Purchase conversion inline */
+.purchase-teaser {
+  text-align: center;
+  padding: 8px 12px;
+  background: var(--purple-light);
+  border-radius: var(--radius-sm);
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--purple);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.purchase-teaser:hover { background: #DDD6FE; }
+.purchase-teaser .small { font-size: 12px; font-weight: 400; color: var(--gray-500); }
+
+.progress-bar {
+  height: 5px;
+  background: var(--gray-200);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-bar .fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+  border-radius: 3px;
+  transition: width 1s linear;
+}
+
+/* Makeup workday toggle */
+.makeup-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--gray-500);
+}
+.makeup-toggle .toggle-track {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  background: var(--gray-200);
+  border-radius: 11px;
+  cursor: pointer;
+  transition: background 0.3s;
+  flex-shrink: 0;
+}
+.makeup-toggle .toggle-track.on {
+  background: var(--gold);
+}
+.makeup-toggle .toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: transform 0.3s;
+}
+.makeup-toggle .toggle-track.on .toggle-knob {
+  transform: translateX(18px);
+}
+.makeup-toggle .toggle-label {
+  font-weight: 500;
+  user-select: none;
+  cursor: pointer;
+}
+.makeup-toggle .toggle-hint {
+  font-size: 11px;
+  color: var(--gray-400);
+}
+
+/* ========= Purchase Section ========= */
+.purchase-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.purchase-header input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  min-width: 0;
+}
+.purchase-header input:focus { border-color: var(--gold); }
+.purchase-header .price-input { width: 80px; flex: none; text-align: center; }
+
+.purchase-list { display: flex; flex-direction: column; gap: 6px; }
+.purchase-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--gray-50);
+  gap: 8px;
+}
+.purchase-item .p-name { flex: 1; font-size: 14px; font-weight: 500; }
+.purchase-item .p-price { font-size: 12px; color: var(--gray-500); }
+.purchase-item .p-convert {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green);
+  white-space: nowrap;
+}
+.purchase-item .p-convert.today { color: var(--gold-dark); }
+.purchase-item .p-convert.future { color: var(--gray-500); }
+.purchase-item .p-del {
+  background: none;
+  border: none;
+  color: var(--gray-300);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.purchase-item .p-del:hover { color: var(--red); }
+.purchase-empty {
+  text-align: center;
+  font-size: 12px;
+  color: var(--gray-500);
+  padding: 12px;
+}
+
+/* ========= Chart ========= */
+#chart-section canvas { max-height: 190px; }
+.chart-empty {
+  text-align: center;
+  padding: 24px 20px;
+  color: var(--gray-500);
+  font-size: 14px;
+}
+
+/* ========= Calendar History ========= */
+.cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  gap: 8px;
+}
+.cal-nav .cal-btn {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: var(--gray-100);
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gray-700);
+  flex-shrink: 0;
+}
+.cal-nav .cal-btn:hover { background: var(--gray-200); }
+.cal-nav .cal-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gray-700);
+  text-align: center;
+  flex: 1;
+}
+.cal-dow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 4px;
+}
+.cal-dow span {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-500);
+  padding: 3px 0;
+}
+.cal-dow span:first-child,
+.cal-dow span:last-child { color: #FCA5A5; }
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+.cal-cell {
+  border-radius: 8px;
+  background: var(--gray-50);
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 2px;
+  transition: background 0.2s;
+  cursor: default;
+}
+.cal-cell .cal-num {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-700);
+  line-height: 1.4;
+}
+.cal-cell.weekend .cal-num { color: var(--gray-400); }
+.cal-cell.other-month { opacity: 0.2; }
+.cal-cell.today {
+  background: var(--gold-light);
+  box-shadow: inset 0 0 0 2px var(--gold);
+}
+.cal-cell.today .cal-num { color: var(--gold-dark); }
+.cal-cell.has-record { background: #FEF3C7; }
+.cal-cell.has-record .cal-num { color: var(--gold-dark); }
+.cal-cell .cal-earn {
+  font-size: 11px;
+  color: var(--gold-dark);
+  font-weight: 700;
+  margin-top: 1px;
+  line-height: 1.2;
+}
+.cal-summary {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--gray-200);
+}
+.cal-summary > div { flex: 1; text-align: center; }
+.cal-summary .cs-label { font-size: 11px; color: var(--gray-500); }
+.cal-summary .cs-value { font-size: 15px; font-weight: 700; color: var(--gold-dark); margin-top: 2px; }
+.history-empty { text-align: center; font-size: 13px; color: var(--gray-500); padding: 20px 12px; }
+
+/* ========= Achievements ========= */
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.badge-item {
+  text-align: center;
+  padding: 12px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--gray-50);
+  transition: all 0.3s;
+  position: relative;
+}
+.badge-item.earned {
+  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+}
+.badge-item.locked {
+  opacity: 0.5;
+  filter: grayscale(1);
+}
+.badge-item .b-icon { font-size: 26px; display: block; margin-bottom: 4px; }
+.badge-item .b-name {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--gray-500);
+  line-height: 1.3;
+}
+.badge-item.earned .b-name { color: var(--gold-dark); }
+.badge-new {
+  animation: badgePulse 0.6s ease-out;
+}
+@keyframes badgePulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* ========= Coin Effect ========= */
+#coin-container {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 1000;
+  overflow: hidden;
+}
+.coin {
+  position: absolute;
+  font-size: 32px;
+  pointer-events: none;
+  animation: coinFly 1.5s ease-out forwards;
+  will-change: transform, opacity;
+}
+@keyframes coinFly {
+  0% { transform: translate(0,0) scale(0.5) rotate(0deg); opacity: 1; }
+  20% { opacity: 1; }
+  100% { transform: translate(var(--dx),var(--dy)) scale(1.2) rotate(var(--rot)); opacity: 0; }
+}
+.sparkle {
+  position: absolute;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: sparkle 0.8s ease-out forwards;
+}
+@keyframes sparkle {
+  0% { transform: translate(0,0) scale(0); opacity: 1; }
+  50% { transform: translate(var(--sx),var(--sy)) scale(1); opacity: 0.8; }
+  100% { transform: translate(var(--sx),var(--sy)) scale(0); opacity: 0; }
+}
+.flash-overlay {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, rgba(245,158,11,0.3) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 999;
+  animation: flashFade 1s ease-out forwards;
+}
+@keyframes flashFade {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.coin-toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: white;
+  padding: 10px 20px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  z-index: 1001;
+  box-shadow: var(--shadow-lg);
+  animation: toastIn 0.4s ease-out, toastOut 0.4s ease-in 2.5s forwards;
+  pointer-events: none;
+  text-align: center;
+  white-space: nowrap;
+}
+@keyframes toastIn {
+  from { transform: translateX(-50%) translateY(-20px); opacity: 0; }
+  to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+@keyframes toastOut {
+  from { opacity: 1; }
+  to { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+}
+
+/* ========= Modals ========= */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.25s;
+}
+.modal-overlay.hidden { display: none !important; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal-box {
+  background: white;
+  border-radius: 20px;
+  padding: 28px 24px 24px;
+  max-width: 380px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  animation: modalSlide 0.3s ease-out;
+}
+@keyframes modalSlide {
+  from { transform: translateY(20px) scale(0.95); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+.modal-box .m-icon { font-size: 48px; text-align: center; margin-bottom: 8px; }
+.modal-box h2 { font-size: 18px; text-align: center; margin-bottom: 4px; color: var(--gray-900); }
+.modal-box .m-sub { font-size: 13px; text-align: center; color: var(--gray-500); margin-bottom: 16px; }
+.modal-box .m-section {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--gray-100);
+}
+.modal-box .m-section:last-child { border-bottom: none; }
+.modal-box .m-section h3 { font-size: 12px; font-weight: 600; color: var(--gray-500); margin-bottom: 6px; }
+.modal-box .m-stat {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  padding: 4px 0;
+}
+.modal-box .m-stat .ms-label { color: var(--gray-500); }
+.modal-box .m-stat .ms-value { font-weight: 600; }
+.modal-box .m-convert-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 3px 0;
+  color: var(--gray-700);
+}
+.modal-box button {
+  display: block;
+  margin: 16px auto 0;
+  padding: 10px 28px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--gold);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.modal-box button:hover { background: var(--gold-dark); }
+.modal-box .checkbox-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--gray-500);
+}
+.modal-box .checkbox-row input { accent-color: var(--gold); }
+
+/* Day detail stat rows */
+.day-stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  padding: 6px 0;
+}
+.day-stat-row:last-child { border-bottom: none; }
+.day-stat-row .ds-label { color: var(--gray-500); }
+.day-stat-row .ds-value { font-weight: 600; color: var(--gray-700); }
+.day-stat-row .ds-value.gold { color: var(--gold-dark); }
+.day-stat-row .ds-value.blue { color: var(--blue); }
+.day-stat-row .ds-value.green { color: var(--green); }
+.day-stat-row .ds-value.purple { color: var(--purple); }
+.day-section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-500);
+  margin-bottom: 4px;
+  margin-top: 8px;
+}
+.day-section-title:first-child { margin-top: 0; }
+
+/* ========= Footer ========= */
+.app-footer {
+  text-align: center;
+  margin-top: 20px;
+}
+.app-footer button {
+  background: none;
+  border: none;
+  color: var(--gray-400);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.app-footer button:hover { background: var(--gray-100); color: var(--red); }
+
+/* ========= Responsive ========= */
+@media (max-width: 420px) {
+  header h1 { font-size: 22px; }
+  .timer-box .value { font-size: 18px; }
+  .earned-box .value { font-size: 26px; }
+  .controls { gap: 6px; }
+  .btn { font-size: 12px; padding: 10px 4px; }
+  .badge-grid { grid-template-columns: repeat(3, 1fr); }
+  .settings-grid { grid-template-columns: 1fr; }
+  .monthly-progress { flex-direction: column; align-items: center; }
+  .cal-summary { flex-direction: column; }
+}
+
+/* ========= Wishlist ========= */
+.wishlist-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.wishlist-header input {
+  padding: 8px 10px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+}
+.wishlist-header input:focus { border-color: var(--gold); }
+.wishlist-header .wi-name { flex: 1; min-width: 0; }
+.wishlist-header .wi-amount { width: 100px; text-align: center; }
+
+.wishlist-list { display: flex; flex-direction: column; gap: 8px; }
+.wish-item {
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--gray-50);
+  position: relative;
+}
+.wish-item .wish-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.wish-item .wish-name {
+  font-size: 14px;
+  font-weight: 600;
+  flex: 1;
+  min-width: 0;
+}
+.wish-item .wish-target {
+  font-size: 12px;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+.wish-item .wish-del {
+  background: none;
+  border: none;
+  color: var(--gray-300);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.wish-item .wish-del:hover { color: var(--red); }
+
+.wish-item .wish-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.wish-item .wish-progress-row .progress-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--gray-200);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.wish-item .wish-progress-row .progress-bar .fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+  transition: width 0.5s ease;
+}
+.wish-item .wish-progress-row .wish-pct {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold-dark);
+  min-width: 48px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.wish-item .wish-sub {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--gray-400);
+}
+.wish-item.completed {
+  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+  border: 1px solid var(--gold-light);
+}
+.wish-item.completed .wish-pct { color: var(--green); }
+.wish-item.completed .wish-progress-row .progress-bar .fill {
+  background: linear-gradient(90deg, var(--green), var(--green-dim));
+}
+.wish-empty {
+  text-align: center;
+  font-size: 12px;
+  color: var(--gray-500);
+  padding: 12px;
+}
+.wishlist-compact {
+  display: none;
+  text-align: center;
+  font-size: 12px;
+  color: var(--gray-500);
+  margin-top: 8px;
+  cursor: pointer;
+}
+.wishlist-compact:hover { color: var(--gray-700); }
+
+/* ========= Wishlist Images ========= */
+.wish-img-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1.5px dashed var(--gray-300);
+  border-radius: 8px;
+  background: var(--gray-50);
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+.wish-img-btn:hover { border-color: var(--gold); background: var(--gold-light); }
+.wish-img-btn.has-img { border-style: solid; border-color: var(--gold-light); }
+.wish-img-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.wish-img-clear {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--red);
+  color: white;
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+  cursor: pointer;
+  display: none;
+}
+.wish-img-btn.has-img .wish-img-clear { display: block; }
+
+.wish-item-row {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+.wish-item-img-wrap {
+  width: 70px;
+  min-height: 70px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--gray-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  border: 1.5px solid var(--gray-200);
+  transition: border-color 0.2s;
+}
+.wish-item-img-wrap:hover { border-color: var(--gold); }
+.wish-item-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.wish-item-img-wrap .img-placeholder {
+  font-size: 28px;
+  opacity: 0.25;
+  user-select: none;
+}
+.wish-item-img-wrap .img-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+  border-radius: 10px;
+  font-size: 14px;
+  color: white;
+  font-weight: 500;
+}
+.wish-item-img-wrap:hover .img-overlay { opacity: 1; }
+.wish-item-content { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+
+/* Compact teaser image */
+.wishlist-compact.visible { display: block; }
+
+/* ========= Stats ========= */
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat-card {
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--gray-50);
+  text-align: center;
+}
+.stat-card .sc-value { font-size: 20px; font-weight: 800; color: var(--gold-dark); margin-top: 2px; }
+.stat-card .sc-label { font-size: 11px; color: var(--gray-500); }
+.stat-card .sc-sub { font-size: 10px; color: var(--gray-400); margin-top: 1px; }
+.stat-card.highlight { background: linear-gradient(135deg, #FEF3C7, #FDE68A); }
+
+/* ========= Manual OT toggle ========= */
+.ot-override {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 8px 0 10px;
+  font-size: 12px;
+}
+.ot-override .ot-btn {
+  padding: 4px 14px;
+  border-radius: 14px;
+  border: 1.5px solid var(--gray-200);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--gray-500);
+  transition: all 0.2s;
+}
+.ot-override .ot-btn.active {
+  background: var(--purple-light);
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
+/* ========= Tax display ========= */
+.tax-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 3px 0;
+  color: var(--gray-500);
+}
+.tax-row .tax-val { font-weight: 600; }
+.tax-detail { font-size: 11px; color: var(--gray-400); text-align: center; margin-top: 4px; }
+
+/* ========= Onboarding ========= */
+.onboard-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 3000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.4s;
+}
+.onboard-box { max-width: 400px; width: 100%; }
+.onboard-step {
+  background: white;
+  border-radius: 20px;
+  padding: 32px 24px 24px;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+.onboard-step .ob-icon { font-size: 56px; margin-bottom: 12px; }
+.onboard-step h2 { font-size: 22px; font-weight: 700; color: var(--gray-900); margin-bottom: 6px; }
+.onboard-step p { font-size: 14px; color: var(--gray-500); line-height: 1.6; margin-bottom: 20px; }
+.onboard-step .ob-btn {
+  padding: 12px 32px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--gold);
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.onboard-step .ob-btn:hover { background: var(--gold-dark); }
+.onboard-step .ob-skip {
+  display: block;
+  margin: 12px auto 0;
+  background: none;
+  border: none;
+  color: var(--gray-400);
+  font-size: 12px;
+  cursor: pointer;
+}
+.onboard-step .ob-skip:hover { color: var(--gray-500); }
+.onboard-step .ob-dots { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
+.onboard-step .ob-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--gray-200);
+  transition: background 0.3s;
+}
+.onboard-step .ob-dot.active { background: var(--gold); }
+
+/* ========= Dark mode toggle in header ========= */
+.dark-toggle {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: rgba(255,255,255,0.2);
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-size: 16px;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dark-toggle:hover { background: rgba(255,255,255,0.35); }
+
+/* ========= Utilities ========= */
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<header>
+  <button class="dark-toggle" id="dark-toggle" title="切换深色模式">🌙</button>
+  <h1>💰 工资计算器</h1>
+  <p>每一秒的努力都看得见</p>
+</header>
+
+<main>
+  <!-- ====== Salary & Settings ====== -->
+  <section class="card" id="salary-section">
+    <h2>📋 月薪设置</h2>
+    <div class="salary-input-group">
+      <input type="number" id="salary-input" placeholder="输入月薪" min="0" step="1000">
+      <span style="font-weight:600;color:var(--gray-700);font-size:16px;">元/月</span>
+    </div>
+    <div class="rate-info" id="rate-info">按 22天 × 8小时 计算，约 <strong>0 元/秒</strong></div>
+    <div id="tax-display" style="display:none;margin-top:8px;padding:8px 12px;background:var(--green-light);border-radius:var(--radius-sm);">
+      <div class="tax-row"><span>税前月薪</span><span class="tax-val" id="tax-before">¥0</span></div>
+      <div class="tax-row"><span>社保</span><span class="tax-val" id="tax-social-insurance" style="color:var(--gray-500);">-¥0</span></div>
+      <div class="tax-row" style="border-bottom:1px dashed var(--gray-200);padding-bottom:4px;margin-bottom:4px;"><span>公积金</span><span class="tax-val" id="tax-housing-fund" style="color:var(--gray-500);">-¥0</span></div>
+      <div class="tax-row"><span>个人所得税</span><span class="tax-val" id="tax-income" style="color:var(--red);">-¥0</span></div>
+      <div class="tax-row" style="font-weight:700;color:var(--green);border-top:1px solid var(--green);padding-top:6px;margin-top:4px;">
+        <span>≈ 到手薪资</span><span class="tax-val" id="tax-takehome" style="font-size:16px;">¥0</span>
+      </div>
+      <div class="tax-detail" id="tax-detail">基于用户设定的社保/公积金比例估算</div>
+    </div>
+
+    <button class="settings-toggle" id="settings-toggle">
+      ⚙️ 高级设置 <span class="arrow" id="settings-arrow">▼</span>
+    </button>
+    <div class="settings-panel" id="settings-panel">
+      <div class="settings-grid">
+        <div class="setting-item">
+          <label>工作天数 / 月</label>
+          <input type="number" id="set-work-days" value="22" min="1" max="31">
+        </div>
+        <div class="setting-item">
+          <label>每日工时</label>
+          <input type="number" id="set-work-hours" value="8" min="1" max="24" step="0.5">
+        </div>
+        <div class="setting-item">
+          <label>午休时间 (分钟)</label>
+          <input type="number" id="set-lunch" value="60" min="0" max="180" step="5">
+        </div>
+        <div class="setting-item">
+          <label>上班时间</label>
+          <input type="time" id="set-start-time" value="09:00">
+        </div>
+        <div class="setting-item">
+          <label>工作日加班倍率</label>
+          <input type="number" id="set-ot-evening" value="1.5" min="1" max="5" step="0.1">
+        </div>
+        <div class="setting-item">
+          <label>周末加班倍率</label>
+          <input type="number" id="set-ot-weekend" value="2.0" min="1" max="5" step="0.1">
+        </div>
+        <div class="setting-item">
+          <label>社保比例</label>
+          <select id="set-social-insurance">
+            <option value="0">不计算</option>
+            <option value="8">8% (养老)</option>
+            <option value="10">10%</option>
+            <option value="10.5" selected>10.5% (标准)</option>
+            <option value="11">11%</option>
+          </select>
+        </div>
+        <div class="setting-item">
+          <label>公积金比例</label>
+          <select id="set-housing-fund">
+            <option value="0">不计算</option>
+            <option value="5">5%</option>
+            <option value="7" selected>7% (标准)</option>
+            <option value="8">8%</option>
+            <option value="10">10%</option>
+            <option value="12">12%</option>
+          </select>
+        </div>
+        <div class="setting-item">
+          <label>个税起征点/月</label>
+          <input type="number" id="set-tax-threshold" value="5000" min="0" max="20000" step="500">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== Monthly Progress ====== -->
+  <section class="card" id="progress-section">
+    <h2>📊 月进度</h2>
+    <div class="monthly-progress">
+      <div class="ring-container" id="ring-container">
+        <svg width="100" height="100" viewBox="0 0 100 100">
+          <defs>
+            <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#F59E0B"/>
+              <stop offset="100%" stop-color="#D97706"/>
+            </linearGradient>
+          </defs>
+          <circle class="ring-bg" cx="50" cy="50" r="42"/>
+          <circle class="ring-fg" id="ring-fg" cx="50" cy="50" r="42"
+            stroke-dasharray="263.89" stroke-dashoffset="263.89"/>
+        </svg>
+        <div class="ring-center">
+          <span class="pct" id="ring-pct">0%</span>
+          <span class="pct-label">完成</span>
+        </div>
+      </div>
+      <div class="monthly-stats">
+        <div class="stat-row">
+          <span class="stat-label">本月收入</span>
+          <span class="stat-value gold" id="month-earned">¥0.00</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">月薪目标</span>
+          <span class="stat-value" id="month-target">¥0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">工作天数</span>
+          <span class="stat-value" id="month-days">0 天</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">每秒费率</span>
+          <span class="stat-value" id="month-rate">0 元</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== Work Tracker ====== -->
+  <section class="card" id="tracker-section">
+    <div class="timer-row">
+      <div class="timer-box work">
+        <div class="label">⏰ 工作</div>
+        <div class="value" id="work-timer">00:00:00</div>
+      </div>
+      <div class="timer-box overtime">
+        <div class="label">🌙 加班</div>
+        <div class="value" id="ot-timer">00:00:00</div>
+      </div>
+      <div class="timer-box break">
+        <div class="label">☕ 休息</div>
+        <div class="value" id="break-timer">00:00:00</div>
+      </div>
+    </div>
+
+    <div class="earned-box">
+      <div class="label">💰 今日已赚</div>
+      <div class="value" id="earned-amount">¥0.00</div>
+      <div class="earned-breakdown">
+        <span class="normal" id="normal-earned">正常: ¥0.00</span>
+        <span class="overtime" id="ot-earned">加班: ¥0.00</span>
+      </div>
+      <div class="status-badge idle" id="status-badge">⏸️ 未开始</div>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-success" id="btn-start">🚀 上班</button>
+      <button class="btn btn-warning" id="btn-break">☕ 休息</button>
+      <button class="btn btn-danger" id="btn-end">🔚 下班</button>
+    </div>
+
+    <div class="progress-bar">
+      <div class="fill" id="daily-progress"></div>
+    </div>
+
+    <!-- Manual OT override -->
+    <div class="ot-override" id="ot-override" style="display:none;">
+      <span style="color:var(--gray-500);">当前时段：</span>
+      <button class="ot-btn" id="ot-btn-normal">⏱️ 正常</button>
+      <button class="ot-btn" id="ot-btn-overtime">🌙 加班</button>
+    </div>
+
+    <!-- Makeup workday toggle -->
+    <div class="makeup-toggle" id="makeup-toggle">
+      <span class="toggle-label">📅 今天调休上班</span>
+      <div class="toggle-track" id="toggle-track">
+        <div class="toggle-knob"></div>
+      </div>
+      <span class="toggle-hint" id="toggle-hint"></span>
+    </div>
+
+    <!-- Purchase conversion teaser -->
+    <div class="purchase-teaser hidden" id="purchase-teaser" onclick="scrollToPurchases()">
+      <span id="teaser-text">今日已赚 = 0 杯奶茶</span>
+      <span class="small"> 点击查看全部换算 →</span>
+    </div>
+  </section>
+
+  <!-- ====== Purchase Conversion ====== -->
+  <section class="card hidden" id="purchase-section">
+    <h2>🛒 消费换算</h2>
+    <div class="purchase-header">
+      <input type="text" id="purchase-name" placeholder="物品名称" maxlength="20">
+      <input type="number" class="price-input" id="purchase-price" placeholder="价格" min="0" step="0.5">
+      <button class="btn-outline-sm" id="btn-add-purchase">添加</button>
+    </div>
+    <div class="purchase-list" id="purchase-list">
+      <div class="purchase-empty">添加想买的东西，看看需要工作多久</div>
+    </div>
+  </section>
+
+  <!-- ====== Wishlist ====== -->
+  <section class="card" id="wishlist-section">
+    <h2>🎯 心愿单 <span class="badge-count" id="wish-count">0</span></h2>
+    <div class="wishlist-header">
+      <div class="wish-img-btn" id="wish-img-btn" title="上传图片">📷</div>
+      <input type="file" id="wish-image-input" accept="image/*" style="display:none">
+      <input type="text" class="wi-name" id="wish-name" placeholder="心愿名称" maxlength="20">
+      <input type="number" class="wi-amount" id="wish-amount" placeholder="金额" min="0" step="100">
+      <button class="btn-outline-sm" id="btn-add-wish">添加</button>
+    </div>
+    <div class="wishlist-list" id="wishlist-list">
+      <div class="wish-empty">添加心愿，看看你的收入离目标还有多远</div>
+    </div>
+    <div class="wishlist-compact" id="wishlist-compact" onclick="document.getElementById('wishlist-section').scrollIntoView({behavior:'smooth',block:'start'})">
+      查看全部心愿进度 →
+    </div>
+  </section>
+
+  <!-- ====== Income Chart ====== -->
+  <section class="card" id="chart-section">
+    <h2>📊 收入趋势</h2>
+    <canvas id="income-chart"></canvas>
+    <div class="chart-empty hidden" id="chart-empty">
+      <p>暂无数据，开始工作后将自动记录</p>
+    </div>
+  </section>
+
+  <!-- ====== History (Calendar) ====== -->
+  <section class="card" id="history-section">
+    <h2>📅 工作记录</h2>
+    <div class="cal-nav">
+      <button class="cal-btn" id="cal-prev">‹</button>
+      <span class="cal-title" id="cal-title"></span>
+      <button class="cal-btn" id="cal-next">›</button>
+    </div>
+    <div class="cal-dow">
+      <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="history-empty" id="history-empty">暂无记录</div>
+    <div class="cal-summary" id="cal-summary" style="display:none;">
+      <div><div class="cs-label">工作天数</div><div class="cs-value" id="cal-days">0</div></div>
+      <div><div class="cs-label">总收入</div><div class="cs-value" id="cal-total">¥0.00</div></div>
+      <div><div class="cs-label">总工时</div><div class="cs-value" id="cal-hours">0h</div></div>
+    </div>
+  </section>
+
+  <!-- ====== Stats ====== -->
+  <section class="card" id="stats-section" style="display:none;">
+    <h2>📈 统计洞察</h2>
+    <div class="stats-grid" id="stats-grid"></div>
+  </section>
+
+  <!-- ====== Achievements ====== -->
+  <section class="card" id="achievement-section">
+    <h2>🏆 成就 <span class="badge-count" id="badge-count">0 / 12</span></h2>
+    <div class="badge-grid" id="badge-grid"></div>
+  </section>
+</main>
+
+<!-- Footer -->
+<div class="app-footer" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+  <button id="btn-export-csv">📄 导出 CSV</button>
+  <button id="btn-export-json">💾 导出 JSON</button>
+  <button id="btn-import-json">📂 导入备份</button>
+  <button id="btn-reset-data">🗑️ 清除所有数据</button>
+</div>
+<input type="file" id="import-file-input" accept=".json" style="display:none">
+
+<!-- Coin Container -->
+<div id="coin-container"></div>
+
+<!-- Break Reminder Modal -->
+<div class="modal-overlay hidden" id="break-modal">
+  <div class="modal-box">
+    <div class="m-icon">🧘</div>
+    <h2>该摸鱼啦！</h2>
+    <p class="m-sub">你已经连续工作 <strong id="modal-work-time">0 分钟</strong></p>
+    <p style="text-align:center;font-size:14px;color:var(--gray-500);margin-bottom:12px;">
+      起来活动一下，喝杯水，眺望远方 🌿
+    </p>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:12px;">
+      <span style="padding:5px 14px;border-radius:20px;font-size:13px;background:var(--gray-100);color:var(--gray-700);">🚶 走一走</span>
+      <span style="padding:5px 14px;border-radius:20px;font-size:13px;background:var(--gray-100);color:var(--gray-700);">💧 喝杯水</span>
+      <span style="padding:5px 14px;border-radius:20px;font-size:13px;background:var(--gray-100);color:var(--gray-700);">🧘 伸懒腰</span>
+      <span style="padding:5px 14px;border-radius:20px;font-size:13px;background:var(--gray-100);color:var(--gray-700);">👀 看远处</span>
+    </div>
+    <button id="btn-dismiss-break">好的，马上回来</button>
+  </div>
+</div>
+
+<!-- Daily Report Modal -->
+<div class="modal-overlay hidden" id="report-modal">
+  <div class="modal-box">
+    <div class="m-icon">🎉</div>
+    <h2 id="report-title">今日收工！</h2>
+    <p class="m-sub" id="report-date"></p>
+
+    <div class="m-section">
+      <h3>💰 收入明细</h3>
+      <div class="m-stat">
+        <span class="ms-label">今日总收入</span>
+        <span class="ms-value" style="color:var(--gold-dark);font-size:18px;" id="r-total">¥0.00</span>
+      </div>
+      <div class="m-stat">
+        <span class="ms-label">正常工作</span>
+        <span class="ms-value" style="color:var(--blue);" id="r-normal">¥0.00</span>
+      </div>
+      <div class="m-stat">
+        <span class="ms-label">加班收入</span>
+        <span class="ms-value" style="color:var(--purple);" id="r-overtime">¥0.00</span>
+      </div>
+    </div>
+
+    <div class="m-section">
+      <h3>⏱️ 工作时间</h3>
+      <div class="m-stat">
+        <span class="ms-label">总工时</span>
+        <span class="ms-value" id="r-work-time">0h 0m</span>
+      </div>
+      <div class="m-stat">
+        <span class="ms-label">休息时间</span>
+        <span class="ms-value" style="color:var(--green);" id="r-break-time">0h 0m</span>
+      </div>
+    </div>
+
+    <div class="m-section" id="r-convert-section">
+      <h3>🛒 今日收入相当于</h3>
+      <div id="r-convert-list"></div>
+    </div>
+
+    <button id="btn-close-report">知道了 👍</button>
+    <div class="checkbox-row">
+      <input type="checkbox" id="report-no-again">
+      <label for="report-no-again">下次不再显示</label>
+    </div>
+  </div>
+</div>
+
+<!-- Achievement Unlock Toast -->
+<!-- Onboarding -->
+<div class="onboard-overlay" id="onboard-overlay">
+  <div class="onboard-box">
+    <div class="onboard-step" id="onboard-step">
+      <div class="ob-dots">
+        <span class="ob-dot active" data-ob="0"></span>
+        <span class="ob-dot" data-ob="1"></span>
+        <span class="ob-dot" data-ob="2"></span>
+      </div>
+      <div class="ob-icon" id="ob-icon">💰</div>
+      <h2 id="ob-title">欢迎使用工资计算器</h2>
+      <p id="ob-desc">设置你的月薪，开始工作后每一秒都能看到收入增长，让努力变得看得见。</p>
+      <button class="ob-btn" id="ob-btn">开始使用</button>
+      <button class="ob-skip" id="ob-skip">跳过引导</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="badge-unlock-modal">
+  <div class="modal-box" style="text-align:center;">
+    <div class="m-icon" id="badge-unlock-icon">🏆</div>
+    <h2>🎊 解锁新成就！</h2>
+    <p class="m-sub" id="badge-unlock-name"></p>
+    <button id="btn-close-badge">太棒了！</button>
+  </div>
+</div>
+
+<!-- Day Detail Modal -->
+<div class="modal-overlay hidden" id="day-modal">
+  <div class="modal-box">
+    <div class="m-icon">📋</div>
+    <h2 id="day-modal-title"></h2>
+    <p class="m-sub" id="day-modal-date"></p>
+
+    <div class="day-section-title">💰 收入明细</div>
+    <div class="m-section">
+      <div class="day-stat-row">
+        <span class="ds-label">正常收入</span>
+        <span class="ds-value blue" id="day-normal-earned">¥0.00</span>
+      </div>
+      <div class="day-stat-row">
+        <span class="ds-label">加班收入</span>
+        <span class="ds-value purple" id="day-ot-earned">¥0.00</span>
+      </div>
+      <div class="day-stat-row" style="border-bottom:none;">
+        <span class="ds-label">合计</span>
+        <span class="ds-value gold" id="day-total-earned" style="font-size:18px;">¥0.00</span>
+      </div>
+    </div>
+
+    <div class="day-section-title">⏱️ 工作时间</div>
+    <div class="m-section" style="border-bottom:none;">
+      <div class="day-stat-row">
+        <span class="ds-label">正常工作</span>
+        <span class="ds-value blue" id="day-normal-time">0h 0m</span>
+      </div>
+      <div class="day-stat-row">
+        <span class="ds-label">加班</span>
+        <span class="ds-value purple" id="day-ot-time">0h 0m</span>
+      </div>
+      <div class="day-stat-row" style="border-bottom:none;">
+        <span class="ds-label">休息</span>
+        <span class="ds-value green" id="day-break-time">0h 0m</span>
+      </div>
+    </div>
+
+    <div class="m-section" style="border-bottom:none;text-align:center;" id="day-edit-section">
+      <div style="font-size:12px;color:var(--gray-500);margin-bottom:8px;">✏️ 编辑记录</div>
+      <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;align-items:center;">
+        <input type="number" id="day-edit-work" placeholder="工作(分钟)" min="0" class="day-edit-input" style="width:90px;padding:6px 8px;border:1.5px solid var(--gray-200);border-radius:8px;font-size:12px;outline:none;">
+        <input type="number" id="day-edit-ot" placeholder="加班(分钟)" min="0" class="day-edit-input" style="width:90px;padding:6px 8px;border:1.5px solid var(--gray-200);border-radius:8px;font-size:12px;outline:none;">
+        <input type="number" id="day-edit-break" placeholder="休息(分钟)" min="0" class="day-edit-input" style="width:90px;padding:6px 8px;border:1.5px solid var(--gray-200);border-radius:8px;font-size:12px;outline:none;">
+        <button class="btn-outline-sm" id="btn-save-edit">保存</button>
+      </div>
+    </div>
+    <button id="btn-close-day-modal">知道了 👍</button>
+  </div>
+</div>
+
+<script>
+// ================================================================
+// CONFIG
+// ================================================================
+const CONFIG = {
+  storageKey: 'salary_calculator_v2',
+  coinInterval: 600,
+  breakReminderInterval: 3600,
+  targetDailySeconds: 8 * 3600,
+};
+
+const ACHIEVEMENTS = [
+  { id: 'first_end',   icon: '🎯', name: '初出茅庐',     desc: '第一次下班打卡', check: s => s.counter.totalEnds >= 1 },
+  { id: 'work_8h',     icon: '💪', name: '搬砖新手',     desc: '累计工作 8 小时', check: s => s.cumWorkSeconds >= 8 * 3600 },
+  { id: 'work_40h',    icon: '🔥', name: '搬砖达人',     desc: '累计工作 40 小时', check: s => s.cumWorkSeconds >= 40 * 3600 },
+  { id: 'work_100h',   icon: '👑', name: '打工人传奇',   desc: '累计工作 100 小时', check: s => s.cumWorkSeconds >= 100 * 3600 },
+  { id: 'streak_3',    icon: '📅', name: '全勤新手',     desc: '连续工作 3 天', check: s => s.counter.streakDays >= 3 },
+  { id: 'first_ot',    icon: '🌙', name: '加班先锋',     desc: '第一次加班', check: s => s.counter.overtimeDays >= 1 },
+  { id: 'ot_2h',       icon: '🦉', name: '加班之王',     desc: '单日加班 2h+', check: s => s.counter.ot2hDays >= 1 },
+  { id: 'daily_500',   icon: '💰', name: '日入斗金',     desc: '单日收入超 ¥500', check: s => s.counter.daily500 >= 1 },
+  { id: 'cum_10000',   icon: '🏆', name: '万元户',       desc: '累计收入超 ¥10000', check: s => s.cumEarned >= 10000 },
+  { id: 'break_1h',    icon: '☕', name: '摸鱼大师',     desc: '单日休息超 1h', check: s => s.counter.break1hDays >= 1 },
+  { id: 'early_break', icon: '🧘', name: '劳逸结合',     desc: '工作 2h 内主动休息', check: s => s.counter.earlyBreaks >= 1 },
+  { id: 'early_bird',  icon: '🌅', name: '早鸟',         desc: '连续 3 天早开工', check: s => s.counter.earlyBirdDays >= 3 },
+];
+
+// ================================================================
+// STATE
+// ================================================================
+const DEFAULTS = {
+  monthlySalary: 0,
+  perSecondRate: 0,
+  workDaysPerMonth: 22,
+  workHoursPerDay: 8,
+  lunchBreakMinutes: 60,
+  workStartHour: 9,
+  overtimeEveningRate: 1.5,
+  overtimeWeekendRate: 2.0,
+
+  sessionState: 'idle',   // idle | working | break | ended
+  normalSeconds: 0,
+  overtimeSeconds: 0,
+  breakSeconds: 0,
+  sessionDate: '',
+  lastCoinThreshold: 0,
+  lastBreakThreshold: 0,
+
+  records: {},
+  purchaseItems: [],
+  wishItems: [],
+  earnedBadges: [],
+
+  // Cumulative counters for achievements
+  cumWorkSeconds: 0,
+  cumEarned: 0,
+  counter: {
+    totalEnds: 0,
+    streakDays: 0,
+    overtimeDays: 0,
+    ot2hDays: 0,
+    daily500: 0,
+    break1hDays: 0,
+    earlyBreaks: 0,
+    earlyBirdDays: 0,
+  },
+
+  settingsOpen: false,
+  showReportDialog: true,
+  isMakeupWorkday: false,
+  manualOvertime: null,   // null=auto, true=overtime, false=normal
+  socialInsuranceRate: 10.5,  // 社保比例 (%)
+  housingFundRate: 7,      // 公积金比例 (%)
+  taxThreshold: 5000,     // 个税起征点
+  darkMode: null,         // null=system, true=dark, false=light
+  showOnboarding: true,
+};
+
+let state = {};
+let timerId = null;
+let chartInstance = null;
+
+// ================================================================
+// DOM refs
+// ================================================================
+const $ = id => document.getElementById(id);
+const salaryInput = $('salary-input');
+const rateInfo = $('rate-info');
+
+// Settings
+const settingsToggle = $('settings-toggle');
+const settingsPanel = $('settings-panel');
+const settingsArrow = $('settings-arrow');
+const setWorkDays = $('set-work-days');
+const setWorkHours = $('set-work-hours');
+const setLunch = $('set-lunch');
+const setStartTime = $('set-start-time');
+const setOtEvening = $('set-ot-evening');
+const setOtWeekend = $('set-ot-weekend');
+
+// Monthly progress
+const ringFg = $('ring-fg');
+const ringPct = $('ring-pct');
+const monthEarned = $('month-earned');
+const monthTarget = $('month-target');
+const monthDays = $('month-days');
+const monthRate = $('month-rate');
+
+// Tracker
+const workTimer = $('work-timer');
+const otTimer = $('ot-timer');
+const breakTimer = $('break-timer');
+const earnedAmount = $('earned-amount');
+const normalEarned = $('normal-earned');
+const otEarned = $('ot-earned');
+const statusBadge = $('status-badge');
+const btnStart = $('btn-start');
+const btnBreak = $('btn-break');
+const btnEnd = $('btn-end');
+const dailyProgress = $('daily-progress');
+const purchaseTeaser = $('purchase-teaser');
+const teaserText = $('teaser-text');
+
+// Makeup workday toggle
+const toggleTrack = $('toggle-track');
+const toggleHint = $('toggle-hint');
+
+// Purchase
+const purchaseSection = $('purchase-section');
+const purchaseName = $('purchase-name');
+const purchasePrice = $('purchase-price');
+const btnAddPurchase = $('btn-add-purchase');
+const purchaseList = $('purchase-list');
+
+// Chart & History
+const chartCanvas = $('income-chart');
+const chartEmpty = $('chart-empty');
+
+// Wishlist
+const wishlistList = $('wishlist-list');
+const wishName = $('wish-name');
+const wishAmount = $('wish-amount');
+const btnAddWish = $('btn-add-wish');
+const wishCount = $('wish-count');
+const wishlistCompact = $('wishlist-compact');
+const wishImgBtn = $('wish-img-btn');
+const wishImageInput = $('wish-image-input');
+const calGrid = $('cal-grid');
+const calTitle = $('cal-title');
+const calPrev = $('cal-prev');
+const calNext = $('cal-next');
+const calSummary = $('cal-summary');
+const calDays = $('cal-days');
+const calTotal = $('cal-total');
+const calHours = $('cal-hours');
+const historyEmpty = $('history-empty');
+
+// Achievements
+const badgeGrid = $('badge-grid');
+const badgeCount = $('badge-count');
+
+// Modals
+const breakModal = $('break-modal');
+const modalWorkTime = $('modal-work-time');
+const btnDismissBreak = $('btn-dismiss-break');
+const reportModal = $('report-modal');
+const reportTitle = $('report-title');
+const reportDate = $('report-date');
+const rTotal = $('r-total');
+const rNormal = $('r-normal');
+const rOvertime = $('r-overtime');
+const rWorkTime = $('r-work-time');
+const rBreakTime = $('r-break-time');
+const rConvertList = $('r-convert-list');
+const rConvertSection = $('r-convert-section');
+const btnCloseReport = $('btn-close-report');
+const reportNoAgain = $('report-no-again');
+const badgeUnlockModal = $('badge-unlock-modal');
+const badgeUnlockIcon = $('badge-unlock-icon');
+const badgeUnlockName = $('badge-unlock-name');
+const btnCloseBadge = $('btn-close-badge');
+
+// Tax / Insurance
+const taxDisplay = $('tax-display');
+const taxBefore = $('tax-before');
+const taxSocialInsurance = $('tax-social-insurance');
+const taxHousingFund = $('tax-housing-fund');
+const taxIncome = $('tax-income');
+const taxTakehome = $('tax-takehome');
+const taxDetail = $('tax-detail');
+const setSocialInsurance = $('set-social-insurance');
+const setHousingFund = $('set-housing-fund');
+const setTaxThreshold = $('set-tax-threshold');
+
+// Manual OT
+const otOverride = $('ot-override');
+const otBtnNormal = $('ot-btn-normal');
+const otBtnOvertime = $('ot-btn-overtime');
+
+// Dark mode
+const darkToggle = $('dark-toggle');
+
+// Export/Import
+const btnExportCsv = $('btn-export-csv');
+const btnExportJson = $('btn-export-json');
+const btnImportJson = $('btn-import-json');
+const importFileInput = $('import-file-input');
+
+// Stats
+const statsSection = $('stats-section');
+const statsGrid = $('stats-grid');
+
+// Onboarding
+const onboardOverlay = $('onboard-overlay');
+const obBtn = $('ob-btn');
+const obSkip = $('ob-skip');
+const obIcon = $('ob-icon');
+const obTitle = $('ob-title');
+const obDesc = $('ob-desc');
+const obDots = document.querySelectorAll('.ob-dot');
+
+// Day edit
+const dayEditSection = $('day-edit-section');
+const dayEditWork = $('day-edit-work');
+const dayEditOt = $('day-edit-ot');
+const dayEditBreak = $('day-edit-break');
+const btnSaveEdit = $('btn-save-edit');
+
+// Day Detail Modal
+const dayModal = $('day-modal');
+const dayModalTitle = $('day-modal-title');
+const dayModalDate = $('day-modal-date');
+const dayNormalEarned = $('day-normal-earned');
+const dayOtEarned = $('day-ot-earned');
+const dayTotalEarned = $('day-total-earned');
+const dayNormalTime = $('day-normal-time');
+const dayOtTime = $('day-ot-time');
+const dayBreakTime = $('day-break-time');
+const btnCloseDayModal = $('btn-close-day-modal');
+
+// Coin
+const coinContainer = $('coin-container');
+
+// ================================================================
+// UTILITY
+// ================================================================
+function fmt(seconds) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function fmtShort(seconds) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
+}
+function fmtCN(seconds) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (h > 0) return `${h}小时${m}分钟`;
+  return `${m}分钟`;
+}
+function cur(v) { return '¥' + v.toFixed(2); }
+function today() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function fmtDate(s) { const p = s.split('-'); return `${p[1]}/${p[2]}`; }
+function getNow() { return new Date(); }
+
+function isWeekend(date) {
+  const d = date || new Date();
+  return d.getDay() === 0 || d.getDay() === 6;
+}
+
+function isOvertimeNow() {
+  const now = new Date();
+  if (isWeekend(now)) return true;
+  const startH = state.workStartHour;
+  const lunchMin = state.lunchBreakMinutes;
+  const workH = state.workHoursPerDay;
+  // Normal work window: startH ~ startH + workH + lunchMin/60
+  const totalSpan = workH + lunchMin / 60;
+  const endH = startH + totalSpan;
+  const currentH = now.getHours() + now.getMinutes() / 60;
+  // Check if within normal window
+  if (currentH >= startH && currentH < endH) {
+    // Check lunch break
+    const lunchStart = startH + workH / 2; // lunch roughly in middle
+    const lunchEnd = lunchStart + lunchMin / 60;
+    if (currentH >= lunchStart && currentH < lunchEnd) return true; // lunch is overtime? No...
+    // Actually, let me think about this differently.
+    // Normal work hours: startH to startH + workH, but excluding lunch break
+    // So the total span is workH + lunchMin/60 hours
+    // But the actual work time is workH hours spread across the span
+
+    // Simpler approach:
+    // Work window is startH to (startH + workH + lunchMin/60)
+    // Within work window, except during lunch = normal
+    // Outside work window or during lunch... hmm, lunch shouldn't count as overtime
+    // Let me simplify: if the current time is NOT in the normal span, it's overtime
+
+    // Actually: if it's a weekday, and the time is between start and end (including lunch),
+    // check if we're in the lunch break
+    // If we're in lunch break, we shouldn't be counting this at all (timer should be paused)
+    // So just: weekday + within [start, end] = normal
+    // Otherwise = overtime
+
+    // Refined:
+    // If it's a weekday AND current hour is between startH and (startH + workH + lunchMin/60), it's NORMAL
+    // Otherwise OVERTIME
+    return false; // within normal time window
+  }
+  return true; // outside normal time window
+}
+
+// Simplified overtime check
+function isOvertimeSimple() {
+  // Manual override takes priority
+  if (state.manualOvertime === true) return true;
+  if (state.manualOvertime === false) return false;
+  // Makeup workday: whole day counts as normal time
+  if (state.isMakeupWorkday) return false;
+  const now = new Date();
+  if (isWeekend(now)) return true;
+  const startH = state.workStartHour;
+  const workH = state.workHoursPerDay;
+  const lunchH = state.lunchBreakMinutes / 60;
+  const endH = startH + workH + lunchH;
+  const cur = now.getHours() + now.getMinutes() / 60;
+  return cur < startH || cur >= endH;
+}
+
+// ================================================================
+// STORAGE
+// ================================================================
+function save() {
+  try {
+    const data = { ...state, _version: 2 };
+    localStorage.setItem(CONFIG.storageKey, JSON.stringify(data));
+  } catch(e) { console.warn('save fail', e); }
+}
+
+function loadOrInit() {
+  try {
+    const raw = localStorage.getItem(CONFIG.storageKey);
+    if (raw) {
+      const data = JSON.parse(raw);
+      // Merge with defaults (deep merge nested objects)
+      state = { ...DEFAULTS, ...data, counter: { ...DEFAULTS.counter, ...(data.counter || data.counters || {}) } };
+      // Migration from v1
+      if (data.workSeconds && !data.normalSeconds && !data.overtimeSeconds) {
+        state.normalSeconds = data.workSeconds || 0;
+        state.overtimeSeconds = 0;
+      }
+      // Migration: old combined insuranceRate -> separate rates
+      if (data.insuranceRate !== undefined && data.socialInsuranceRate === undefined) {
+        // Reasonable split: social insurance ~10.5%, housing fund the remainder up to 12%
+        state.socialInsuranceRate = 10.5;
+        state.housingFundRate = Math.min(Math.max(data.insuranceRate - 10.5, 0), 12) || 7;
+        delete state.insuranceRate;
+      }
+      return;
+    }
+  } catch(e) { console.warn('load fail', e); }
+  state = { ...DEFAULTS };
+}
+
+// ================================================================
+// TIMER
+// ================================================================
+function startTimer() { if (!timerId) timerId = setInterval(tick, 1000); }
+function stopTimer() { if (timerId) { clearInterval(timerId); timerId = null; } }
+
+function tick() {
+  if (state.sessionState === 'working') {
+    if (isOvertimeSimple()) {
+      state.overtimeSeconds++;
+    } else {
+      state.normalSeconds++;
+    }
+    state.breakSeconds = Math.max(0, state.breakSeconds);
+  } else if (state.sessionState === 'break') {
+    state.breakSeconds++;
+  } else {
+    return;
+  }
+  state.cumWorkSeconds++;
+  calcEarned();
+  updateDisplay();
+  renderPurchaseTeaser();
+  renderWishList();
+  renderStats();
+  checkCoinEffect();
+  checkBreakReminder();
+  save();
+}
+
+function calcEarned() {
+  const base = state.perSecondRate;
+  const otMul = (isWeekend() && !state.isMakeupWorkday) ? state.overtimeWeekendRate : state.overtimeEveningRate;
+  // For the running total, we use a blended rate for overtime depending on session
+  const normalAmt = state.normalSeconds * base;
+  const otAmt = state.overtimeSeconds * base * otMul;
+  state.earned = normalAmt + otAmt;
+}
+
+// For display, calculate breakdown
+function getEarnedBreakdown() {
+  const base = state.perSecondRate;
+  // Weekday OT rate or weekend OT rate
+  // Since overtime can span both weekday evening and weekend, calculate dynamically
+  // But for the running session we don't know per-second which was which
+  // Use weighted average: check current overtime rate
+  // Actually, simpler: track two types of overtime separately
+
+  // For this version, just use current OT rate for all overtime seconds
+  const otMul = (isWeekend() && !state.isMakeupWorkday) ? state.overtimeWeekendRate : state.overtimeEveningRate;
+  const normalAmt = state.normalSeconds * base;
+  const otAmt = state.overtimeSeconds * base * otMul;
+  return { normal: normalAmt, overtime: otAmt, total: normalAmt + otAmt };
+}
+
+// ================================================================
+// MAIN ACTIONS
+// ================================================================
+function startWork() {
+  const salary = parseInt(salaryInput.value);
+  if (!salary || salary <= 0) {
+    alert('请先输入月薪！');
+    salaryInput.focus();
+    return;
+  }
+
+  if (state.sessionState === 'idle' || state.sessionState === 'ended') {
+    state.normalSeconds = 0;
+    state.overtimeSeconds = 0;
+    state.breakSeconds = 0;
+    state.earned = 0;
+    state.lastCoinThreshold = 0;
+    state.lastBreakThreshold = 0;
+  }
+
+  state.monthlySalary = salary;
+  recalcRate();
+  state.sessionDate = today();
+  state.sessionState = 'working';
+  calcEarned();
+  updateUIState();
+  startTimer();
+  save();
+  renderMonthlyProgress();
+  renderPurchaseTeaser();
+}
+
+function startBreak() {
+  if (state.sessionState !== 'working') return;
+  // Check early break achievement
+  if (state.normalSeconds + state.overtimeSeconds < 7200) { // within 2h
+    state.counter.earlyBreaks = Math.max(state.counter.earlyBreaks || 0, 1);
+    checkAchievements();
+  }
+  state.sessionState = 'break';
+  updateUIState();
+  save();
+}
+
+function resumeWork() {
+  if (state.sessionState !== 'break') return;
+  state.sessionState = 'working';
+  updateUIState();
+  save();
+}
+
+function endWork() {
+  if (state.sessionState === 'idle' || state.sessionState === 'ended') return;
+  const td = today();
+  if (!state.records[td]) {
+    state.records[td] = { date: td, normalSeconds: 0, overtimeSeconds: 0, breakSeconds: 0, earned: 0 };
+  }
+  const rec = state.records[td];
+  rec.normalSeconds = state.normalSeconds;
+  rec.overtimeSeconds = state.overtimeSeconds;
+  rec.breakSeconds = state.breakSeconds;
+  rec.earned = state.earned;
+  rec.workSeconds = state.normalSeconds + state.overtimeSeconds;
+
+  // Update cumulative
+  state.cumWorkSeconds += state.normalSeconds + state.overtimeSeconds;
+  state.cumEarned += state.earned;
+  state.counter.totalEnds = (state.counter.totalEnds || 0) + 1;
+
+  // Counter checks
+  if (state.overtimeSeconds > 0) state.counter.overtimeDays = (state.counter.overtimeDays || 0) + 1;
+  if (state.overtimeSeconds >= 7200) state.counter.ot2hDays = (state.counter.ot2hDays || 0) + 1;
+  if (state.earned >= 500) state.counter.daily500 = (state.counter.daily500 || 0) + 1;
+  if (state.breakSeconds >= 3600) state.counter.break1hDays = (state.counter.break1hDays || 0) + 1;
+
+  // Streak
+  updateStreak(td);
+
+  // Early bird check (started before 9:00)
+  const startH = state.workStartHour;
+  // Check if session started early (before configured start time)
+  // We track this by checking if they started 30min+ before start time
+  // Actually, let's just check if they started before 9:00
+  const sessionStart = new Date();
+  if (sessionStart.getHours() < 9) {
+    // Track this in a simple way - check last 3 records
+    checkEarlyBird(td);
+  }
+
+  state.sessionState = 'ended';
+  stopTimer();
+  updateUIState();
+  checkAchievements();
+  save();
+  renderHistory();
+  renderChart();
+  renderMonthlyProgress();
+  renderStats();
+
+  // Show daily report
+  if (state.showReportDialog) {
+    showDailyReport();
+  }
+
+  // Update records with final earned for running total
+  rec.earned = state.earned;
+}
+
+function updateStreak(todayStr) {
+  const dates = Object.keys(state.records).sort();
+  let streak = 1;
+  // Check if today is consecutive from the last record
+  for (let i = dates.length - 1; i > 0; i--) {
+    const prev = new Date(dates[i-1]);
+    const curr = new Date(dates[i]);
+    const diff = (curr - prev) / (24 * 3600 * 1000);
+    if (Math.round(diff) === 1) streak++;
+    else break;
+  }
+  state.counter.streakDays = streak;
+}
+
+function checkEarlyBird(todayStr) {
+  // Count consecutive days where started before 9
+  const dates = Object.keys(state.records).sort().reverse();
+  let count = 1;
+  // We'll approximate by checking if endWork was called early
+  // For simplicity, just increment a counter
+  state.counter.earlyBirdDays = (state.counter.earlyBirdDays || 0) + 1;
+}
+
+// ================================================================
+// SETTINGS
+// ================================================================
+function recalcRate() {
+  state.perSecondRate = state.monthlySalary / (state.workDaysPerMonth * state.workHoursPerDay * 3600);
+  rateInfo.innerHTML =
+    `按 ${state.workDaysPerMonth}天 × ${state.workHoursPerDay}小时 计算，约 <strong>${state.perSecondRate.toFixed(5)} 元/秒</strong>`;
+  monthRate.textContent = cur(state.perSecondRate) + '/秒';
+  updateTaxDisplay();
+}
+
+function applySettings() {
+  state.workDaysPerMonth = parseFloat(setWorkDays.value) || 22;
+  state.workHoursPerDay = parseFloat(setWorkHours.value) || 8;
+  state.lunchBreakMinutes = parseFloat(setLunch.value) || 60;
+  state.workStartHour = parseFloat(setStartTime.value.split(':')[0]) || 9;
+  state.overtimeEveningRate = parseFloat(setOtEvening.value) || 1.5;
+  state.overtimeWeekendRate = parseFloat(setOtWeekend.value) || 2.0;
+  state.socialInsuranceRate = parseFloat(setSocialInsurance.value) || 0;
+  state.housingFundRate = parseFloat(setHousingFund.value) || 0;
+  state.taxThreshold = parseFloat(setTaxThreshold.value) || 5000;
+  if (state.monthlySalary > 0) {
+    recalcRate();
+    if (state.sessionState === 'working' || state.sessionState === 'break') {
+      calcEarned();
+      updateDisplay();
+    }
+  }
+  save();
+  renderMonthlyProgress();
+}
+
+// ================================================================
+// UI UPDATE
+// ================================================================
+function updateDisplay() {
+  const totalSec = state.normalSeconds + state.overtimeSeconds;
+  workTimer.textContent = fmt(totalSec);
+  otTimer.textContent = fmt(state.overtimeSeconds);
+  breakTimer.textContent = fmt(state.breakSeconds);
+
+  const brk = getEarnedBreakdown();
+  earnedAmount.textContent = cur(brk.total);
+  normalEarned.textContent = '正常: ' + cur(brk.normal);
+  otEarned.textContent = '加班: ' + cur(brk.overtime);
+
+  const pct = Math.min(100, (totalSec / CONFIG.targetDailySeconds) * 100);
+  dailyProgress.style.width = pct + '%';
+}
+
+function updateUIState() {
+  const s = state.sessionState;
+  btnStart.classList.toggle('btn-inactive', s === 'working' || s === 'break');
+  btnBreak.classList.toggle('btn-inactive', s !== 'working' && s !== 'break');
+  btnEnd.classList.toggle('btn-inactive', s === 'idle' || s === 'ended');
+
+  if (s === 'break') {
+    btnBreak.textContent = '▶️ 继续';
+    btnBreak.className = 'btn btn-success';
+  } else {
+    btnBreak.textContent = '☕ 休息';
+    btnBreak.className = 'btn btn-warning';
+  }
+
+  const badge = {
+    idle: { text: '⏸️ 未开始', cls: 'idle' },
+    working: { text: '💪 搬砖中', cls: 'working' },
+    break: { text: '☕ 摸鱼中', cls: 'break-state' },
+    ended: { text: '🎉 已下班', cls: 'ended' },
+  }[s] || { text: '⏸️ 未开始', cls: 'idle' };
+  statusBadge.textContent = badge.text;
+  statusBadge.className = 'status-badge ' + badge.cls;
+
+  updateDisplay();
+
+  if (s === 'idle') btnStart.textContent = '🚀 上班';
+  else if (s === 'ended') btnStart.textContent = '🔄 新的一天';
+  updateOtOverrideUI();
+}
+
+// ================================================================
+// MONTHLY PROGRESS
+// ================================================================
+function renderMonthlyProgress() {
+  const td = today();
+  const [y, m] = td.split('-');
+  const prefix = y + '-' + m;
+
+  let monthEarnedVal = 0;
+  let daysWorked = 0;
+
+  Object.keys(state.records).forEach(dateStr => {
+    if (dateStr.startsWith(prefix)) {
+      monthEarnedVal += state.records[dateStr].earned || 0;
+      if ((state.records[dateStr].workSeconds || state.records[dateStr].normalSeconds || 0) > 0) {
+        daysWorked++;
+      }
+    }
+  });
+
+  // Include today's session if not yet ended
+  if (state.sessionDate === td && state.sessionState !== 'ended' && state.sessionState !== 'idle') {
+    const brk = getEarnedBreakdown();
+    monthEarnedVal += brk.total;
+  }
+
+  const target = state.monthlySalary;
+  const pct = target > 0 ? Math.min(100, (monthEarnedVal / target) * 100) : 0;
+  const circ = 2 * Math.PI * 42; // ~263.89
+  const offset = circ - (circ * pct / 100);
+  ringFg.setAttribute('stroke-dashoffset', offset);
+
+  ringPct.textContent = Math.round(pct) + '%';
+  monthEarned.textContent = cur(monthEarnedVal);
+  monthTarget.textContent = cur(target);
+  monthDays.textContent = daysWorked + ' 天';
+}
+
+// ================================================================
+// PURCHASE
+// ================================================================
+function addPurchase() {
+  const name = purchaseName.value.trim();
+  const price = parseFloat(purchasePrice.value);
+  if (!name || !price || price <= 0) return;
+  state.purchaseItems.push({ name, price });
+  purchaseName.value = '';
+  purchasePrice.value = '';
+  renderPurchaseList();
+  renderPurchaseTeaser();
+  save();
+}
+
+function removePurchase(idx) {
+  state.purchaseItems.splice(idx, 1);
+  renderPurchaseList();
+  renderPurchaseTeaser();
+  if (state.purchaseItems.length === 0) purchaseSection.classList.add('hidden');
+  save();
+}
+
+function renderPurchaseList() {
+  if (state.purchaseItems.length === 0) {
+    purchaseList.innerHTML = '<div class="purchase-empty">添加想买的东西，看看需要工作多久</div>';
+    return;
+  }
+  const base = state.perSecondRate || 0.0001;
+  const totalSec = state.normalSeconds + state.overtimeSeconds;
+  const earned = state.earned || 0;
+
+  purchaseList.innerHTML = state.purchaseItems.map((item, i) => {
+    const secNeeded = item.price / base;
+    const secLeft = secNeeded - totalSec;
+    const alreadyEarned = Math.floor(earned / item.price);
+    let status;
+    if (earned >= item.price) {
+      status = `<span class="p-convert today">✅ 已赚 ${alreadyEarned} ${item.name}</span>`;
+    } else {
+      status = `<span class="p-convert future">还需 ${fmtCN(Math.max(0, secLeft))}</span>`;
+    }
+    return `<div class="purchase-item">
+      <span class="p-name">${item.name}</span>
+      <span class="p-price">${cur(item.price)}</span>
+      ${status}
+      <button class="p-del" onclick="removePurchase(${i})">×</button>
+    </div>`;
+  }).join('');
+}
+
+function renderPurchaseTeaser() {
+  if (state.purchaseItems.length === 0) {
+    purchaseTeaser.classList.add('hidden');
+    return;
+  }
+  purchaseTeaser.classList.remove('hidden');
+  const earned = state.earned || 0;
+  const first = state.purchaseItems[0];
+  const count = Math.floor(earned / first.price);
+  teaserText.textContent = `今日已赚 = ${count} 杯${first.name}`;
+}
+
+function scrollToPurchases() {
+  purchaseSection.classList.remove('hidden');
+  purchaseSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ================================================================
+// WISHLIST
+// ================================================================
+function getEarnedSince(fromDate) {
+  let total = 0;
+  // Sum all records on or after fromDate
+  Object.keys(state.records).forEach(function(d) {
+    if (d >= fromDate) {
+      total += state.records[d].earned || 0;
+    }
+  });
+  // Include current session if today >= fromDate
+  if (fromDate <= today() && (state.sessionState === 'working' || state.sessionState === 'break')) {
+    const brk = getEarnedBreakdown();
+    total += brk.total || 0;
+  }
+  return total;
+}
+
+// Pending image for new wish
+let pendingWishImage = null;
+let editingWishImageIdx = -1;
+
+function compressImage(file, maxDim, quality, cb) {
+  const reader = new FileReader();
+  reader.onload = function (ev) {
+    const img = new Image();
+    img.onload = function () {
+      let w = img.width, h = img.height;
+      if (w > maxDim) { h = h * maxDim / w; w = maxDim; }
+      if (h > maxDim) { w = w * maxDim / h; h = maxDim; }
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      cb(c.toDataURL('image/jpeg', quality));
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function triggerWishImage(idx) {
+  editingWishImageIdx = idx != null ? idx : -1;
+  wishImageInput.value = '';
+  wishImageInput.click();
+}
+
+function handleWishImage(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  compressImage(file, 150, 0.7, function (dataUrl) {
+    if (editingWishImageIdx >= 0 && editingWishImageIdx < state.wishItems.length) {
+      state.wishItems[editingWishImageIdx].image = dataUrl;
+      renderWishList();
+      save();
+    } else {
+      pendingWishImage = dataUrl;
+      renderWishPreview();
+    }
+    editingWishImageIdx = -1;
+  });
+}
+
+function clearPendingImage(e) {
+  if (e) e.stopPropagation();
+  pendingWishImage = null;
+  renderWishPreview();
+}
+
+function renderWishPreview() {
+  if (pendingWishImage) {
+    wishImgBtn.innerHTML = `<img src="${pendingWishImage}" alt=""><span class="wish-img-clear" onclick="clearPendingImage(event)">×</span>`;
+    wishImgBtn.classList.add('has-img');
+  } else {
+    wishImgBtn.textContent = '📷';
+    wishImgBtn.classList.remove('has-img');
+  }
+}
+
+function addWish() {
+  const name = wishName.value.trim();
+  const amount = parseFloat(wishAmount.value);
+  if (!name || !amount || amount <= 0) return;
+  state.wishItems.push({ name, amount, image: pendingWishImage || null, createdAt: today() });
+  pendingWishImage = null;
+  wishName.value = '';
+  wishAmount.value = '';
+  renderWishPreview();
+  renderWishList();
+  save();
+}
+
+function removeWish(idx) {
+  state.wishItems.splice(idx, 1);
+  renderWishList();
+  save();
+}
+
+function renderWishList() {
+  const items = state.wishItems || [];
+  wishCount.textContent = items.length;
+
+  if (items.length === 0) {
+    wishlistList.innerHTML = '<div class="wish-empty">添加心愿，看看你的收入离目标还有多远</div>';
+    wishlistCompact.classList.remove('visible');
+    return;
+  }
+
+  wishlistList.innerHTML = items.map((item, i) => {
+    // Fallback: if no createdAt (old data), use today so it restarts from now
+    const since = item.createdAt || today();
+    const earned = getEarnedSince(since);
+    const pct = item.amount > 0 ? Math.min(100, (earned / item.amount) * 100) : 0;
+    const completed = earned >= item.amount;
+    const imgHtml = item.image
+      ? `<img src="${item.image}" alt="${escapeHtml(item.name)}">`
+      : `<span class="img-placeholder">🖼️</span>`;
+    return `<div class="wish-item ${completed ? 'completed' : ''}">
+      <div class="wish-item-row">
+        <div class="wish-item-img-wrap" onclick="triggerWishImage(${i})" title="点击更换图片">
+          ${imgHtml}
+          <span class="img-overlay">📷</span>
+        </div>
+        <div class="wish-item-content">
+          <div class="wish-top">
+            <span class="wish-name">${completed ? '✅ ' : '🎯 '}${escapeHtml(item.name)}</span>
+            <span class="wish-target">目标 ${cur(item.amount)}</span>
+            <button class="wish-del" onclick="removeWish(${i})">×</button>
+          </div>
+          <div class="wish-progress-row">
+            <div class="progress-bar">
+              <div class="fill" style="width:${pct.toFixed(1)}%"></div>
+            </div>
+            <span class="wish-pct">${pct.toFixed(1)}%</span>
+          </div>
+          <div class="wish-sub">已赚 ${cur(earned)}${completed ? ' 🎉 目标达成！' : `，还需 ${cur(item.amount - earned)}`}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Show compact teaser when wishes exist
+  wishlistCompact.classList.add('visible');
+}
+
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// ================================================================
+// MAKEUP WORKDAY TOGGLE
+// ================================================================
+function updateMakeupToggle() {
+  const isOn = state.isMakeupWorkday;
+  const isWd = isWeekend();
+  toggleTrack.classList.toggle('on', isOn);
+  toggleHint.textContent = isWd
+    ? (isOn ? '✓ 今天按正常工作日计算' : '周末默认加班')
+    : '工作日不受影响';
+  toggleHint.style.color = isWd && isOn ? 'var(--green)' : 'var(--gray-400)';
+}
+
+// ================================================================
+// COIN EFFECT
+// ================================================================
+function checkCoinEffect() {
+  if (state.sessionState !== 'working') return;
+  const th = Math.floor((state.normalSeconds + state.overtimeSeconds) / CONFIG.coinInterval);
+  if (th > state.lastCoinThreshold && (state.normalSeconds + state.overtimeSeconds) >= CONFIG.coinInterval) {
+    state.lastCoinThreshold = th;
+    createCoinExplosion();
+    save();
+  }
+}
+
+function createCoinExplosion() {
+  const rect = coinContainer.getBoundingClientRect();
+  const cx = rect.width / 2;
+  const cy = rect.height / 2;
+  const n = 20 + Math.floor(Math.random() * 15);
+
+  const flash = document.createElement('div');
+  flash.className = 'flash-overlay';
+  document.body.appendChild(flash);
+  setTimeout(() => flash.remove(), 1000);
+
+  const min = state.lastCoinThreshold * 10;
+  const brk = getEarnedBreakdown();
+  const toast = document.createElement('div');
+  toast.className = 'coin-toast';
+  toast.textContent = `✨ 已工作 ${min} 分钟！已赚 ${cur(brk.total)} ✨`;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
+
+  const emojis = ['🪙','💰','✨','🌟','💛','🏆'];
+  for (let i = 0; i < n; i++) {
+    const c = document.createElement('div');
+    c.className = 'coin';
+    c.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    const a = Math.random() * Math.PI * 2;
+    const d = 100 + Math.random() * 250;
+    c.style.left = cx + 'px';
+    c.style.top = cy + 'px';
+    c.style.setProperty('--dx', Math.cos(a) * d + 'px');
+    c.style.setProperty('--dy', Math.sin(a) * d - 150 + 'px');
+    c.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+    c.style.fontSize = (24 + Math.random() * 24) + 'px';
+    coinContainer.appendChild(c);
+    setTimeout(() => c.remove(), 1500);
+  }
+
+  for (let i = 0; i < 12; i++) {
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    const a = Math.random() * Math.PI * 2;
+    const d = 40 + Math.random() * 120;
+    s.style.left = cx + 'px';
+    s.style.top = cy + 'px';
+    s.style.setProperty('--sx', Math.cos(a) * d + 'px');
+    s.style.setProperty('--sy', Math.sin(a) * d + 'px');
+    s.style.background = ['#FDE68A','#F59E0B','#FCD34D','#FFF'][Math.floor(Math.random() * 4)];
+    coinContainer.appendChild(s);
+    setTimeout(() => s.remove(), 800);
+  }
+}
+
+// ================================================================
+// BREAK REMINDER
+// ================================================================
+function checkBreakReminder() {
+  if (state.sessionState !== 'working') return;
+  const total = state.normalSeconds + state.overtimeSeconds;
+  const th = Math.floor(total / CONFIG.breakReminderInterval);
+  if (th > state.lastBreakThreshold && total >= CONFIG.breakReminderInterval) {
+    state.lastBreakThreshold = th;
+    showBreakReminder();
+    save();
+  }
+}
+
+function showBreakReminder() {
+  modalWorkTime.textContent = fmtCN(state.normalSeconds + state.overtimeSeconds);
+  breakModal.classList.remove('hidden');
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification('💤 该摸鱼啦！', {
+      body: `你已经连续工作 ${fmtCN(state.normalSeconds + state.overtimeSeconds)}，起来活动一下吧！`,
+    });
+  }
+}
+
+btnDismissBreak.addEventListener('click', () => breakModal.classList.add('hidden'));
+breakModal.addEventListener('click', e => { if (e.target === breakModal) breakModal.classList.add('hidden'); });
+
+// ================================================================
+// DAILY REPORT
+// ================================================================
+function showDailyReport() {
+  const brk = getEarnedBreakdown();
+  const totalSec = state.normalSeconds + state.overtimeSeconds;
+
+  reportTitle.textContent = '🎉 今日收工！';
+  reportDate.textContent = today();
+  rTotal.textContent = cur(brk.total);
+  rNormal.textContent = cur(brk.normal);
+  rOvertime.textContent = cur(brk.overtime);
+  rWorkTime.textContent = fmtShort(totalSec);
+  rBreakTime.textContent = fmtShort(state.breakSeconds);
+
+  // Purchase conversions
+  if (state.purchaseItems.length > 0) {
+    rConvertSection.style.display = 'block';
+    rConvertList.innerHTML = state.purchaseItems.map(item => {
+      const count = Math.floor(brk.total / item.price);
+      return `<div class="m-convert-item">
+        <span>${item.name} (${cur(item.price)})</span>
+        <span style="font-weight:600;color:var(--gold-dark);">${count} 个</span>
+      </div>`;
+    }).join('');
+  } else {
+    rConvertSection.style.display = 'none';
+  }
+
+  reportModal.classList.remove('hidden');
+}
+
+btnCloseReport.addEventListener('click', () => {
+  reportModal.classList.add('hidden');
+  if (reportNoAgain.checked) {
+    state.showReportDialog = false;
+    save();
+  }
+});
+reportModal.addEventListener('click', e => {
+  if (e.target === reportModal) reportModal.classList.add('hidden');
+});
+
+// ================================================================
+// ACHIEVEMENTS
+// ================================================================
+function checkAchievements() {
+  const newBadges = [];
+  const ctx = {
+    records: state.records,
+    cumWorkSeconds: state.cumWorkSeconds,
+    cumEarned: state.cumEarned,
+    counter: state.counter,
+  };
+  ACHIEVEMENTS.forEach(a => {
+    if (state.earnedBadges.includes(a.id)) return;
+    if (a.check(ctx)) {
+      state.earnedBadges.push(a.id);
+      newBadges.push(a);
+    }
+  });
+  renderAchievements();
+  if (newBadges.length > 0) {
+    save();
+    // Show first newly unlocked badge
+    const nb = newBadges[0];
+    badgeUnlockIcon.textContent = nb.icon;
+    badgeUnlockName.textContent = nb.name + ' — ' + nb.desc;
+    badgeUnlockModal.classList.remove('hidden');
+  }
+}
+
+btnCloseBadge.addEventListener('click', () => badgeUnlockModal.classList.add('hidden'));
+badgeUnlockModal.addEventListener('click', e => {
+  if (e.target === badgeUnlockModal) badgeUnlockModal.classList.add('hidden');
+});
+
+function renderAchievements() {
+  const earned = state.earnedBadges || [];
+  badgeCount.textContent = `${earned.length} / ${ACHIEVEMENTS.length}`;
+  badgeGrid.innerHTML = ACHIEVEMENTS.map(a => {
+    const isEarned = earned.includes(a.id);
+    return `<div class="badge-item ${isEarned ? 'earned' : 'locked'}">
+      <span class="b-icon">${isEarned ? a.icon : '🔒'}</span>
+      <span class="b-name">${isEarned ? a.name : '???'}</span>
+    </div>`;
+  }).join('');
+}
+
+// ================================================================
+// CHART
+// ================================================================
+function renderChart() {
+  const dates = Object.keys(state.records).sort();
+  if (dates.length === 0) {
+    chartCanvas.style.display = 'none';
+    chartEmpty.classList.remove('hidden');
+    return;
+  }
+  chartCanvas.style.display = 'block';
+  chartEmpty.classList.add('hidden');
+
+  const recent = dates.slice(-14);
+  const labels = recent.map(d => fmtDate(d));
+  const data = recent.map(d => state.records[d].earned || 0);
+  const mins = recent.map(d => {
+    const r = state.records[d];
+    const ns = r.normalSeconds || 0;
+    const os = r.overtimeSeconds || 0;
+    const total = ns + os || r.workSeconds || 0;
+    return Math.round(total / 60);
+  });
+
+  if (chartInstance) chartInstance.destroy();
+
+  chartInstance = new Chart(chartCanvas.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: '收入',
+        data,
+        backgroundColor: data.map(v => v > 0 ? 'rgba(245,158,11,0.7)' : 'rgba(203,213,225,0.3)'),
+        borderColor: data.map(v => v > 0 ? 'rgba(245,158,11,1)' : 'rgba(203,213,225,0.5)'),
+        borderWidth: 2,
+        borderRadius: 4,
+        barPercentage: 0.6,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => cur(ctx.raw) + '  |  工作 ' + mins[ctx.dataIndex] + ' 分钟',
+          },
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { callback: v => '¥' + v.toFixed(0), font: { size: 11 } },
+          grid: { color: 'rgba(0,0,0,0.05)' },
+        },
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+      },
+    },
+  });
+}
+
+// ================================================================
+// HISTORY — Calendar View
+// ================================================================
+let calYear, calMonth;
+
+function renderHistory() {
+  const td = today();
+  const [cy, cm] = td.split('-');
+
+  // Initialize calendar to current month if not set
+  if (calYear === undefined) calYear = parseInt(cy);
+  if (calMonth === undefined) calMonth = parseInt(cm) - 1;
+
+  calTitle.textContent = `${calYear}年${calMonth + 1}月`;
+
+  const firstDay = new Date(calYear, calMonth, 1);
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const startDow = (firstDay.getDay() + 6) % 7; // Monday = 0
+
+  let html = '';
+  let totalEarned = 0;
+  let totalWorkSec = 0;
+  let workDays = 0;
+
+  // Previous month filler cells
+  for (let i = startDow - 1; i >= 0; i--) {
+    html += '<div class="cal-cell other-month"></div>';
+  }
+
+  // Current month days
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const isToday = dateStr === td;
+    const dateObj = new Date(calYear, calMonth, d);
+    const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+
+    let cls = '';
+    if (isToday) cls += ' today';
+    if (isWeekend) cls += ' weekend';
+
+    let info = '';
+    const rec = state.records[dateStr];
+    if (rec && (rec.earned || 0) > 0) {
+      cls += ' has-record';
+      const ws = rec.workSeconds || (rec.normalSeconds || 0) + (rec.overtimeSeconds || 0);
+      totalEarned += rec.earned;
+      totalWorkSec += ws;
+      workDays++;
+      info = `<span class="cal-earn">${cur(rec.earned)}</span>`;
+    }
+
+    html += `<div class="cal-cell${cls}" data-date="${dateStr}"><span class="cal-num">${d}</span>${info}</div>`;
+  }
+
+  // Fill remaining cells to complete the last row
+  const totalCells = startDow + daysInMonth;
+  const remaining = (7 - (totalCells % 7 || 7)) % 7;
+  for (let i = 0; i < remaining; i++) {
+    html += '<div class="cal-cell other-month"></div>';
+  }
+
+  calGrid.innerHTML = html;
+
+  // Summary
+  if (workDays > 0) {
+    calSummary.style.display = 'flex';
+    calDays.textContent = workDays + '天';
+    calTotal.textContent = cur(totalEarned);
+    calHours.textContent = fmtShort(totalWorkSec);
+  } else {
+    calSummary.style.display = 'none';
+  }
+
+  historyEmpty.style.display = workDays > 0 ? 'none' : 'block';
+}
+
+function showDayDetail(dateStr) {
+  const rec = state.records[dateStr];
+  if (!rec) return;
+
+  const [y, m, d] = dateStr.split('-');
+  const isToday = dateStr === today();
+  dayModalTitle.textContent = isToday ? '📋 今日工作详情' : '📋 工作详情';
+  dayModalDate.textContent = `${y}年${parseInt(m)}月${parseInt(d)}日`;
+
+  const normalSec = rec.normalSeconds || 0;
+  const otSec = rec.overtimeSeconds || 0;
+  const breakSec = rec.breakSeconds || 0;
+  const normalAmt = normalSec * state.perSecondRate;
+  const otMul = state.perSecondRate * (state.overtimeEveningRate || 1.5);
+  const otAmt = otSec * otMul;
+
+  dayNormalEarned.textContent = cur(normalAmt);
+  dayOtEarned.textContent = cur(otAmt);
+  dayTotalEarned.textContent = cur(rec.earned || 0);
+  dayNormalTime.textContent = fmtShort(normalSec);
+  dayOtTime.textContent = fmtShort(otSec);
+  dayBreakTime.textContent = fmtShort(breakSec);
+
+  dayModal.classList.remove('hidden');
+
+  // Populate edit section
+  openEditRecord(dateStr);
+}
+
+// ================================================================
+// TAX CALCULATION
+// ================================================================
+function calcTakehome(gross) {
+  if (!gross || gross <= 0) return { gross: 0, socialInsurance: 0, housingFund: 0, insurance: 0, taxable: 0, tax: 0, takehome: 0 };
+  const siRate = (state.socialInsuranceRate || 0) / 100;
+  const hfRate = (state.housingFundRate || 0) / 100;
+  const threshold = state.taxThreshold || 5000;
+  const socialInsurance = gross * siRate;
+  const housingFund = gross * hfRate;
+  const insurance = socialInsurance + housingFund;
+  const taxable = Math.max(0, gross - insurance - threshold);
+  let tax = 0;
+  if (taxable <= 3000) tax = taxable * 0.03;
+  else if (taxable <= 12000) tax = taxable * 0.10 - 210;
+  else if (taxable <= 25000) tax = taxable * 0.20 - 1410;
+  else if (taxable <= 35000) tax = taxable * 0.25 - 2660;
+  else if (taxable <= 55000) tax = taxable * 0.30 - 4410;
+  else if (taxable <= 80000) tax = taxable * 0.35 - 7160;
+  else tax = taxable * 0.45 - 15160;
+  tax = Math.max(0, tax);
+  const takehome = gross - insurance - tax;
+  return { gross, socialInsurance, housingFund, insurance, taxable, tax, takehome };
+}
+
+function updateTaxDisplay() {
+  const gross = state.monthlySalary || parseInt(salaryInput.value) || 0;
+  if (gross <= 0) { taxDisplay.style.display = 'none'; return; }
+  taxDisplay.style.display = 'block';
+  const t = calcTakehome(gross);
+  taxBefore.textContent = cur(t.gross);
+  taxSocialInsurance.textContent = '- ' + cur(t.socialInsurance);
+  taxHousingFund.textContent = '- ' + cur(t.housingFund);
+  taxIncome.textContent = '- ' + cur(t.tax);
+  taxTakehome.textContent = cur(t.takehome);
+  const effectiveRate = t.takehome / (state.workDaysPerMonth * state.workHoursPerDay * 3600);
+  taxDetail.textContent = `社保${state.socialInsuranceRate}% · 公积金${state.housingFundRate}% · 税率 ${(t.tax / Math.max(1, t.taxable) * 100).toFixed(1)}% · 每秒 ≈ ${effectiveRate.toFixed(5)} 元 (到手)`;
+}
+
+// ================================================================
+// DARK MODE
+// ================================================================
+function applyDarkMode() {
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const isDark = state.darkMode === 'dark' || (state.darkMode !== 'light' && prefersDark);
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  darkToggle.textContent = isDark ? '☀️' : '🌙';
+  darkToggle.title = isDark ? '切换亮色模式' : '切换深色模式';
+  document.querySelector('meta[name="theme-color"]').content = isDark ? '#0B1120' : '#F59E0B';
+}
+
+// ================================================================
+// MANUAL OT OVERRIDE
+// ================================================================
+function updateOtOverrideUI() {
+  const isActive = state.sessionState === 'working' || state.sessionState === 'break';
+  otOverride.style.display = isActive ? 'flex' : 'none';
+  if (state.manualOvertime === true) {
+    otBtnNormal.classList.remove('active');
+    otBtnOvertime.classList.add('active');
+  } else if (state.manualOvertime === false) {
+    otBtnNormal.classList.add('active');
+    otBtnOvertime.classList.remove('active');
+  } else {
+    otBtnNormal.classList.remove('active');
+    otBtnOvertime.classList.remove('active');
+    if (isActive && isOvertimeSimple()) {
+      otBtnOvertime.classList.add('active');
+    } else if (isActive) {
+      otBtnNormal.classList.add('active');
+    }
+  }
+}
+
+// ================================================================
+// EXPORT / IMPORT
+// ================================================================
+function exportCSV() {
+  const dates = Object.keys(state.records).sort();
+  if (dates.length === 0) { alert('暂无数据可导出'); return; }
+  let csv = '日期,正常工时(分钟),加班工时(分钟),休息(分钟),收入\n';
+  dates.forEach(function(d) {
+    const rec = state.records[d];
+    if (!rec) return;
+    const ns = Math.round((rec.normalSeconds || 0) / 60);
+    const os = Math.round((rec.overtimeSeconds || 0) / 60);
+    const bs = Math.round((rec.breakSeconds || 0) / 60);
+    csv += d + ',' + ns + ',' + os + ',' + bs + ',' + (rec.earned || 0) + '\n';
+  });
+  downloadBlob(csv, 'salary_records.csv', 'text/csv;charset=utf-8');
+}
+
+function exportJSON() {
+  const data = { _exportedAt: today(), records: state.records, cumWorkSeconds: state.cumWorkSeconds, cumEarned: state.cumEarned };
+  downloadBlob(JSON.stringify(data, null, 2), 'salary_backup.json', 'application/json');
+}
+
+function importJSON(file) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.records) { alert('无效的备份文件'); return; }
+      const count = Object.keys(data.records).length;
+      if (!confirm('将导入 ' + count + ' 条记录，是否覆盖当前数据？')) return;
+      state.records = data.records;
+      state.cumWorkSeconds = data.cumWorkSeconds || 0;
+      state.cumEarned = data.cumEarned || 0;
+      save();
+      renderHistory();
+      renderChart();
+      renderMonthlyProgress();
+      renderWishList();
+      renderStats();
+      alert('已导入 ' + count + ' 条记录');
+    } catch(err) { alert('文件解析失败：' + err.message); }
+  };
+  reader.readAsText(file);
+}
+
+function downloadBlob(content, filename, mime) {
+  const blob = new Blob(['﻿' + content], { type: mime });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+}
+
+// ================================================================
+// STATS INSIGHTS
+// ================================================================
+function renderStats() {
+  const dates = Object.keys(state.records).filter(function(d) {
+    const rec = state.records[d];
+    return rec && (rec.earned || 0) > 0;
+  }).sort();
+
+  if (dates.length === 0) { statsSection.style.display = 'none'; return; }
+  statsSection.style.display = 'block';
+
+  let totalEarned = 0, maxEarned = 0, maxDate = '';
+  let totalWorkMin = 0, maxOtMin = 0, maxOtDate = '';
+  let thisWeekTotal = 0, lastWeekTotal = 0;
+
+  const td = today();
+  const now = new Date();
+  const thisWeekStart = new Date(now);
+  thisWeekStart.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  const lastWeekStart = new Date(thisWeekStart);
+  lastWeekStart.setDate(lastWeekStart.getDate() - 7);
+
+  dates.forEach(function(d) {
+    const rec = state.records[d];
+    if (!rec) return;
+    const ws = (rec.normalSeconds || 0) + (rec.overtimeSeconds || 0);
+    const ot = rec.overtimeSeconds || 0;
+    const earned = rec.earned || 0;
+    totalEarned += earned;
+    totalWorkMin += ws;
+    if (earned > maxEarned) { maxEarned = earned; maxDate = d; }
+    if (ot > maxOtMin) { maxOtMin = ot; maxOtDate = d; }
+    if (d >= fmtDateShort(thisWeekStart)) thisWeekTotal += earned;
+    if (d >= fmtDateShort(lastWeekStart) && d < fmtDateShort(thisWeekStart)) lastWeekTotal += earned;
+  });
+
+  const avgDaily = totalEarned / dates.length;
+  const weekDiff = lastWeekTotal > 0 ? ((thisWeekTotal - lastWeekTotal) / lastWeekTotal * 100) : 0;
+
+  statsGrid.innerHTML =
+    '<div class="stat-card highlight">' +
+      '<div class="sc-label">最高日收入</div>' +
+      '<div class="sc-value">' + cur(maxEarned) + '</div>' +
+      '<div class="sc-sub">' + (maxDate || '') + '</div>' +
+    '</div>' +
+    '<div class="stat-card">' +
+      '<div class="sc-label">日均收入</div>' +
+      '<div class="sc-value">' + cur(avgDaily) + '</div>' +
+      '<div class="sc-sub">共 ' + dates.length + ' 天</div>' +
+    '</div>' +
+    '<div class="stat-card' + (maxOtMin > 0 ? ' highlight' : '') + '">' +
+      '<div class="sc-label">加班最多</div>' +
+      '<div class="sc-value">' + fmtShort(maxOtMin) + '</div>' +
+      '<div class="sc-sub">' + (maxOtDate || '无') + '</div>' +
+    '</div>' +
+    '<div class="stat-card">' +
+      '<div class="sc-label">本周 vs 上周</div>' +
+      '<div class="sc-value" style="color:' + (weekDiff >= 0 ? 'var(--green)' : 'var(--red)') + '">' + (weekDiff >= 0 ? '↑' : '↓') + ' ' + Math.abs(weekDiff).toFixed(0) + '%</div>' +
+      '<div class="sc-sub">' + cur(thisWeekTotal) + ' / ' + cur(lastWeekTotal) + '</div>' +
+    '</div>';
+}
+
+function fmtDateShort(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+// ================================================================
+// EDIT RECORD
+// ================================================================
+let editingDate = '';
+
+function openEditRecord(dateStr) {
+  editingDate = dateStr;
+  const rec = state.records[dateStr];
+  if (!rec) return;
+  const ns = Math.round((rec.normalSeconds || 0) / 60);
+  const os = Math.round((rec.overtimeSeconds || 0) / 60);
+  const bs = Math.round((rec.breakSeconds || 0) / 60);
+  dayEditWork.value = ns || '';
+  dayEditOt.value = os || '';
+  dayEditBreak.value = bs || '';
+  dayEditSection.style.display = 'block';
+}
+
+function saveEditRecord() {
+  if (!editingDate || !state.records[editingDate]) return;
+  const w = parseInt(dayEditWork.value) || 0;
+  const o = parseInt(dayEditOt.value) || 0;
+  const b = parseInt(dayEditBreak.value) || 0;
+  const rec = state.records[editingDate];
+  rec.normalSeconds = w * 60;
+  rec.overtimeSeconds = o * 60;
+  rec.breakSeconds = b * 60;
+  rec.workSeconds = (w + o) * 60;
+  rec.earned = (w * state.perSecondRate * 60) + (o * state.perSecondRate * (state.overtimeEveningRate || 1.5) * 60);
+  save();
+  dayEditSection.style.display = 'none';
+  editingDate = '';
+  renderHistory();
+  renderChart();
+  renderMonthlyProgress();
+  renderStats();
+  renderWishList();
+}
+
+// ================================================================
+// ONBOARDING
+// ================================================================
+var ONBOARD_STEPS = [
+  { icon: '💰', title: '输入月薪，开始计时', desc: '设置你的月薪后点击上班，每秒钟都能看到收入在增长。每一份努力都变得看得见。' },
+  { icon: '🎯', title: '设定心愿，更有动力', desc: '添加想买的东西并上传图片，看着收入一点点接近目标，打工也更有盼头。' },
+  { icon: '📊', title: '追踪数据，发现规律', desc: '日历视图记录每天的工作，还有统计洞察帮你了解自己的收入趋势和加班情况。' },
+];
+var onboardStep = 0;
+
+function showOnboardStep(idx) {
+  onboardStep = idx;
+  var step = ONBOARD_STEPS[idx];
+  obIcon.textContent = step.icon;
+  obTitle.textContent = step.title;
+  obDesc.textContent = step.desc;
+  obBtn.textContent = idx < ONBOARD_STEPS.length - 1 ? '下一步' : '开始赚钱！';
+  obDots.forEach(function(dot, i) { dot.classList.toggle('active', i === idx); });
+}
+
+function finishOnboarding() {
+  state.showOnboarding = false;
+  onboardOverlay.style.display = 'none';
+  save();
+}
+
+// ================================================================
+// INIT
+// ================================================================
+function init() {
+  loadOrInit();
+
+  // Restore UI from state
+  if (state.monthlySalary > 0) {
+    salaryInput.value = state.monthlySalary;
+    recalcRate();
+  }
+
+  // Restore settings fields
+  setWorkDays.value = state.workDaysPerMonth;
+  setWorkHours.value = state.workHoursPerDay;
+  setLunch.value = state.lunchBreakMinutes;
+  setStartTime.value = String(state.workStartHour).padStart(2,'0') + ':00';
+  setOtEvening.value = state.overtimeEveningRate;
+  setOtWeekend.value = state.overtimeWeekendRate;
+  setSocialInsurance.value = state.socialInsuranceRate;
+  setHousingFund.value = state.housingFundRate;
+
+  // Settings toggle
+  settingsToggle.addEventListener('click', () => {
+    state.settingsOpen = !state.settingsOpen;
+    settingsPanel.classList.toggle('open', state.settingsOpen);
+    settingsArrow.classList.toggle('open', state.settingsOpen);
+  });
+  if (state.settingsOpen) {
+    settingsPanel.classList.add('open');
+    settingsArrow.classList.add('open');
+  }
+
+  // Settings change handlers
+  [setWorkDays, setWorkHours, setLunch, setStartTime, setOtEvening, setOtWeekend, setSocialInsurance, setHousingFund, setTaxThreshold].forEach(el => {
+    el.addEventListener('change', applySettings);
+  });
+
+  // Dark mode init
+  applyDarkMode();
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyDarkMode);
+
+  // Dark toggle — cycles: null(system) → dark → light → null(system)
+  darkToggle.addEventListener('click', () => {
+    if (state.darkMode === 'dark') state.darkMode = 'light';
+    else if (state.darkMode === 'light') state.darkMode = null;
+    else state.darkMode = 'dark';
+    applyDarkMode();
+    save();
+  });
+
+  // Session resume
+  if ((state.sessionState === 'working' || state.sessionState === 'break') && state.sessionDate === today()) {
+    calcEarned();
+    updateUIState();
+    startTimer();
+  } else if (state.sessionState === 'working' || state.sessionState === 'break') {
+    // Auto-end stale session from previous day
+    const prevDate = state.sessionDate;
+    if (prevDate && (state.normalSeconds + state.overtimeSeconds) > 0) {
+      if (!state.records[prevDate]) {
+        state.records[prevDate] = { date: prevDate, normalSeconds: 0, overtimeSeconds: 0, breakSeconds: 0, earned: 0 };
+      }
+      const rec = state.records[prevDate];
+      rec.normalSeconds = Math.max(rec.normalSeconds||0, state.normalSeconds);
+      rec.overtimeSeconds = Math.max(rec.overtimeSeconds||0, state.overtimeSeconds);
+      rec.breakSeconds = Math.max(rec.breakSeconds||0, state.breakSeconds);
+      rec.earned = getEarnedBreakdown().total;
+      rec.workSeconds = rec.normalSeconds + rec.overtimeSeconds;
+    }
+    state.sessionState = 'idle';
+    state.normalSeconds = 0;
+    state.overtimeSeconds = 0;
+    state.breakSeconds = 0;
+    state.earned = 0;
+    state.sessionDate = '';
+    updateUIState();
+    save();
+  }
+
+  // Buttons — always clickable, handlers check state internally
+  btnStart.addEventListener('click', startWork);
+  btnBreak.addEventListener('click', function() {
+    if (state.sessionState === 'break') resumeWork();
+    else if (state.sessionState === 'working') startBreak();
+  });
+  btnEnd.addEventListener('click', endWork);
+
+  // Salary input
+  salaryInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const val = parseInt(salaryInput.value);
+      if (val > 0) {
+        state.monthlySalary = val;
+        recalcRate();
+        renderMonthlyProgress();
+        save();
+      }
+    }
+  });
+
+  // Purchase
+  purchaseName.addEventListener('keydown', e => { if (e.key === 'Enter') addPurchase(); });
+  purchasePrice.addEventListener('keydown', e => { if (e.key === 'Enter') addPurchase(); });
+  btnAddPurchase.addEventListener('click', addPurchase);
+
+  // Wishlist
+  wishName.addEventListener('keydown', e => { if (e.key === 'Enter') addWish(); });
+  wishAmount.addEventListener('keydown', e => { if (e.key === 'Enter') addWish(); });
+  btnAddWish.addEventListener('click', addWish);
+  wishImgBtn.addEventListener('click', () => triggerWishImage(-1));
+  wishImageInput.addEventListener('change', handleWishImage);
+
+  // Register service worker for PWA
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+
+  // Calendar navigation
+  calPrev.addEventListener('click', () => {
+    calMonth--;
+    if (calMonth < 0) { calMonth = 11; calYear--; }
+    renderHistory();
+  });
+  calNext.addEventListener('click', () => {
+    calMonth++;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    renderHistory();
+  });
+
+  // Calendar cell click — show day detail
+  calGrid.addEventListener('click', function(e) {
+    const cell = e.target.closest('.cal-cell');
+    if (!cell || cell.classList.contains('other-month')) return;
+    const dateStr = cell.dataset.date;
+    if (dateStr && state.records[dateStr]) showDayDetail(dateStr);
+  });
+
+  // Day modal close
+  btnCloseDayModal.addEventListener('click', () => dayModal.classList.add('hidden'));
+  dayModal.addEventListener('click', function(e) {
+    if (e.target === dayModal) dayModal.classList.add('hidden');
+  });
+
+  // Makeup workday toggle
+  toggleTrack.addEventListener('click', () => {
+    const wasOff = !state.isMakeupWorkday;
+    state.isMakeupWorkday = !state.isMakeupWorkday;
+    // Moving FROM non-makeup TO makeup: merge existing overtime into normal
+    if (wasOff && state.isMakeupWorkday && state.overtimeSeconds > 0) {
+      state.normalSeconds += state.overtimeSeconds;
+      state.overtimeSeconds = 0;
+    }
+    updateMakeupToggle();
+    // Recalculate earnings immediately if session is active
+    if (state.sessionState === 'working' || state.sessionState === 'break') {
+      calcEarned();
+      updateDisplay();
+      renderMonthlyProgress();
+      renderPurchaseTeaser();
+    }
+    save();
+  });
+
+  // OT override buttons
+  otBtnNormal.addEventListener('click', () => {
+    state.manualOvertime = state.manualOvertime === false ? null : false;
+    updateOtOverrideUI();
+    if (state.sessionState === 'working' || state.sessionState === 'break') {
+      calcEarned();
+      updateDisplay();
+      renderMonthlyProgress();
+    }
+    save();
+  });
+  otBtnOvertime.addEventListener('click', () => {
+    state.manualOvertime = state.manualOvertime === true ? null : true;
+    updateOtOverrideUI();
+    if (state.sessionState === 'working' || state.sessionState === 'break') {
+      calcEarned();
+      updateDisplay();
+      renderMonthlyProgress();
+    }
+    save();
+  });
+
+  // Export / Import
+  btnExportCsv.addEventListener('click', exportCSV);
+  btnExportJson.addEventListener('click', exportJSON);
+  btnImportJson.addEventListener('click', () => importFileInput.click());
+  importFileInput.addEventListener('change', function(e) {
+    if (e.target.files[0]) importJSON(e.target.files[0]);
+    e.target.value = '';
+  });
+
+  // Edit record
+  btnSaveEdit.addEventListener('click', saveEditRecord);
+
+  // Onboarding
+  if (state.showOnboarding) {
+    showOnboardStep(0);
+    onboardOverlay.style.display = 'flex';
+  }
+  obBtn.addEventListener('click', () => {
+    if (onboardStep < ONBOARD_STEPS.length - 1) {
+      showOnboardStep(onboardStep + 1);
+    } else {
+      finishOnboarding();
+    }
+  });
+  obSkip.addEventListener('click', finishOnboarding);
+
+  // Reset
+  $('btn-reset-data').addEventListener('click', () => {
+    if (confirm('确定要清除所有数据吗？')) {
+      if (confirm('再次确认：所有工作记录和设置将被删除！')) {
+        localStorage.removeItem(CONFIG.storageKey);
+        state = { ...DEFAULTS };
+        salaryInput.value = '';
+        rateInfo.innerHTML = '按 22天 × 8小时 计算，约 <strong>0 元/秒</strong>';
+        stopTimer();
+        updateUIState();
+        updateMakeupToggle();
+        renderHistory();
+        renderChart();
+        renderAchievements();
+        renderMonthlyProgress();
+        renderStats();
+        renderPurchaseList();
+        renderPurchaseTeaser();
+        renderWishList();
+        pendingWishImage = null;
+        renderWishPreview();
+        purchaseSection.classList.add('hidden');
+        $('btn-start').textContent = '🚀 上班';
+      }
+    }
+  });
+
+  // Render all
+  updateUIState();
+  updateMakeupToggle();
+  renderHistory();
+  renderChart();
+  renderAchievements();
+  renderMonthlyProgress();
+  renderStats();
+  renderPurchaseList();
+  renderPurchaseTeaser();
+  renderWishList();
+  renderWishPreview();
+
+  if (state.purchaseItems.length > 0) purchaseSection.classList.remove('hidden');
+
+  // Request notification permission
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+
+  // Auto-save on unload
+  window.addEventListener('beforeunload', () => {
+    if (state.sessionState === 'working' || state.sessionState === 'break') {
+      save();
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
