@@ -2075,6 +2075,12 @@ function startWork() {
     return;
   }
 
+  // After ending work, "新的一天" only works when the calendar day has actually changed
+  if (state.sessionState === 'ended' && state.sessionDate === today()) {
+    alert('今天已经下班了，明天再开始新的一天吧！');
+    return;
+  }
+
   if (state.sessionState === 'idle' || state.sessionState === 'ended') {
     state.normalSeconds = 0;
     state.overtimeSeconds = 0;
