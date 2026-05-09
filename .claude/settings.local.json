@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m http.server 8080)",
+      "WebFetch(domain:localhost)"
+    ]
+  },
+  "hooks": {
+    "UserPromptSubmit": {
+      "command": "bash",
+      "args": [".claude/hooks/delivery-check.sh"]
+    }
+  }
+}
