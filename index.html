@@ -3424,6 +3424,24 @@ function calcPercentile(salary) {
   return 0;
 }
 
+function calcOtPercentile(otMinutes) {
+  var pts = [
+    { m: 0, p: 0 }, { m: 5, p: 10 }, { m: 15, p: 25 },
+    { m: 30, p: 40 }, { m: 45, p: 50 }, { m: 60, p: 60 },
+    { m: 90, p: 70 }, { m: 120, p: 80 }, { m: 180, p: 90 },
+    { m: 300, p: 98 }
+  ];
+  for (var i = pts.length - 1; i >= 0; i--) {
+    if (otMinutes >= pts[i].m) {
+      if (i === pts.length - 1) return Math.min(99, pts[i].p);
+      var lower = pts[i], upper = pts[i + 1];
+      var ratio = (otMinutes - lower.m) / (upper.m - lower.m);
+      return Math.round(lower.p + ratio * (upper.p - lower.p));
+    }
+  }
+  return 0;
+}
+
 function showShareToast(msg) {
   var t = document.createElement('div');
   t.className = 'share-toast';
@@ -3648,7 +3666,7 @@ function generateShareCard() {
   else if (pct >= 80) { badgeIcon = '💪'; badgeLabel = '超过了全国 ' + pct + '% 的打工人，实力超群！'; }
   else if (pct >= 60) { badgeIcon = '👍'; badgeLabel = '超过了全国 ' + pct + '% 的打工人，再接再厉！'; }
   else if (pct >= 40) { badgeIcon = '📈'; badgeLabel = '超过了全国 ' + pct + '% 的打工人，继续加油！'; }
-  // Badge background
+  // Income badge background
   ctx.fillStyle = 'rgba(245,158,11,0.12)';
   roundRect(ctx, 80, 738, 440, 38, 19);
   ctx.fill();
@@ -3661,10 +3679,31 @@ function generateShareCard() {
   ctx.textAlign = 'center';
   ctx.fillText(badgeIcon + ' ' + badgeLabel, 300, 763);
 
+  // Overtime percentile badge (only if overtime today)
+  var bottomDeco = 800;
+  if (state.overtimeSeconds > 0) {
+    var otMin = Math.round(state.overtimeSeconds / 60);
+    var otPct = calcOtPercentile(otMin);
+    var otIcon = otPct >= 80 ? '🌙' : (otPct >= 50 ? '💼' : '⏰');
+    var otLabel = otPct >= 90 ? '加班时长超过 ' + otPct + '% 的打工人，注意休息！' : '加班时长超过 ' + otPct + '% 的打工人';
+    ctx.fillStyle = 'rgba(99,102,241,0.12)';
+    roundRect(ctx, 80, 790, 440, 38, 19);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(99,102,241,0.2)';
+    ctx.lineWidth = 1;
+    roundRect(ctx, 80, 790, 440, 38, 19);
+    ctx.stroke();
+    ctx.fillStyle = '#A5B4FC';
+    ctx.font = '15px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(otIcon + ' ' + otLabel, 300, 815);
+    bottomDeco = 855;
+  }
+
   // Decorative bottom line
   ctx.strokeStyle = 'rgba(255,255,255,0.06)';
   ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(100, 800); ctx.lineTo(500, 800); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(100, bottomDeco); ctx.lineTo(500, bottomDeco); ctx.stroke();
 
   // Watermark
   ctx.fillStyle = 'rgba(255,255,255,0.12)';
@@ -3706,7 +3745,12 @@ function shareDailyReport() {
     }
   }
   var pct = calcPercentile(state.monthlySalary);
-  var text = '🎉 今日搬砖报告！\n📅 ' + dateStr + '\n💵 总收入：¥' + brk.total.toFixed(2) + '\n⏱ 工作：' + hours + 'h ' + mins + 'm' + affordable + '\n🏆 超过了全国 ' + pct + '% 的打工人\n⚡ 我每秒值¥' + rate.toFixed(4) + '，你的呢？\n💰 工资计算器 — 看看你的时间值多少钱';
+  var otLine = '';
+  if (state.overtimeSeconds > 0) {
+    var otMin = Math.round(state.overtimeSeconds / 60);
+    otLine = '\n🌙 加班 ' + otMin + ' 分钟，超过了 ' + calcOtPercentile(otMin) + '% 的打工人';
+  }
+  var text = '🎉 今日搬砖报告！\n📅 ' + dateStr + '\n💵 总收入：¥' + brk.total.toFixed(2) + '\n⏱ 工作：' + hours + 'h ' + mins + 'm' + affordable + otLine + '\n🏆 超过了全国 ' + pct + '% 的打工人\n⚡ 我每秒值¥' + rate.toFixed(4) + '，你的呢？\n💰 工资计算器 — 看看你的时间值多少钱';
   var canvas = generateShareCard();
   shareNativeOrFallback(text, canvas);
 }
@@ -3728,7 +3772,14 @@ function shareStats() {
   var avgDaily = totalEarned / days;
   var rate = state.perSecondRate;
   var pct = calcPercentile(state.monthlySalary);
-  var text = '📊 我的搬砖成就\n💵 累计收入：¥' + totalEarned.toFixed(2) + '\n📅 工作 ' + days + ' 天\n📈 日均 ¥' + avgDaily.toFixed(2) + '\n🏆 单日最高 ¥' + maxEarned.toFixed(2) + '（' + maxDate + '）\n🏆 超过了全国 ' + pct + '% 的打工人\n⚡ 每秒值 ¥' + rate.toFixed(4) + '\n💰 工资计算器 — 看看你的时间值多少钱';
+  var otAvgMin = 0;
+  for (var i = 0; i < dates.length; i++) {
+    var rec = state.records[dates[i]];
+    if (rec && rec.overtimeSeconds) otAvgMin += rec.overtimeSeconds;
+  }
+  otAvgMin = Math.round(otAvgMin / days / 60);
+  var otLine = otAvgMin > 0 ? '\n🌙 日均加班 ' + otAvgMin + ' 分钟，超过了 ' + calcOtPercentile(otAvgMin) + '% 的打工人' : '';
+  var text = '📊 我的搬砖成就\n💵 累计收入：¥' + totalEarned.toFixed(2) + '\n📅 工作 ' + days + ' 天\n📈 日均 ¥' + avgDaily.toFixed(2) + '\n🏆 单日最高 ¥' + maxEarned.toFixed(2) + '（' + maxDate + '）' + otLine + '\n🏆 超过了全国 ' + pct + '% 的打工人\n⚡ 每秒值 ¥' + rate.toFixed(4) + '\n💰 工资计算器 — 看看你的时间值多少钱';
   shareNativeOrFallback(text);
 }
 
