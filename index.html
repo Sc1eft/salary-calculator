@@ -171,6 +171,9 @@
 [data-theme="dark"] .purchase-item .p-del { color: var(--text-tertiary); }
 [data-theme="dark"] .badge-item.earned { background: linear-gradient(135deg, rgba(66,32,6,0.45), rgba(91,33,14,0.45)); }
 [data-theme="dark"] .break-modal-tip { background: rgba(51,65,85,0.4); color: var(--text-secondary); }
+[data-theme="dark"] .btn-share { box-shadow: 0 2px 8px rgba(16,185,129,0.15); }
+[data-theme="dark"] .btn-share.gold { box-shadow: 0 2px 8px rgba(245,158,11,0.12); }
+[data-theme="dark"] .share-toast { background: #1E293B; color: var(--text); }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", system-ui, sans-serif;
@@ -1363,6 +1366,58 @@ main {
 .stat-card.highlight { background: linear-gradient(135deg, rgba(245,158,11,0.06), rgba(245,158,11,0.1)); border-color: rgba(245,158,11,0.15); }
 .stat-card.highlight:hover { border-color: rgba(245,158,11,0.3); }
 
+/* ========= Share ========= */
+.btn-share {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 20px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--anim);
+  box-shadow: 0 2px 8px rgba(16,185,129,0.3);
+  width: 100%;
+  letter-spacing: 0.3px;
+}
+.btn-share:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  box-shadow: 0 4px 12px rgba(16,185,129,0.35);
+  transform: translateY(-1px);
+}
+.btn-share:active { transform: scale(0.97); }
+.btn-share.gold {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  box-shadow: 0 2px 8px rgba(245,158,11,0.3);
+}
+.btn-share.gold:hover {
+  box-shadow: 0 4px 12px rgba(245,158,11,0.35);
+}
+.share-toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1E293B;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 9999;
+  box-shadow: var(--shadow-lg);
+  animation: toastIn 0.3s ease-out, toastOut 0.3s ease-in 2.2s forwards;
+  pointer-events: none;
+  text-align: center;
+  white-space: nowrap;
+  max-width: 90vw;
+}
+
 /* ========= Manual OT toggle ========= */
 .ot-override {
   display: flex;
@@ -1781,6 +1836,9 @@ input[type="number"] { -moz-appearance: textfield; }
   <section class="card" id="stats-section" style="display:none;">
     <h2>📈 统计洞察</h2>
     <div class="stats-grid" id="stats-grid"></div>
+    <div style="margin-top:12px;">
+      <button class="btn-share gold" id="btn-share-stats">📤 分享成就</button>
+    </div>
   </section>
 
   <!-- ====== Achievements ====== -->
@@ -1861,6 +1919,7 @@ input[type="number"] { -moz-appearance: textfield; }
       <div id="r-convert-list"></div>
     </div>
 
+    <button class="btn-share" id="btn-share-report" style="margin-bottom:8px;">📤 分享今日报告</button>
     <button id="btn-close-report">知道了 👍</button>
     <div class="checkbox-row">
       <input type="checkbox" id="report-no-again">
@@ -2160,6 +2219,10 @@ const importFileInput = $('import-file-input');
 const statsSection = $('stats-section');
 const statsGrid = $('stats-grid');
 
+// Share
+const btnShareReport = $('btn-share-report');
+const btnShareStats = $('btn-share-stats');
+
 // Onboarding
 const onboardOverlay = $('onboard-overlay');
 const obBtn = $('ob-btn');
@@ -2370,7 +2433,7 @@ function getEarnedBreakdown() {
   const otMul = (isWeekend() && !state.isMakeupWorkday) ? state.overtimeWeekendRate : state.overtimeEveningRate;
   const normalAmt = state.normalSeconds * base;
   const otAmt = state.overtimeSeconds * base * otMul;
-  return { normal: normalAmt, overtime: otAmt, total: normalAmt + otAmt };
+  return { normal: normalAmt, overtime: otAmt, total: normalAmt + otAmt, totalSeconds: state.normalSeconds + state.overtimeSeconds };
 }
 
 // ================================================================
@@ -3340,6 +3403,294 @@ function downloadBlob(content, filename, mime) {
 }
 
 // ================================================================
+// SHARING
+// ================================================================
+function showShareToast(msg) {
+  var t = document.createElement('div');
+  t.className = 'share-toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 2500);
+}
+
+function shareNativeOrFallback(text, canvas) {
+  if (navigator.share && canvas) {
+    canvas.toBlob(function(blob) {
+      if (!blob) { tryShareFallback(text, canvas); return; }
+      var file = new File([blob], 'salary-report.png', { type: 'image/png' });
+      navigator.share({ title: '工资计算器', text: text, files: [file] })
+        .catch(function(){ tryShareFallback(text, canvas); });
+    });
+  } else {
+    tryShareFallback(text, canvas);
+  }
+}
+
+function tryShareFallback(text, canvas) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function(){
+      showShareToast('已复制到剪贴板');
+    }).catch(function(){ fallbackCopy(text, canvas); });
+  } else {
+    fallbackCopy(text, canvas);
+  }
+}
+
+function fallbackCopy(text, canvas) {
+  try {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showShareToast('已复制到剪贴板');
+  } catch(e) {
+    if (canvas) {
+      canvas.toBlob(function(blob) {
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'salary-report.png';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+    }
+  }
+}
+
+function generateShareCard() {
+  var c = document.createElement('canvas');
+  c.width = 600; c.height = 900;
+  var ctx = c.getContext('2d');
+
+  // Background gradient
+  var grad = ctx.createLinearGradient(0, 0, 0, 900);
+  grad.addColorStop(0, '#1a1a2e');
+  grad.addColorStop(1, '#16213e');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 600, 900);
+
+  // Decorative circles
+  ctx.save();
+  ctx.globalAlpha = 0.06;
+  ctx.fillStyle = '#F59E0B';
+  ctx.beginPath(); ctx.arc(500, 100, 200, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(-50, 700, 180, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+
+  // App title
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.font = '18px "PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('工资计算器', 300, 50);
+
+  // Divider line
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(40, 68); ctx.lineTo(560, 68); ctx.stroke();
+
+  var brk = getEarnedBreakdown();
+  var earned = brk ? brk.total : 0;
+  var totalSec = brk ? brk.totalSeconds : 0;
+  var rate = state.perSecondRate;
+
+  // Report title
+  ctx.fillStyle = '#FDE68A';
+  ctx.font = '14px "PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.fillText('今日搬砖报告', 300, 105);
+
+  // Date
+  var today = new Date();
+  var dateStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.font = '13px "PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.fillText(dateStr, 300, 130);
+
+  // Big earnings number
+  ctx.fillStyle = '#F59E0B';
+  ctx.font = 'bold 64px "PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('¥' + earned.toFixed(2), 300, 210);
+
+  // Per-second rate
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.font = '14px "PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.fillText('时薪 ¥' + (rate * 3600).toFixed(2) + ' | 每秒 ¥' + rate.toFixed(4), 300, 240);
+
+  // Info cards background
+  var cardY = 275;
+  var cardH = 45;
+  var cardW = 520;
+  var cardX = 40;
+
+  // Hours worked
+  ctx.fillStyle = 'rgba(255,255,255,0.06)';
+  roundRect(ctx, cardX, cardY, cardW, cardH, 10);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.font = '13px "PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('⏱ 工作时长', cardX + 16, cardY + 28);
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 16px "PingFang SC","Microsoft YaHei",sans-serif';
+  var hours = Math.floor(totalSec / 3600);
+  var mins = Math.floor((totalSec % 3600) / 60);
+  ctx.fillText(hours + 'h ' + mins + 'm', cardX + cardW - 16, cardY + 28);
+
+  // Rest time
+  if (state.breakSeconds > 0) {
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    roundRect(ctx, cardX, cardY + 55, cardW, cardH, 10);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = '13px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('☕ 休息时长', cardX + 16, cardY + 55 + 28);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 16px "PingFang SC","Microsoft YaHei",sans-serif';
+    var restMins = Math.floor((state.breakSeconds || 0) / 60);
+    ctx.fillText(restMins + 'm', cardX + cardW - 16, cardY + 55 + 28);
+  }
+
+  // Purchase conversion
+  var affordable = [];
+  if (state.purchaseItems && state.purchaseItems.length > 0) {
+    for (var i = 0; i < state.purchaseItems.length; i++) {
+      var item = state.purchaseItems[i];
+      var qty = item.price > 0 ? Math.floor(earned / item.price) : 0;
+      if (qty > 0) affordable.push(qty + ' ' + item.name);
+      if (affordable.length >= 2) break;
+    }
+  }
+  if (affordable.length > 0) {
+    var py2 = cardY + (state.breakSeconds > 0 ? 110 : 55);
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    roundRect(ctx, cardX, py2, cardW, cardH, 10);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = '13px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('🛒 今日收入可买', cardX + 16, py2 + 28);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#FDE68A';
+    ctx.font = 'bold 14px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.fillText(affordable.join('、'), cardX + cardW - 16, py2 + 28);
+  }
+
+  // Monthly progress ring
+  var ringY = 510;
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.font = '13px "PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('月进度', 300, ringY - 10);
+
+  var cx = 300, cy = ringY + 40, r = 50;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+  ctx.lineWidth = 8;
+  ctx.stroke();
+
+  var target = state.monthlySalary;
+  var monthEarnedVal = 0;
+  var recs = state.records || {};
+  for (var d in recs) {
+    var rec = recs[d];
+    if (rec && typeof rec.earned === 'number') monthEarnedVal += rec.earned;
+  }
+  var pct = target > 0 ? Math.min(100, (monthEarnedVal / target) * 100) : 0;
+  var startAngle = -Math.PI / 2;
+  var endAngle = startAngle + (Math.PI * 2 * pct / 100);
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, startAngle, endAngle);
+  ctx.strokeStyle = '#F59E0B';
+  ctx.lineWidth = 8;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 22px "PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.fillText(pct.toFixed(0) + '%', 300, cy + 8);
+
+  // CTA text
+  ctx.fillStyle = 'rgba(255,255,255,0.25)';
+  ctx.font = '14px "PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('我每秒值 ¥' + rate.toFixed(4) + '，你的呢？', 300, 710);
+
+  // Decorative bottom line
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(100, 750); ctx.lineTo(500, 750); ctx.stroke();
+
+  // Watermark
+  ctx.fillStyle = 'rgba(255,255,255,0.12)';
+  ctx.font = '12px "PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('💰 工资计算器', 560, 875);
+
+  return c;
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function shareDailyReport() {
+  var brk = getEarnedBreakdown();
+  if (!brk || brk.total <= 0) { showShareToast('还没有收入，先上班吧！'); return; }
+  var rate = state.perSecondRate;
+  var today = new Date();
+  var dateStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+  var hours = Math.floor(brk.totalSeconds / 3600);
+  var mins = Math.floor((brk.totalSeconds % 3600) / 60);
+  var affordable = '';
+  if (state.purchaseItems && state.purchaseItems.length > 0) {
+    for (var i = 0; i < state.purchaseItems.length; i++) {
+      var item = state.purchaseItems[i];
+      var qty = item.price > 0 ? Math.floor(brk.total / item.price) : 0;
+      if (qty > 0) { affordable = '\n🧋 = ' + qty + ' ' + item.name; break; }
+    }
+  }
+  var text = '🎉 今日搬砖报告！\n📅 ' + dateStr + '\n💵 总收入：¥' + brk.total.toFixed(2) + '\n⏱ 工作：' + hours + 'h ' + mins + 'm' + affordable + '\n我每秒值¥' + rate.toFixed(4) + '，你的呢？\n💰 工资计算器 — 看看你的时间值多少钱';
+  var canvas = generateShareCard();
+  shareNativeOrFallback(text, canvas);
+}
+
+function shareStats() {
+  var dates = Object.keys(state.records).filter(function(d) {
+    var rec = state.records[d];
+    return rec && (rec.earned || 0) > 0;
+  }).sort();
+  if (dates.length === 0) { showShareToast('还没有数据'); return; }
+  var totalEarned = 0, totalSec = 0, maxEarned = 0, maxDate = '';
+  for (var i = 0; i < dates.length; i++) {
+    var rec = state.records[dates[i]];
+    totalEarned += rec.earned || 0;
+    totalSec += rec.workSeconds || 0;
+    if ((rec.earned || 0) > maxEarned) { maxEarned = rec.earned || 0; maxDate = dates[i]; }
+  }
+  var days = dates.length;
+  var avgDaily = totalEarned / days;
+  var rate = state.perSecondRate;
+  var text = '📊 我的搬砖成就\n💵 累计收入：¥' + totalEarned.toFixed(2) + '\n📅 工作 ' + days + ' 天\n📈 日均 ¥' + avgDaily.toFixed(2) + '\n🏆 单日最高 ¥' + maxEarned.toFixed(2) + '（' + maxDate + '）\n⚡ 每秒值 ¥' + rate.toFixed(4) + '\n💰 工资计算器 — 看看你的时间值多少钱';
+  shareNativeOrFallback(text);
+}
+
+// ================================================================
 // STATS INSIGHTS
 // ================================================================
 function renderStats() {
@@ -3665,6 +4016,10 @@ function init() {
     if (e.target.files[0]) importJSON(e.target.files[0]);
     e.target.value = '';
   });
+
+  // Share
+  btnShareReport.addEventListener('click', shareDailyReport);
+  btnShareStats.addEventListener('click', shareStats);
 
   // Edit record
   btnSaveEdit.addEventListener('click', saveEditRecord);
