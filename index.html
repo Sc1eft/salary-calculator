@@ -181,8 +181,8 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
   color: var(--text);
-  padding-bottom: 40px;
-  padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: 70px;
+  padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
   padding-left: env(safe-area-inset-left, 0px);
   padding-right: env(safe-area-inset-right, 0px);
   -webkit-font-smoothing: antialiased;
@@ -327,36 +327,14 @@ main {
   font-weight: 400; font-size: 14px; color: var(--text-tertiary);
 }
 
-/* Settings toggle */
-.settings-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 14px;
-  padding: 8px 20px;
-  border: none;
-  border-radius: var(--radius-full);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  background: var(--border);
-  cursor: pointer;
-  transition: all var(--anim);
-}
-.settings-toggle:hover { background: var(--border-strong); color: var(--text); }
-.settings-toggle .arrow { transition: transform var(--anim); display: inline-block; }
-.settings-toggle .arrow.open { transform: rotate(180deg); }
-
 .settings-panel {
   margin-top: 14px;
   padding: 20px;
   background: var(--bg);
   border-radius: 12px;
   border: 1px solid var(--border);
-  display: none;
   text-align: left;
 }
-.settings-panel.open { display: block; }
 .settings-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1087,6 +1065,71 @@ main {
 .app-footer button.danger { color: var(--red); }
 .app-footer button.danger:hover { background: var(--red-light); }
 
+/* ========= Tab Bar ========= */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  background: var(--bg-elevated);
+  border-top: 1px solid var(--border);
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.tab-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 4px 6px;
+  border: none;
+  background: transparent;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color var(--anim-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+.tab-btn .tab-icon { font-size: 20px; line-height: 1; }
+.tab-btn.active { color: var(--gold); }
+.tab-btn.active .tab-icon { transform: scale(1.05); }
+.tab-btn:active { opacity: 0.7; }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+@media (min-width: 640px) {
+  .tab-bar {
+    position: static;
+    flex-direction: row;
+    max-width: 720px;
+    margin: -8px auto 0;
+    padding: 0 16px;
+    border-top: none;
+    border-bottom: 1px solid var(--border);
+    background: transparent;
+    backdrop-filter: none;
+    gap: 4px;
+  }
+  body { padding-bottom: 0 !important; }
+  .tab-btn {
+    flex-direction: row;
+    gap: 6px;
+    padding: 12px 16px;
+    font-size: 13px;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+  }
+  .tab-btn.active { border-bottom-color: var(--gold); color: var(--gold); }
+  .tab-btn .tab-icon { font-size: 16px; }
+}
+
 /* ========= Responsive ========= */
 @media (min-width: 640px) {
   main { padding: 0 24px; }
@@ -1240,18 +1283,6 @@ main {
   color: var(--text-tertiary);
   padding: 16px;
 }
-.wishlist-compact {
-  display: none;
-  text-align: center;
-  font-size: 12px;
-  color: var(--text-tertiary);
-  margin-top: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: color var(--anim);
-}
-.wishlist-compact:hover { color: var(--text-secondary); }
-
 /* ========= Wishlist Images ========= */
 .wish-img-btn {
   display: inline-flex;
@@ -1341,9 +1372,6 @@ main {
 }
 .wish-item-img-wrap:hover .img-overlay { opacity: 1; }
 .wish-item-content { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-
-/* Compact teaser image */
-.wishlist-compact.visible { display: block; }
 
 /* ========= Stats ========= */
 .stats-grid {
@@ -1557,21 +1585,12 @@ body { -webkit-tap-highlight-color: transparent; overscroll-behavior: none; }
   transition: background var(--anim);
 }
 
-/* Card entrance animation */
+/* Card entrance animation — triggered by JS on tab switch */
 @keyframes cardIn {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.card { animation: cardIn 0.4s var(--ease-out) both; }
-.card:nth-child(1) { animation-delay: 0s; }
-.card:nth-child(2) { animation-delay: 0.06s; }
-.card:nth-child(3) { animation-delay: 0.12s; }
-.card:nth-child(4) { animation-delay: 0.18s; }
-.card:nth-child(5) { animation-delay: 0.24s; }
-.card:nth-child(6) { animation-delay: 0.30s; }
-.card:nth-child(7) { animation-delay: 0.36s; }
-.card:nth-child(8) { animation-delay: 0.42s; }
-.card:nth-child(9) { animation-delay: 0.48s; }
+.tab-content.active .card { animation: cardIn 0.4s var(--ease-out) both; }
 
 /* Smooth scroll & focus */
 html { scroll-behavior: smooth; }
@@ -1592,269 +1611,281 @@ input[type="number"] { -moz-appearance: textfield; }
   <p>每一秒的努力都看得见</p>
 </header>
 
+<nav class="tab-bar" id="tab-bar">
+  <button class="tab-btn active" data-tab="timer"><span class="tab-icon">⏱️</span><span>计时</span></button>
+  <button class="tab-btn" data-tab="goals"><span class="tab-icon">🎯</span><span>目标</span></button>
+  <button class="tab-btn" data-tab="history"><span class="tab-icon">📅</span><span>记录</span></button>
+  <button class="tab-btn" data-tab="insights"><span class="tab-icon">📊</span><span>洞察</span></button>
+  <button class="tab-btn" data-tab="settings"><span class="tab-icon">⚙️</span><span>设置</span></button>
+</nav>
+
 <main>
-  <!-- ====== Salary & Settings ====== -->
-  <section class="card" id="salary-section">
-    <h2>📋 月薪设置</h2>
-    <div class="salary-input-group">
-      <input type="number" id="salary-input" placeholder="输入月薪" min="0" step="1000">
-      <span style="font-weight:600;color:var(--gray-700);font-size:16px;">元/月</span>
-    </div>
-    <div class="rate-info" id="rate-info">按 22天 × 8小时 计算，约 <strong>0 元/秒</strong></div>
-    <div id="tax-display" style="display:none;margin-top:8px;padding:8px 12px;background:var(--green-light);border-radius:var(--radius-sm);">
-      <div class="tax-row"><span>税前月薪</span><span class="tax-val" id="tax-before">¥0</span></div>
-      <div class="tax-row"><span>社保</span><span class="tax-val" id="tax-social-insurance" style="color:var(--gray-500);">-¥0</span></div>
-      <div class="tax-row" style="border-bottom:1px dashed var(--gray-200);padding-bottom:4px;margin-bottom:4px;"><span>公积金</span><span class="tax-val" id="tax-housing-fund" style="color:var(--gray-500);">-¥0</span></div>
-      <div class="tax-row"><span>个人所得税</span><span class="tax-val" id="tax-income" style="color:var(--red);">-¥0</span></div>
-      <div class="tax-row" style="font-weight:700;color:var(--green);border-top:1px solid var(--green);padding-top:6px;margin-top:4px;">
-        <span>≈ 到手薪资</span><span class="tax-val" id="tax-takehome" style="font-size:16px;">¥0</span>
-      </div>
-      <div class="tax-detail" id="tax-detail">基于用户设定的社保/公积金比例估算</div>
-    </div>
-
-    <button class="settings-toggle" id="settings-toggle">
-      ⚙️ 高级设置 <span class="arrow" id="settings-arrow">▼</span>
-    </button>
-    <div class="settings-panel" id="settings-panel">
-      <div class="settings-grid">
-        <div class="setting-item">
-          <label>工作天数 / 月</label>
-          <input type="number" id="set-work-days" value="22" min="1" max="31">
+  <!-- ====== Tab: Timer ====== -->
+  <div class="tab-content active" id="tab-timer">
+    <section class="card" id="progress-section">
+      <h2>📊 月进度</h2>
+      <div class="monthly-progress">
+        <div class="ring-container" id="ring-container">
+          <svg width="100" height="100" viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#F59E0B"/>
+                <stop offset="100%" stop-color="#D97706"/>
+              </linearGradient>
+            </defs>
+            <circle class="ring-bg" cx="50" cy="50" r="42"/>
+            <circle class="ring-fg" id="ring-fg" cx="50" cy="50" r="42"
+              stroke-dasharray="263.89" stroke-dashoffset="263.89"/>
+          </svg>
+          <div class="ring-center">
+            <span class="pct" id="ring-pct">0%</span>
+            <span class="pct-label">完成</span>
+          </div>
         </div>
-        <div class="setting-item">
-          <label>每日工时</label>
-          <input type="number" id="set-work-hours" value="8" min="1" max="24" step="0.5">
-        </div>
-        <div class="setting-item">
-          <label>午休时间 (分钟)</label>
-          <input type="number" id="set-lunch" value="60" min="0" max="180" step="5">
-        </div>
-        <div class="setting-item">
-          <label>上班时间</label>
-          <input type="time" id="set-start-time" value="09:00">
-        </div>
-        <div class="setting-item">
-          <label>工作日加班倍率</label>
-          <input type="number" id="set-ot-evening" value="1.5" min="1" max="5" step="0.1">
-        </div>
-        <div class="setting-item">
-          <label>周末加班倍率</label>
-          <input type="number" id="set-ot-weekend" value="2.0" min="1" max="5" step="0.1">
-        </div>
-        <div class="setting-item">
-          <label>社保比例</label>
-          <select id="set-social-insurance">
-            <option value="0">不计算</option>
-            <option value="8">8% (养老)</option>
-            <option value="10">10%</option>
-            <option value="10.5" selected>10.5% (标准)</option>
-            <option value="11">11%</option>
-          </select>
-        </div>
-        <div class="setting-item">
-          <label>公积金比例</label>
-          <select id="set-housing-fund">
-            <option value="0">不计算</option>
-            <option value="5">5%</option>
-            <option value="7" selected>7% (标准)</option>
-            <option value="8">8%</option>
-            <option value="10">10%</option>
-            <option value="12">12%</option>
-          </select>
-        </div>
-        <div class="setting-item">
-          <label>个税起征点/月</label>
-          <input type="number" id="set-tax-threshold" value="5000" min="0" max="20000" step="500">
+        <div class="monthly-stats">
+          <div class="stat-row">
+            <span class="stat-label">本月收入</span>
+            <span class="stat-value gold" id="month-earned">¥0.00</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">月薪目标</span>
+            <span class="stat-value" id="month-target">¥0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">工作天数</span>
+            <span class="stat-value" id="month-days">0 天</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">每秒费率</span>
+            <span class="stat-value" id="month-rate">0 元</span>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ====== Monthly Progress ====== -->
-  <section class="card" id="progress-section">
-    <h2>📊 月进度</h2>
-    <div class="monthly-progress">
-      <div class="ring-container" id="ring-container">
-        <svg width="100" height="100" viewBox="0 0 100 100">
-          <defs>
-            <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#F59E0B"/>
-              <stop offset="100%" stop-color="#D97706"/>
-            </linearGradient>
-          </defs>
-          <circle class="ring-bg" cx="50" cy="50" r="42"/>
-          <circle class="ring-fg" id="ring-fg" cx="50" cy="50" r="42"
-            stroke-dasharray="263.89" stroke-dashoffset="263.89"/>
-        </svg>
-        <div class="ring-center">
-          <span class="pct" id="ring-pct">0%</span>
-          <span class="pct-label">完成</span>
+    <section class="card" id="tracker-section">
+      <div class="timer-row">
+        <div class="timer-box work">
+          <div class="label">⏰ 工作</div>
+          <div class="value" id="work-timer">00:00:00</div>
+        </div>
+        <div class="timer-box overtime">
+          <div class="label">🌙 加班</div>
+          <div class="value" id="ot-timer">00:00:00</div>
+        </div>
+        <div class="timer-box break">
+          <div class="label">☕ 休息</div>
+          <div class="value" id="break-timer">00:00:00</div>
         </div>
       </div>
-      <div class="monthly-stats">
-        <div class="stat-row">
-          <span class="stat-label">本月收入</span>
-          <span class="stat-value gold" id="month-earned">¥0.00</span>
+
+      <div class="earned-box">
+        <div class="label">💰 今日已赚</div>
+        <div class="value" id="earned-amount">¥0.00</div>
+        <div class="earned-breakdown">
+          <span class="normal" id="normal-earned">正常: ¥0.00</span>
+          <span class="overtime" id="ot-earned">加班: ¥0.00</span>
         </div>
-        <div class="stat-row">
-          <span class="stat-label">月薪目标</span>
-          <span class="stat-value" id="month-target">¥0</span>
+        <div class="status-badge idle" id="status-badge">⏸️ 未开始</div>
+      </div>
+
+      <div class="controls">
+        <button class="btn btn-success" id="btn-start">🚀 上班</button>
+        <button class="btn btn-warning" id="btn-break">☕ 休息</button>
+        <button class="btn btn-danger" id="btn-end">🔚 下班</button>
+      </div>
+
+      <div class="progress-bar">
+        <div class="fill" id="daily-progress"></div>
+      </div>
+
+      <div class="ot-override" id="ot-override" style="display:none;">
+        <span style="color:var(--gray-500);">当前时段：</span>
+        <button class="ot-btn" id="ot-btn-normal">⏱️ 正常</button>
+        <button class="ot-btn" id="ot-btn-overtime">🌙 加班</button>
+      </div>
+
+      <div class="makeup-toggle" id="makeup-toggle">
+        <span class="toggle-label">📅 今天调休上班</span>
+        <div class="toggle-track" id="toggle-track">
+          <div class="toggle-knob"></div>
         </div>
-        <div class="stat-row">
-          <span class="stat-label">工作天数</span>
-          <span class="stat-value" id="month-days">0 天</span>
+        <span class="toggle-hint" id="toggle-hint"></span>
+      </div>
+
+      <div class="purchase-teaser hidden" id="purchase-teaser" onclick="switchTab('goals')">
+        <span id="teaser-text">今日已赚 = 0 杯奶茶</span>
+        <span class="small"> 点击查看全部换算 →</span>
+      </div>
+    </section>
+  </div>
+
+  <!-- ====== Tab: Goals ====== -->
+  <div class="tab-content" id="tab-goals">
+    <section class="card" id="purchase-section">
+      <h2>🛒 消费换算</h2>
+      <div class="purchase-header">
+        <input type="text" id="purchase-name" placeholder="物品名称" maxlength="20">
+        <input type="number" class="price-input" id="purchase-price" placeholder="价格" min="0" step="0.5">
+        <button class="btn-outline-sm" id="btn-add-purchase">添加</button>
+      </div>
+      <div class="purchase-list" id="purchase-list">
+        <div class="purchase-empty">添加想买的东西，看看需要工作多久</div>
+      </div>
+    </section>
+
+    <section class="card" id="wishlist-section">
+      <h2>🎯 心愿单 <span class="badge-count" id="wish-count">0</span></h2>
+      <div class="wishlist-header">
+        <div class="wish-img-btn" id="wish-img-btn" title="上传图片">📷</div>
+        <input type="file" id="wish-image-input" accept="image/*" style="display:none">
+        <input type="text" class="wi-name" id="wish-name" placeholder="心愿名称" maxlength="20">
+        <input type="number" class="wi-amount" id="wish-amount" placeholder="金额" min="0" step="100">
+        <button class="btn-outline-sm" id="btn-add-wish">添加</button>
+      </div>
+      <div class="wishlist-list" id="wishlist-list">
+        <div class="wish-empty">添加心愿，看看你的收入离目标还有多远</div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ====== Tab: History ====== -->
+  <div class="tab-content" id="tab-history">
+    <section class="card" id="chart-section">
+      <h2>📊 收入趋势</h2>
+      <canvas id="income-chart"></canvas>
+      <div class="chart-empty hidden" id="chart-empty">
+        <p>暂无数据，开始工作后将自动记录</p>
+      </div>
+    </section>
+
+    <section class="card" id="history-section">
+      <h2>📅 工作记录</h2>
+      <div class="cal-nav">
+        <button class="cal-btn" id="cal-prev">‹</button>
+        <span class="cal-title" id="cal-title"></span>
+        <button class="cal-btn" id="cal-next">›</button>
+      </div>
+      <div class="cal-dow">
+        <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div class="history-empty" id="history-empty">暂无记录</div>
+      <div class="cal-summary" id="cal-summary" style="display:none;">
+        <div><div class="cs-label">工作天数</div><div class="cs-value" id="cal-days">0</div></div>
+        <div><div class="cs-label">总收入</div><div class="cs-value" id="cal-total">¥0.00</div></div>
+        <div><div class="cs-label">总工时</div><div class="cs-value" id="cal-hours">0h</div></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ====== Tab: Insights ====== -->
+  <div class="tab-content" id="tab-insights">
+    <section class="card" id="stats-section">
+      <h2>📈 统计洞察</h2>
+      <div class="stats-grid" id="stats-grid"></div>
+      <div style="margin-top:12px;">
+        <button class="btn-share gold" id="btn-share-stats">📤 分享成就</button>
+      </div>
+    </section>
+
+    <section class="card" id="achievement-section">
+      <h2>🏆 成就 <span class="badge-count" id="badge-count">0 / 12</span></h2>
+      <div class="badge-grid" id="badge-grid"></div>
+    </section>
+  </div>
+
+  <!-- ====== Tab: Settings ====== -->
+  <div class="tab-content" id="tab-settings">
+    <section class="card" id="salary-section">
+      <h2>📋 月薪设置</h2>
+      <div class="salary-input-group">
+        <input type="number" id="salary-input" placeholder="输入月薪" min="0" step="1000">
+        <span style="font-weight:600;color:var(--gray-700);font-size:16px;">元/月</span>
+        <button class="btn btn-primary" id="btn-salary-confirm" style="padding:12px 24px;font-size:14px;">确认</button>
+      </div>
+      <div class="rate-info" id="rate-info">按 22天 × 8小时 计算，约 <strong>0 元/秒</strong></div>
+      <div id="tax-display" style="display:none;margin-top:8px;padding:8px 12px;background:var(--green-light);border-radius:var(--radius-sm);">
+        <div class="tax-row"><span>税前月薪</span><span class="tax-val" id="tax-before">¥0</span></div>
+        <div class="tax-row"><span>社保</span><span class="tax-val" id="tax-social-insurance" style="color:var(--gray-500);">-¥0</span></div>
+        <div class="tax-row" style="border-bottom:1px dashed var(--gray-200);padding-bottom:4px;margin-bottom:4px;"><span>公积金</span><span class="tax-val" id="tax-housing-fund" style="color:var(--gray-500);">-¥0</span></div>
+        <div class="tax-row"><span>个人所得税</span><span class="tax-val" id="tax-income" style="color:var(--red);">-¥0</span></div>
+        <div class="tax-row" style="font-weight:700;color:var(--green);border-top:1px solid var(--green);padding-top:6px;margin-top:4px;">
+          <span>≈ 到手薪资</span><span class="tax-val" id="tax-takehome" style="font-size:16px;">¥0</span>
         </div>
-        <div class="stat-row">
-          <span class="stat-label">每秒费率</span>
-          <span class="stat-value" id="month-rate">0 元</span>
+        <div class="tax-detail" id="tax-detail">基于用户设定的社保/公积金比例估算</div>
+      </div>
+
+      <div class="settings-panel" id="settings-panel">
+        <h3 style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--text-secondary);">⚙️ 高级设置</h3>
+        <div class="settings-grid">
+          <div class="setting-item">
+            <label>工作天数 / 月</label>
+            <input type="number" id="set-work-days" value="22" min="1" max="31">
+          </div>
+          <div class="setting-item">
+            <label>每日工时</label>
+            <input type="number" id="set-work-hours" value="8" min="1" max="24" step="0.5">
+          </div>
+          <div class="setting-item">
+            <label>午休时间 (分钟)</label>
+            <input type="number" id="set-lunch" value="60" min="0" max="180" step="5">
+          </div>
+          <div class="setting-item">
+            <label>上班时间</label>
+            <input type="time" id="set-start-time" value="09:00">
+          </div>
+          <div class="setting-item">
+            <label>工作日加班倍率</label>
+            <input type="number" id="set-ot-evening" value="1.5" min="1" max="5" step="0.1">
+          </div>
+          <div class="setting-item">
+            <label>周末加班倍率</label>
+            <input type="number" id="set-ot-weekend" value="2.0" min="1" max="5" step="0.1">
+          </div>
+          <div class="setting-item">
+            <label>社保比例</label>
+            <select id="set-social-insurance">
+              <option value="0">不计算</option>
+              <option value="8">8% (养老)</option>
+              <option value="10">10%</option>
+              <option value="10.5" selected>10.5% (标准)</option>
+              <option value="11">11%</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label>公积金比例</label>
+            <select id="set-housing-fund">
+              <option value="0">不计算</option>
+              <option value="5">5%</option>
+              <option value="7" selected>7% (标准)</option>
+              <option value="8">8%</option>
+              <option value="10">10%</option>
+              <option value="12">12%</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label>个税起征点/月</label>
+            <input type="number" id="set-tax-threshold" value="5000" min="0" max="20000" step="500">
+          </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ====== Work Tracker ====== -->
-  <section class="card" id="tracker-section">
-    <div class="timer-row">
-      <div class="timer-box work">
-        <div class="label">⏰ 工作</div>
-        <div class="value" id="work-timer">00:00:00</div>
+    <section class="card" id="data-section">
+      <h2>💾 数据管理</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
+        <button class="btn-outline-sm" id="btn-export-csv">📄 导出 CSV</button>
+        <button class="btn-outline-sm" id="btn-export-json">💾 导出 JSON</button>
+        <button class="btn-outline-sm" id="btn-import-json">📂 导入备份</button>
       </div>
-      <div class="timer-box overtime">
-        <div class="label">🌙 加班</div>
-        <div class="value" id="ot-timer">00:00:00</div>
+      <div style="margin-top:14px;text-align:center;">
+        <button class="btn-outline-sm" id="btn-reset-data" style="color:var(--red);border-color:var(--red);">🗑️ 清除所有数据</button>
       </div>
-      <div class="timer-box break">
-        <div class="label">☕ 休息</div>
-        <div class="value" id="break-timer">00:00:00</div>
-      </div>
-    </div>
-
-    <div class="earned-box">
-      <div class="label">💰 今日已赚</div>
-      <div class="value" id="earned-amount">¥0.00</div>
-      <div class="earned-breakdown">
-        <span class="normal" id="normal-earned">正常: ¥0.00</span>
-        <span class="overtime" id="ot-earned">加班: ¥0.00</span>
-      </div>
-      <div class="status-badge idle" id="status-badge">⏸️ 未开始</div>
-    </div>
-
-    <div class="controls">
-      <button class="btn btn-success" id="btn-start">🚀 上班</button>
-      <button class="btn btn-warning" id="btn-break">☕ 休息</button>
-      <button class="btn btn-danger" id="btn-end">🔚 下班</button>
-    </div>
-
-    <div class="progress-bar">
-      <div class="fill" id="daily-progress"></div>
-    </div>
-
-    <!-- Manual OT override -->
-    <div class="ot-override" id="ot-override" style="display:none;">
-      <span style="color:var(--gray-500);">当前时段：</span>
-      <button class="ot-btn" id="ot-btn-normal">⏱️ 正常</button>
-      <button class="ot-btn" id="ot-btn-overtime">🌙 加班</button>
-    </div>
-
-    <!-- Makeup workday toggle -->
-    <div class="makeup-toggle" id="makeup-toggle">
-      <span class="toggle-label">📅 今天调休上班</span>
-      <div class="toggle-track" id="toggle-track">
-        <div class="toggle-knob"></div>
-      </div>
-      <span class="toggle-hint" id="toggle-hint"></span>
-    </div>
-
-    <!-- Purchase conversion teaser -->
-    <div class="purchase-teaser hidden" id="purchase-teaser" onclick="scrollToPurchases()">
-      <span id="teaser-text">今日已赚 = 0 杯奶茶</span>
-      <span class="small"> 点击查看全部换算 →</span>
-    </div>
-  </section>
-
-  <!-- ====== Purchase Conversion ====== -->
-  <section class="card hidden" id="purchase-section">
-    <h2>🛒 消费换算</h2>
-    <div class="purchase-header">
-      <input type="text" id="purchase-name" placeholder="物品名称" maxlength="20">
-      <input type="number" class="price-input" id="purchase-price" placeholder="价格" min="0" step="0.5">
-      <button class="btn-outline-sm" id="btn-add-purchase">添加</button>
-    </div>
-    <div class="purchase-list" id="purchase-list">
-      <div class="purchase-empty">添加想买的东西，看看需要工作多久</div>
-    </div>
-  </section>
-
-  <!-- ====== Wishlist ====== -->
-  <section class="card" id="wishlist-section">
-    <h2>🎯 心愿单 <span class="badge-count" id="wish-count">0</span></h2>
-    <div class="wishlist-header">
-      <div class="wish-img-btn" id="wish-img-btn" title="上传图片">📷</div>
-      <input type="file" id="wish-image-input" accept="image/*" style="display:none">
-      <input type="text" class="wi-name" id="wish-name" placeholder="心愿名称" maxlength="20">
-      <input type="number" class="wi-amount" id="wish-amount" placeholder="金额" min="0" step="100">
-      <button class="btn-outline-sm" id="btn-add-wish">添加</button>
-    </div>
-    <div class="wishlist-list" id="wishlist-list">
-      <div class="wish-empty">添加心愿，看看你的收入离目标还有多远</div>
-    </div>
-    <div class="wishlist-compact" id="wishlist-compact" onclick="document.getElementById('wishlist-section').scrollIntoView({behavior:'smooth',block:'start'})">
-      查看全部心愿进度 →
-    </div>
-  </section>
-
-  <!-- ====== Income Chart ====== -->
-  <section class="card" id="chart-section">
-    <h2>📊 收入趋势</h2>
-    <canvas id="income-chart"></canvas>
-    <div class="chart-empty hidden" id="chart-empty">
-      <p>暂无数据，开始工作后将自动记录</p>
-    </div>
-  </section>
-
-  <!-- ====== History (Calendar) ====== -->
-  <section class="card" id="history-section">
-    <h2>📅 工作记录</h2>
-    <div class="cal-nav">
-      <button class="cal-btn" id="cal-prev">‹</button>
-      <span class="cal-title" id="cal-title"></span>
-      <button class="cal-btn" id="cal-next">›</button>
-    </div>
-    <div class="cal-dow">
-      <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
-    </div>
-    <div class="cal-grid" id="cal-grid"></div>
-    <div class="history-empty" id="history-empty">暂无记录</div>
-    <div class="cal-summary" id="cal-summary" style="display:none;">
-      <div><div class="cs-label">工作天数</div><div class="cs-value" id="cal-days">0</div></div>
-      <div><div class="cs-label">总收入</div><div class="cs-value" id="cal-total">¥0.00</div></div>
-      <div><div class="cs-label">总工时</div><div class="cs-value" id="cal-hours">0h</div></div>
-    </div>
-  </section>
-
-  <!-- ====== Stats ====== -->
-  <section class="card" id="stats-section" style="display:none;">
-    <h2>📈 统计洞察</h2>
-    <div class="stats-grid" id="stats-grid"></div>
-    <div style="margin-top:12px;">
-      <button class="btn-share gold" id="btn-share-stats">📤 分享成就</button>
-    </div>
-  </section>
-
-  <!-- ====== Achievements ====== -->
-  <section class="card" id="achievement-section">
-    <h2>🏆 成就 <span class="badge-count" id="badge-count">0 / 12</span></h2>
-    <div class="badge-grid" id="badge-grid"></div>
-  </section>
+    </section>
+  </div>
 </main>
 
-<!-- Footer -->
-<div class="app-footer" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
-  <button id="btn-export-csv">📄 导出 CSV</button>
-  <button id="btn-export-json">💾 导出 JSON</button>
-  <button id="btn-import-json">📂 导入备份</button>
-  <button id="btn-reset-data">🗑️ 清除所有数据</button>
-</div>
 <input type="file" id="import-file-input" accept=".json" style="display:none">
 
 <!-- Coin Container -->
@@ -2097,9 +2128,7 @@ const salaryInput = $('salary-input');
 const rateInfo = $('rate-info');
 
 // Settings
-const settingsToggle = $('settings-toggle');
 const settingsPanel = $('settings-panel');
-const settingsArrow = $('settings-arrow');
 const setWorkDays = $('set-work-days');
 const setWorkHours = $('set-work-hours');
 const setLunch = $('set-lunch');
@@ -2151,7 +2180,6 @@ const wishName = $('wish-name');
 const wishAmount = $('wish-amount');
 const btnAddWish = $('btn-add-wish');
 const wishCount = $('wish-count');
-const wishlistCompact = $('wishlist-compact');
 const wishImgBtn = $('wish-img-btn');
 const wishImageInput = $('wish-image-input');
 const calGrid = $('cal-grid');
@@ -2283,6 +2311,79 @@ function today() {
 function fmtDate(s) { const p = s.split('-'); return `${p[1]}/${p[2]}`; }
 function getNow() { return new Date(); }
 
+// ================================================================
+// TAB SYSTEM
+// ================================================================
+let activeTab = 'timer';
+
+function switchTab(tabId) {
+  if (activeTab === tabId) return;
+  activeTab = tabId;
+  document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.classList.toggle('active', btn.dataset.tab === tabId);
+  });
+  document.querySelectorAll('.tab-content').forEach(function(tc) {
+    tc.classList.toggle('active', tc.id === 'tab-' + tabId);
+  });
+  renderActiveTab();
+  animateTabCards(tabId);
+}
+
+function renderActiveTab() {
+  switch (activeTab) {
+    case 'timer':
+      updateDisplay();
+      updateUIState();
+      renderMonthlyProgress();
+      renderPurchaseTeaser();
+      break;
+    case 'goals':
+      renderPurchaseList();
+      renderWishList();
+      break;
+    case 'history':
+      renderChart();
+      renderHistory();
+      break;
+    case 'insights':
+      renderStats();
+      renderAchievements();
+      break;
+    case 'settings':
+      updateTaxDisplay();
+      break;
+  }
+}
+
+function animateTabCards(tabId) {
+  var container = document.getElementById('tab-' + tabId);
+  if (!container) return;
+  var cards = container.querySelectorAll('.card');
+  cards.forEach(function(card, i) {
+    card.style.animation = 'none';
+    void card.offsetHeight;
+    card.style.animation = 'cardIn 0.4s var(--ease-out) both';
+    card.style.animationDelay = (i * 0.08) + 's';
+  });
+}
+
+function confirmSalary() {
+  var val = parseInt(salaryInput.value);
+  if (!val || val <= 0) {
+    alert('请输入有效的月薪金额');
+    salaryInput.focus();
+    return;
+  }
+  state.monthlySalary = val;
+  recalcRate();
+  renderMonthlyProgress();
+  renderActiveTab();
+  save();
+  if (state.sessionState === 'idle' || state.sessionState === 'ended') {
+    switchTab('timer');
+  }
+}
+
 function isWeekend(date) {
   const d = date || new Date();
   return d.getDay() === 0 || d.getDay() === 6;
@@ -2402,10 +2503,21 @@ function tick() {
   }
   state.cumWorkSeconds++;
   calcEarned();
-  updateDisplay();
-  renderPurchaseTeaser();
-  renderWishList();
-  renderStats();
+  // Only update DOM for active tab
+  switch (activeTab) {
+    case 'timer':
+      updateDisplay();
+      renderPurchaseTeaser();
+      renderMonthlyProgress();
+      break;
+    case 'goals':
+      renderPurchaseList();
+      renderWishList();
+      break;
+    case 'insights':
+      renderStats();
+      break;
+  }
   checkCoinEffect();
   checkBreakReminder();
   save();
@@ -2472,6 +2584,7 @@ function startWork() {
   save();
   renderMonthlyProgress();
   renderPurchaseTeaser();
+  switchTab('timer');
 }
 
 function startBreak() {
@@ -2710,7 +2823,6 @@ function removePurchase(idx) {
   state.purchaseItems.splice(idx, 1);
   renderPurchaseList();
   renderPurchaseTeaser();
-  if (state.purchaseItems.length === 0) purchaseSection.classList.add('hidden');
   save();
 }
 
@@ -2752,11 +2864,6 @@ function renderPurchaseTeaser() {
   const first = state.purchaseItems[0];
   const count = Math.floor(earned / first.price);
   teaserText.textContent = `今日已赚 = ${count} 杯${first.name}`;
-}
-
-function scrollToPurchases() {
-  purchaseSection.classList.remove('hidden');
-  purchaseSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ================================================================
@@ -2863,7 +2970,6 @@ function renderWishList() {
 
   if (items.length === 0) {
     wishlistList.innerHTML = '<div class="wish-empty">添加心愿，看看你的收入离目标还有多远</div>';
-    wishlistCompact.classList.remove('visible');
     return;
   }
 
@@ -2899,10 +3005,8 @@ function renderWishList() {
       </div>
     </div>`;
   }).join('');
-
-  // Show compact teaser when wishes exist
-  wishlistCompact.classList.add('visible');
 }
+
 
 function escapeHtml(str) {
   const d = document.createElement('div');
@@ -3792,8 +3896,7 @@ function renderStats() {
     return rec && (rec.earned || 0) > 0;
   }).sort();
 
-  if (dates.length === 0) { statsSection.style.display = 'none'; return; }
-  statsSection.style.display = 'block';
+  if (dates.length === 0) { return; }
 
   let totalEarned = 0, maxEarned = 0, maxDate = '';
   let totalWorkMin = 0, maxOtMin = 0, maxOtDate = '';
@@ -3937,17 +4040,6 @@ function init() {
   setSocialInsurance.value = state.socialInsuranceRate;
   setHousingFund.value = state.housingFundRate;
 
-  // Settings toggle
-  settingsToggle.addEventListener('click', () => {
-    state.settingsOpen = !state.settingsOpen;
-    settingsPanel.classList.toggle('open', state.settingsOpen);
-    settingsArrow.classList.toggle('open', state.settingsOpen);
-  });
-  if (state.settingsOpen) {
-    settingsPanel.classList.add('open');
-    settingsArrow.classList.add('open');
-  }
-
   // Settings change handlers
   [setWorkDays, setWorkHours, setLunch, setStartTime, setOtEvening, setOtWeekend, setSocialInsurance, setHousingFund, setTaxThreshold].forEach(el => {
     el.addEventListener('change', applySettings);
@@ -4004,16 +4096,16 @@ function init() {
   btnEnd.addEventListener('click', endWork);
 
   // Salary input
-  salaryInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      const val = parseInt(salaryInput.value);
-      if (val > 0) {
-        state.monthlySalary = val;
-        recalcRate();
-        renderMonthlyProgress();
-        save();
-      }
-    }
+  salaryInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') confirmSalary();
+  });
+
+  // Confirm salary button
+  $('btn-salary-confirm').addEventListener('click', confirmSalary);
+
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() { switchTab(this.dataset.tab); });
   });
 
   // Purchase
@@ -4152,7 +4244,6 @@ function init() {
         renderWishList();
         pendingWishImage = null;
         renderWishPreview();
-        purchaseSection.classList.add('hidden');
         $('btn-start').textContent = '🚀 上班';
       }
     }
@@ -4171,7 +4262,11 @@ function init() {
   renderWishList();
   renderWishPreview();
 
-  if (state.purchaseItems.length > 0) purchaseSection.classList.remove('hidden');
+  // Initial tab: if no salary, go to settings tab for setup
+  if (!state.monthlySalary || state.monthlySalary <= 0) {
+    switchTab('settings');
+    setTimeout(function(){ salaryInput.focus(); }, 400);
+  }
 
   // Request notification permission
   if ('Notification' in window && Notification.permission === 'default') {
