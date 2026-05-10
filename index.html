@@ -3405,6 +3405,25 @@ function downloadBlob(content, filename, mime) {
 // ================================================================
 // SHARING
 // ================================================================
+function calcPercentile(salary) {
+  var pts = [
+    { s: 0, p: 0 }, { s: 2000, p: 1 }, { s: 3500, p: 5 },
+    { s: 5000, p: 10 }, { s: 6000, p: 20 }, { s: 8000, p: 30 },
+    { s: 10000, p: 40 }, { s: 12000, p: 50 }, { s: 15000, p: 60 },
+    { s: 20000, p: 70 }, { s: 30000, p: 80 }, { s: 50000, p: 90 },
+    { s: 80000, p: 95 }, { s: 150000, p: 99 }
+  ];
+  for (var i = pts.length - 1; i >= 0; i--) {
+    if (salary >= pts[i].s) {
+      if (i === pts.length - 1) return Math.min(100, pts[i].p + 1);
+      var lower = pts[i], upper = pts[i + 1];
+      var ratio = (salary - lower.s) / (upper.s - lower.s);
+      return Math.round(lower.p + ratio * (upper.p - lower.p));
+    }
+  }
+  return 0;
+}
+
 function showShareToast(msg) {
   var t = document.createElement('div');
   t.className = 'share-toast';
@@ -3621,10 +3640,31 @@ function generateShareCard() {
   ctx.textAlign = 'center';
   ctx.fillText('我每秒值 ¥' + rate.toFixed(4) + '，你的呢？', 300, 710);
 
+  // Percentile badge
+  var pct = calcPercentile(state.monthlySalary);
+  var badgeIcon = '🏆', badgeLabel = '超过了全国 ' + pct + '% 的打工人';
+  if (pct >= 99) { badgeIcon = '👑'; badgeLabel = '超越了全国 99% 的打工人，登峰造极！'; }
+  else if (pct >= 95) { badgeIcon = '🌟'; badgeLabel = '超过了全国 ' + pct + '% 的打工人，百里挑一！'; }
+  else if (pct >= 80) { badgeIcon = '💪'; badgeLabel = '超过了全国 ' + pct + '% 的打工人，实力超群！'; }
+  else if (pct >= 60) { badgeIcon = '👍'; badgeLabel = '超过了全国 ' + pct + '% 的打工人，再接再厉！'; }
+  else if (pct >= 40) { badgeIcon = '📈'; badgeLabel = '超过了全国 ' + pct + '% 的打工人，继续加油！'; }
+  // Badge background
+  ctx.fillStyle = 'rgba(245,158,11,0.12)';
+  roundRect(ctx, 80, 738, 440, 38, 19);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(245,158,11,0.2)';
+  ctx.lineWidth = 1;
+  roundRect(ctx, 80, 738, 440, 38, 19);
+  ctx.stroke();
+  ctx.fillStyle = '#FDE68A';
+  ctx.font = '15px "PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(badgeIcon + ' ' + badgeLabel, 300, 763);
+
   // Decorative bottom line
   ctx.strokeStyle = 'rgba(255,255,255,0.06)';
   ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(100, 750); ctx.lineTo(500, 750); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(100, 800); ctx.lineTo(500, 800); ctx.stroke();
 
   // Watermark
   ctx.fillStyle = 'rgba(255,255,255,0.12)';
@@ -3665,7 +3705,8 @@ function shareDailyReport() {
       if (qty > 0) { affordable = '\n🧋 = ' + qty + ' ' + item.name; break; }
     }
   }
-  var text = '🎉 今日搬砖报告！\n📅 ' + dateStr + '\n💵 总收入：¥' + brk.total.toFixed(2) + '\n⏱ 工作：' + hours + 'h ' + mins + 'm' + affordable + '\n我每秒值¥' + rate.toFixed(4) + '，你的呢？\n💰 工资计算器 — 看看你的时间值多少钱';
+  var pct = calcPercentile(state.monthlySalary);
+  var text = '🎉 今日搬砖报告！\n📅 ' + dateStr + '\n💵 总收入：¥' + brk.total.toFixed(2) + '\n⏱ 工作：' + hours + 'h ' + mins + 'm' + affordable + '\n🏆 超过了全国 ' + pct + '% 的打工人\n⚡ 我每秒值¥' + rate.toFixed(4) + '，你的呢？\n💰 工资计算器 — 看看你的时间值多少钱';
   var canvas = generateShareCard();
   shareNativeOrFallback(text, canvas);
 }
@@ -3686,7 +3727,8 @@ function shareStats() {
   var days = dates.length;
   var avgDaily = totalEarned / days;
   var rate = state.perSecondRate;
-  var text = '📊 我的搬砖成就\n💵 累计收入：¥' + totalEarned.toFixed(2) + '\n📅 工作 ' + days + ' 天\n📈 日均 ¥' + avgDaily.toFixed(2) + '\n🏆 单日最高 ¥' + maxEarned.toFixed(2) + '（' + maxDate + '）\n⚡ 每秒值 ¥' + rate.toFixed(4) + '\n💰 工资计算器 — 看看你的时间值多少钱';
+  var pct = calcPercentile(state.monthlySalary);
+  var text = '📊 我的搬砖成就\n💵 累计收入：¥' + totalEarned.toFixed(2) + '\n📅 工作 ' + days + ' 天\n📈 日均 ¥' + avgDaily.toFixed(2) + '\n🏆 单日最高 ¥' + maxEarned.toFixed(2) + '（' + maxDate + '）\n🏆 超过了全国 ' + pct + '% 的打工人\n⚡ 每秒值 ¥' + rate.toFixed(4) + '\n💰 工资计算器 — 看看你的时间值多少钱';
   shareNativeOrFallback(text);
 }
 
