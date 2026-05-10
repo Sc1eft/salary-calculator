@@ -330,7 +330,7 @@ main {
 .settings-panel {
   margin-top: 14px;
   padding: 20px;
-  background: transparent;
+  background: var(--bg-elevated);
   border-radius: 12px;
   border: none;
   text-align: left;
@@ -362,7 +362,9 @@ main {
   cursor: pointer;
 }
 .setting-item input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-glow); }
-.setting-item input[type="time"] { min-height: 42px; font-family: inherit; }
+/* iOS native appearance normalization */
+.setting-item input { -webkit-appearance: none; appearance: none; }
+.setting-item input[type="time"] { -webkit-appearance: auto; appearance: auto; min-height: 42px; font-family: inherit; }
 .setting-item select { appearance: auto; }
 
 /* ========= Monthly Progress ========= */
