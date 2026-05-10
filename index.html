@@ -330,9 +330,9 @@ main {
 .settings-panel {
   margin-top: 14px;
   padding: 20px;
-  background: var(--bg);
+  background: transparent;
   border-radius: 12px;
-  border: 1px solid var(--border);
+  border: none;
   text-align: left;
 }
 .settings-grid {
@@ -362,6 +362,7 @@ main {
   cursor: pointer;
 }
 .setting-item input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-glow); }
+.setting-item input[type="time"] { min-height: 42px; font-family: inherit; }
 .setting-item select { appearance: auto; }
 
 /* ========= Monthly Progress ========= */
@@ -1106,22 +1107,24 @@ main {
 
 @media (min-width: 640px) {
   .tab-bar {
-    position: static;
+    position: relative;
     flex-direction: row;
     max-width: 720px;
-    margin: -8px auto 0;
-    padding: 0 16px;
+    margin: -28px auto 0;
+    padding: 0 24px;
     border-top: none;
     border-bottom: 1px solid var(--border);
-    background: transparent;
+    background: var(--bg);
     backdrop-filter: none;
+    border-radius: 16px 16px 0 0;
     gap: 4px;
+    z-index: 2;
   }
   body { padding-bottom: 0 !important; }
   .tab-btn {
     flex-direction: row;
     gap: 6px;
-    padding: 12px 16px;
+    padding: 14px 12px;
     font-size: 13px;
     border-bottom: 2px solid transparent;
     border-radius: 0;
@@ -1132,7 +1135,7 @@ main {
 
 /* ========= Responsive ========= */
 @media (min-width: 640px) {
-  main { padding: 0 24px; }
+  main { padding: 0 24px; margin-top: 0; }
   .card { padding: 26px 24px; }
   .earned-box { padding: 28px 24px; }
   .earned-box .value { font-size: 44px; }
