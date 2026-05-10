@@ -5,8 +5,10 @@
   "start_url": "index.html",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#FFFBEB",
+  "background_color": "#F1F5F9",
   "theme_color": "#F59E0B",
+  "categories": ["productivity", "finance", "utilities"],
+  "lang": "zh-CN",
   "icons": [
     {
       "src": "icon.svg",
