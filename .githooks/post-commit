@@ -1,0 +1,13 @@
+#!/bin/sh
+# post-commit hook — update PROGRESS.md timestamp after each commit
+
+REPO_DIR=$(git rev-parse --show-toplevel)
+PROGRESS_FILE="$REPO_DIR/PROGRESS.md"
+TODAY=$(date +%Y-%m-%d)
+
+# Update the "last updated" line in PROGRESS.md
+if [ -f "$PROGRESS_FILE" ]; then
+  sed -i "s/^\*最后更新: .*/*最后更新: $TODAY/" "$PROGRESS_FILE"
+  # Stage the updated file for next commit
+  git add "$PROGRESS_FILE"
+fi
