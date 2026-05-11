@@ -367,7 +367,7 @@ main {
 .setting-item input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-glow); }
 /* iOS native appearance normalization */
 .setting-item input { -webkit-appearance: none; appearance: none; }
-.setting-item input[type="time"] { -webkit-appearance: auto; appearance: auto; min-height: 42px; font-family: inherit; }
+.setting-item input[type="time"] { -webkit-appearance: auto; appearance: auto; min-height: 44px; min-width: 140px; font-family: inherit; box-sizing: border-box; }
 .setting-item select { appearance: auto; }
 
 /* ========= Monthly Progress ========= */
@@ -2379,7 +2379,7 @@ const I18N = {
     taxDetail: '基于用户设定的社保/公积金比例估算',
     taxDetailLine: '社保{social}% · 公积金{fund}% · 税率 {taxPct}% · 每秒 ≈ {rate} 元 (到手)',
     settingsTitle: '⚙️ 高级设置',
-    setDays: '工作天数 / 月', setHours: '每日工时', setLunch: '午休时间 (分钟)', setStart: '上班时间',
+    setDays: '工作天数 / 月', setHours: '每日工时', setLunch: '午休时间 (分钟)', setStart: '🕐 上班时间',
     setOtWeekday: '工作日加班倍率', setOtWeekend: '周末加班倍率',
     setSocial: '社保比例', setFund: '公积金比例', setTax: '个税起征点/月',
     selNotCalc: '不计算', selPension: '8% (养老)', selStandard: '10.5% (标准)', selFundStd: '7% (标准)',
@@ -2546,7 +2546,7 @@ const I18N = {
     taxDetail: 'Estimated based on your social insurance and housing fund settings',
     taxDetailLine: 'Per sec ≈ ${rate} (take-home)',
     settingsTitle: '⚙️ Advanced Settings',
-    setDays: 'Work Days / Month', setHours: 'Daily Hours', setLunch: 'Lunch Break (min)', setStart: 'Start Time',
+    setDays: 'Work Days / Month', setHours: 'Daily Hours', setLunch: 'Lunch Break (min)', setStart: '🕐 Start Time',
     setOtWeekday: 'Weekday OT Rate', setOtWeekend: 'Weekend OT Rate',
     setSocial: 'Social Ins. Rate', setFund: 'Housing Fund Rate', setTax: 'Tax Threshold/Month',
     selNotCalc: 'Not Calculated', selPension: '8% (Pension)', selStandard: '10.5% (Standard)', selFundStd: '7% (Standard)',
