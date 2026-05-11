@@ -902,6 +902,7 @@ main {
   background: linear-gradient(135deg, #FEF3C7, #FDE68A);
   border-color: rgba(245,158,11,0.2);
 }
+.badge-item { cursor: pointer; }
 .badge-item.locked {
   opacity: 0.45;
   filter: grayscale(1);
@@ -1269,6 +1270,7 @@ main {
   .lang-toggle, .dark-toggle { display: none; }
   header h1 { font-size: 22px; }
   header p { font-size: 13px; }
+  main { margin-top: -14px; }
   .timer-box { padding: 10px 4px 8px; }
   .timer-box .value { font-size: 16px; }
   .earned-box { padding: 18px 12px 14px; }
@@ -4432,6 +4434,18 @@ btnCloseBadge.addEventListener('click', () => badgeUnlockModal.classList.add('hi
 badgeUnlockModal.addEventListener('click', e => {
   if (e.target === badgeUnlockModal) badgeUnlockModal.classList.add('hidden');
 });
+/* Click badge item to view detail */
+badgeGrid.addEventListener('click', function(e) {
+  var item = e.target.closest('.badge-item');
+  if (!item) return;
+  var idx = parseInt(item.dataset.index, 10);
+  var a = ACHIEVEMENTS[idx];
+  if (!a) return;
+  badgeUnlockIcon.textContent = state.earnedBadges.includes(a.id) ? a.icon : '🔒';
+  badgeUnlockName.textContent = t('achName' + idx) + ' — ' + t('achDesc' + idx);
+  badgeUnlockModal.classList.remove('hidden');
+});
+
 apDismiss.addEventListener('click', function() {
   achPopup.classList.remove('show');
   clearTimeout(achPopup._timer);
@@ -4448,7 +4462,7 @@ function renderAchievements() {
   badgeCount.textContent = `${earned.length} / ${ACHIEVEMENTS.length}`;
   badgeGrid.innerHTML = ACHIEVEMENTS.map((a, i) => {
     const isEarned = earned.includes(a.id);
-    return `<div class="badge-item ${isEarned ? 'earned' : 'locked'}">
+    return `<div class="badge-item ${isEarned ? 'earned' : 'locked'}" data-index="${i}">
       <span class="b-icon">${isEarned ? a.icon : '🔒'}</span>
       <span class="b-name">${isEarned ? t('achName' + i) : '???'}</span>
     </div>`;
