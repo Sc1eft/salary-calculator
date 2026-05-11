@@ -1,4 +1,4 @@
-const CACHE = 'salary-calculator-v1';
+const CACHE = 'salary-calculator-v2';
 const URLS = [
   '/',
   'index.html',
@@ -18,7 +18,12 @@ self.addEventListener('install', (e) => {
 });
 
 self.addEventListener('activate', (e) => {
-  e.waitUntil(clients.claim());
+  e.waitUntil(Promise.all([
+    clients.claim(),
+    caches.keys().then(function(keys) {
+      return Promise.all(keys.filter(function(k) { return k !== CACHE; }).map(function(k) { return caches.delete(k); }));
+    })
+  ]));
 });
 
 self.addEventListener('fetch', (e) => {

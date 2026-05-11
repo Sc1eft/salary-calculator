@@ -1795,11 +1795,11 @@ input[type="number"] { -moz-appearance: textfield; }
         <div class="monthly-stats">
           <div class="stat-row">
             <span class="stat-label" data-i18n="statMonth">本月收入</span>
-            <span class="stat-value gold" id="month-earned">¥0.00</span>
+            <span class="stat-value gold" id="month-earned">0.00</span>
           </div>
           <div class="stat-row">
             <span class="stat-label" data-i18n="statTarget">月薪目标</span>
-            <span class="stat-value" id="month-target">¥0</span>
+            <span class="stat-value" id="month-target">0</span>
           </div>
           <div class="stat-row">
             <span class="stat-label" data-i18n="statDays">工作天数</span>
@@ -1831,7 +1831,7 @@ input[type="number"] { -moz-appearance: textfield; }
 
       <div class="earned-box">
         <div class="label" data-i18n="earnedLabel">💰 今日已赚</div>
-        <div class="value" id="earned-amount">¥0.00</div>
+        <div class="value" id="earned-amount">0.00</div>
         <div class="earned-breakdown">
           <span class="normal" id="normal-earned">正常: ¥0.00</span>
           <span class="overtime" id="ot-earned">加班: ¥0.00</span>
@@ -1923,7 +1923,7 @@ input[type="number"] { -moz-appearance: textfield; }
       <div class="history-empty" id="history-empty" data-i18n="historyEmpty">暂无记录</div>
       <div class="cal-summary" id="cal-summary" style="display:none;">
         <div><div class="cs-label" data-i18n="calDays">工作天数</div><div class="cs-value" id="cal-days">0</div></div>
-        <div><div class="cs-label" data-i18n="calIncome">总收入</div><div class="cs-value" id="cal-total">¥0.00</div></div>
+        <div><div class="cs-label" data-i18n="calIncome">总收入</div><div class="cs-value" id="cal-total">0.00</div></div>
         <div><div class="cs-label" data-i18n="calHours">总工时</div><div class="cs-value" id="cal-hours">0h</div></div>
       </div>
     </section>
@@ -1956,12 +1956,12 @@ input[type="number"] { -moz-appearance: textfield; }
       </div>
       <div class="rate-info" id="rate-info">按 22天 × 8小时 计算，约 <strong>0 元/秒</strong></div>
       <div id="tax-display" style="display:none;margin-top:8px;padding:8px 12px;background:var(--green-light);border-radius:var(--radius-sm);">
-        <div class="tax-row"><span data-i18n="taxGross">税前月薪</span><span class="tax-val" id="tax-before">¥0</span></div>
-        <div class="tax-row"><span data-i18n="taxSocial">社保</span><span class="tax-val" id="tax-social-insurance" style="color:var(--gray-500);">-¥0</span></div>
-        <div class="tax-row" style="border-bottom:1px dashed var(--gray-200);padding-bottom:4px;margin-bottom:4px;"><span data-i18n="taxFund">公积金</span><span class="tax-val" id="tax-housing-fund" style="color:var(--gray-500);">-¥0</span></div>
-        <div class="tax-row"><span data-i18n="taxIncome">个人所得税</span><span class="tax-val" id="tax-income" style="color:var(--red);">-¥0</span></div>
+        <div class="tax-row"><span data-i18n="taxGross">税前月薪</span><span class="tax-val" id="tax-before">0</span></div>
+        <div class="tax-row"><span data-i18n="taxSocial">社保</span><span class="tax-val" id="tax-social-insurance" style="color:var(--gray-500);">-0</span></div>
+        <div class="tax-row" style="border-bottom:1px dashed var(--gray-200);padding-bottom:4px;margin-bottom:4px;"><span data-i18n="taxFund">公积金</span><span class="tax-val" id="tax-housing-fund" style="color:var(--gray-500);">-0</span></div>
+        <div class="tax-row"><span data-i18n="taxIncome">个人所得税</span><span class="tax-val" id="tax-income" style="color:var(--red);">-0</span></div>
         <div class="tax-row" style="font-weight:700;color:var(--green);border-top:1px solid var(--green);padding-top:6px;margin-top:4px;">
-          <span data-i18n="taxTakehome">≈ 到手薪资</span><span class="tax-val" id="tax-takehome" style="font-size:16px;">¥0</span>
+          <span data-i18n="taxTakehome">≈ 到手薪资</span><span class="tax-val" id="tax-takehome" style="font-size:16px;">0</span>
         </div>
         <div class="tax-detail" id="tax-detail" data-i18n="taxDetail">基于用户设定的社保/公积金比例估算</div>
       </div>
@@ -2100,15 +2100,15 @@ input[type="number"] { -moz-appearance: textfield; }
       <h3 data-i18n="reportIncome">💰 收入明细</h3>
       <div class="m-stat">
         <span class="ms-label" data-i18n="reportTotal">今日总收入</span>
-        <span class="ms-value" style="color:var(--gold-dark);font-size:18px;" id="r-total">¥0.00</span>
+        <span class="ms-value" style="color:var(--gold-dark);font-size:18px;" id="r-total">0.00</span>
       </div>
       <div class="m-stat">
         <span class="ms-label" data-i18n="reportNormal">正常工作</span>
-        <span class="ms-value" style="color:var(--blue);" id="r-normal">¥0.00</span>
+        <span class="ms-value" style="color:var(--blue);" id="r-normal">0.00</span>
       </div>
       <div class="m-stat">
         <span class="ms-label" data-i18n="reportOtPay">加班收入</span>
-        <span class="ms-value" style="color:var(--purple);" id="r-overtime">¥0.00</span>
+        <span class="ms-value" style="color:var(--purple);" id="r-overtime">0.00</span>
       </div>
     </div>
 
@@ -2177,15 +2177,15 @@ input[type="number"] { -moz-appearance: textfield; }
     <div class="m-section">
       <div class="day-stat-row">
         <span class="ds-label" data-i18n="dayNormal">正常收入</span>
-        <span class="ds-value blue" id="day-normal-earned">¥0.00</span>
+        <span class="ds-value blue" id="day-normal-earned">0.00</span>
       </div>
       <div class="day-stat-row">
         <span class="ds-label" data-i18n="dayOtPay">加班收入</span>
-        <span class="ds-value purple" id="day-ot-earned">¥0.00</span>
+        <span class="ds-value purple" id="day-ot-earned">0.00</span>
       </div>
       <div class="day-stat-row" style="border-bottom:none;">
         <span class="ds-label" data-i18n="dayTotal">合计</span>
-        <span class="ds-value gold" id="day-total-earned" style="font-size:18px;">¥0.00</span>
+        <span class="ds-value gold" id="day-total-earned" style="font-size:18px;">0.00</span>
       </div>
     </div>
 
@@ -2498,11 +2498,11 @@ const I18N = {
     insightsTitle: '📈 Statistics', achievementTitle: '🏆 Achievements',
     statHighest: 'Highest Day', statAvg: 'Daily Avg', statOt: 'Most OT', statNone: 'None', statWeek: 'This Week vs Last',
     salaryTitle: '📋 Salary Settings',
-    salaryPH: 'Enter monthly salary', salaryUnit: 'CNY/Month',
-    salaryInfo: 'Based on {days}d × {hours}h, ≈ ¥{rate}/sec',
+    salaryPH: 'Enter monthly salary', salaryUnit: 'USD/Month',
+    salaryInfo: 'Based on {days}d × {hours}h, ≈ ${rate}/sec',
     taxGross: 'Gross Salary', taxSocial: 'Social Ins.', taxFund: 'Housing Fund', taxIncome: 'Income Tax', taxTakehome: '≈ Take-home Pay',
     taxDetail: 'Estimated based on your social insurance and housing fund settings',
-    taxDetailLine: 'Per sec ≈ ¥{rate} (take-home)',
+    taxDetailLine: 'Per sec ≈ ${rate} (take-home)',
     settingsTitle: '⚙️ Advanced Settings',
     setDays: 'Work Days / Month', setHours: 'Daily Hours', setLunch: 'Lunch Break (min)', setStart: 'Start Time',
     setOtWeekday: 'Weekday OT Rate', setOtWeekend: 'Weekend OT Rate',
@@ -2545,8 +2545,8 @@ const I18N = {
     achName4: 'Attendance Novice', achDesc4: '3 consecutive days worked',
     achName5: 'OT Pioneer', achDesc5: 'First overtime',
     achName6: 'OT King', achDesc6: '2h+ overtime in a day',
-    achName7: 'Daily Fortune', achDesc7: 'Daily income over ¥500',
-    achName8: 'Ten Thousand Club', achDesc8: 'Total income over ¥10000',
+    achName7: 'Daily Fortune', achDesc7: 'Daily income over $500',
+    achName8: 'Ten Thousand Club', achDesc8: 'Total income over $10000',
     achName9: 'Break Master', achDesc9: '1h+ break in a day',
     achName10: 'Work-Life Balance', achDesc10: 'Took break within 2h of work',
     achName11: 'Early Bird', achDesc11: 'Started early 3 days straight',
@@ -2558,9 +2558,9 @@ const I18N = {
     onbDesc2: 'Calendar view tracks daily work with insights on income trends and overtime patterns.',
     btnNext: 'Next', btnEarn: 'Start Earning!',
     shareTitle: 'Salary Calculator',
-    shareDaily: '🎉 Today\'s Work Report!\n📅 {date}\n💵 Total: ¥{total}\n⏱ Work: {h}h {m}m{affordable}{otLine}\n🏆 Surpassed {pct}% of workers\n⚡ I earn ¥{rate}/s, what about you?\n💰 Salary Calculator — See what your time is worth',
+    shareDaily: '🎉 Today\'s Work Report!\n📅 {date}\n💵 Total: ${total}\n⏱ Work: {h}h {m}m{affordable}{otLine}\n🏆 Surpassed {pct}% of workers\n⚡ I earn ${rate}/s, what about you?\n💰 Salary Calculator — See what your time is worth',
     shareOtLine: '\n🌙 OT {min}min, surpassed {pct}% of workers',
-    shareStats: '📊 My Work Achievements\n💵 Total Income: ¥{total}\n📅 {days} days worked\n📈 Daily Avg: ¥{avg}\n🏆 Best Day: ¥{max} ({date}){otLine}\n🏆 Surpassed {pct}% of workers\n⚡ I earn ¥{rate}/s\n💰 Salary Calculator — See what your time is worth',
+    shareStats: '📊 My Work Achievements\n💵 Total Income: ${total}\n📅 {days} days worked\n📈 Daily Avg: ${avg}\n🏆 Best Day: ${max} ({date}){otLine}\n🏆 Surpassed {pct}% of workers\n⚡ I earn ${rate}/s\n💰 Salary Calculator — See what your time is worth',
     shareStatsOt: '\n🌙 Daily OT avg {min}min, surpassed {pct}% of workers',
     toastCopied: 'Copied to clipboard',
     toastNoEarn: 'No earnings yet. Start working first!',
@@ -2585,12 +2585,12 @@ const I18N = {
     unitDay: 'd', unitSec: '/sec',
     canvTitle: 'Salary Calculator',
     canvSubtitle: 'Today\'s Work Report',
-    canvRate: 'Hourly ¥{hourly} | Per Sec ¥{second}',
+    canvRate: 'Hourly ${hourly} | Per Sec ${second}',
     canvWork: '⏱ Work Duration',
     canvBreak: '☕ Break Duration',
     canvPurchase: '🛒 Today Can Buy',
     canvMonthly: 'Monthly Progress',
-    canvCta: 'I earn ¥{rate}/s, what about you?',
+    canvCta: 'I earn ${rate}/s, what about you?',
     canvPct99: 'Surpassed 99% of workers — Top Tier!',
     canvPct95: 'Surpassed {pct}% of workers — Top 1%!',
     canvPct80: 'Surpassed {pct}% of workers — Excellent!',
@@ -2919,7 +2919,8 @@ function fmtCN(seconds) {
   if (h > 0) return t('fmtHM', { h, m });
   return t('fmtM', { m });
 }
-function cur(v) { return '¥' + v.toFixed(2); }
+function cs() { return lang === 'en' ? '$' : '¥'; }
+function cur(v) { return cs() + v.toFixed(2); }
 function today() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -3096,22 +3097,22 @@ function initFirebase() {
   try {
     firebaseApp = firebase.initializeApp(FIREBASE_CONFIG);
     firebase.auth().onAuthStateChanged(handleAuthStateChanged);
+    // Handle redirect sign-in result (more reliable than popup across browsers)
+    firebase.auth().getRedirectResult().catch(function(e) {
+      console.error('Redirect sign-in error:', e.code, e.message);
+    });
   } catch(e) { console.warn('Firebase init failed:', e); }
 }
 
 // --- Auth handlers ---
 function handleGoogleLogin() {
   if (!firebaseApp) { showToast(t('loginError')); return; }
-  firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
-    .then(function(r) { showToast(t('loginSuccess')); })
-    .catch(function(e) { if (e.code !== 'auth/popup-closed-by-user') { console.warn('Google sign-in failed:', e); showToast(t('loginError')); } });
+  firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
 }
 
 function handleAppleLogin() {
   if (!firebaseApp) { showToast(t('loginError')); return; }
-  firebase.auth().signInWithPopup(new firebase.auth.OAuthProvider('apple.com'))
-    .then(function(r) { showToast(t('loginSuccess')); })
-    .catch(function(e) { if (e.code !== 'auth/popup-closed-by-user') { console.warn('Apple sign-in failed:', e); showToast(t('loginError')); } });
+  firebase.auth().signInWithRedirect(new firebase.auth.OAuthProvider('apple.com'));
 }
 
 function handleLogout() {
@@ -4169,7 +4170,7 @@ function renderChart() {
       scales: {
         y: {
           beginAtZero: true,
-          ticks: { callback: v => '¥' + v.toFixed(0), font: { size: 11 } },
+          ticks: { callback: v => cs() + v.toFixed(0), font: { size: 11 } },
           grid: { color: 'rgba(0,0,0,0.05)' },
         },
         x: { grid: { display: false }, ticks: { font: { size: 11 } } },
@@ -4571,7 +4572,7 @@ function generateShareCard() {
   ctx.fillStyle = '#F59E0B';
   ctx.font = 'bold 64px "PingFang SC","Microsoft YaHei",sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('¥' + earned.toFixed(2), 300, 210);
+  ctx.fillText(cs() + earned.toFixed(2), 300, 210);
 
   // Per-second rate
   ctx.fillStyle = 'rgba(255,255,255,0.35)';
