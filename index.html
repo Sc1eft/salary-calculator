@@ -4020,7 +4020,7 @@ function checkCoinEffect() {
 }
 
 function createSmallCoin() {
-  const emojis = ['🪙', '✨', '💛'];
+  const emojis = ['🪙', '🪙', '🪙', '💰', '💎', '🥇'];
   const c = document.createElement('div');
   c.className = 'coin-fall';
   c.textContent = emojis[Math.floor(Math.random() * emojis.length)];
@@ -4033,7 +4033,7 @@ function createSmallCoin() {
 }
 
 function createBigCoinCelebration() {
-  const emojis = ['🪙', '💰', '🌟', '🏆'];
+  const emojis = ['🪙', '🪙', '💰', '💰', '💎', '🥇', '🥇'];
   const n = 6 + Math.floor(Math.random() * 4);
   for (let i = 0; i < n; i++) {
     const c = document.createElement('div');
@@ -4050,7 +4050,7 @@ function createBigCoinCelebration() {
 }
 
 function createCoinRain() {
-  const emojis = ['🪙', '💰', '✨', '🌟', '💛', '🏆'];
+  const emojis = ['🪙', '🪙', '🪙', '🪙', '💰', '💰', '💎', '💎', '🥇', '🥇', '🥇'];
   const n = 30 + Math.floor(Math.random() * 25);
   for (let i = 0; i < n; i++) {
     const c = document.createElement('div');
