@@ -37,12 +37,12 @@
   --text-3xl: 3rem;
 
   /* Brand — gold palette (vibrant gold) */
-  --gold: oklch(75% 0.18 75);
-  --gold-dark: oklch(60% 0.18 65);
-  --gold-deep: oklch(50% 0.15 60);
+  --gold: oklch(76% 0.22 72);
+  --gold-dark: oklch(60% 0.22 65);
+  --gold-deep: oklch(50% 0.18 60);
   --gold-light: oklch(92% 0.1 95);
   --gold-pale: oklch(97% 0.05 95);
-  --gold-glow: oklch(75% 0.18 75 / 0.25);
+  --gold-glow: oklch(76% 0.22 72 / 0.25);
 
   /* Functional */
   --blue: oklch(55% 0.2 260);
@@ -137,12 +137,12 @@
 }
 [data-theme="dark"] ::selection { background: rgba(245,158,11,0.3); }
 [data-theme="dark"] header {
-  background: linear-gradient(135deg, #92400E, #78350F);
+  background: linear-gradient(135deg, oklch(42% 0.16 55), oklch(35% 0.14 50));
 }
 [data-theme="dark"] header::before {
   background: radial-gradient(ellipse at 30% 50%, rgba(251,191,36,0.1) 0%, transparent 70%);
 }
-[data-theme="dark"] header h1 { color: #FEF3C7; }
+[data-theme="dark"] header h1 { color: var(--gold-pale); }
 [data-theme="dark"] header p { color: rgba(253,230,138,0.7); }
 [data-theme="dark"] .card { border-color: var(--border); }
 [data-theme="dark"] .card:hover { border-color: rgba(245,158,11,0.2); }
@@ -229,7 +229,7 @@ body::before {
 }
 
 header {
-  background: linear-gradient(135deg, #D97706, #B45309, #92400E);
+  background: linear-gradient(135deg, oklch(60% 0.22 65), oklch(50% 0.18 60), oklch(42% 0.16 55));
   background-size: 200% 200%;
   animation: headerShimmer 8s ease infinite;
   color: white;
@@ -505,9 +505,9 @@ main {
   text-align: center;
   padding: 22px 18px 18px;
   margin-bottom: 14px;
-  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 50%, #FEF3C7 100%);
+  background: linear-gradient(135deg, var(--gold-pale) 0%, var(--gold-light) 50%, var(--gold-pale) 100%);
   border-radius: 14px;
-  border: 1px solid rgba(245,158,11,0.2);
+  border: 1px solid color-mix(in oklch, var(--gold) 30%, transparent);
   position: relative;
   overflow: hidden;
 }
@@ -915,8 +915,8 @@ main {
   position: relative;
 }
 .badge-item.earned {
-  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
-  border-color: rgba(245,158,11,0.2);
+  background: linear-gradient(135deg, var(--gold-pale), var(--gold-light));
+  border-color: color-mix(in oklch, var(--gold) 20%, transparent);
 }
 .badge-item { cursor: pointer; }
 .badge-item.locked {
@@ -1409,8 +1409,8 @@ main {
   color: var(--text-tertiary);
 }
 .wish-item.completed {
-  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
-  border-color: rgba(245,158,11,0.2);
+  background: linear-gradient(135deg, var(--gold-pale), var(--gold-light));
+  border-color: color-mix(in oklch, var(--gold) 20%, transparent);
 }
 .wish-item.completed .wish-pct { color: var(--green); }
 .wish-item.completed .wish-progress-row .progress-bar .fill {
@@ -2034,8 +2034,8 @@ input[type="number"] { -moz-appearance: textfield; }
           <svg width="100" height="100" viewBox="0 0 100 100">
             <defs>
               <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#F59E0B"/>
-                <stop offset="100%" stop-color="#D97706"/>
+                <stop offset="0%" stop-color="oklch(76% 0.22 72)"/>
+                <stop offset="100%" stop-color="oklch(60% 0.22 65)"/>
               </linearGradient>
             </defs>
             <circle class="ring-bg" cx="50" cy="50" r="42"/>
@@ -4523,8 +4523,8 @@ function renderChart() {
       datasets: [{
         label: t('chartIncome'),
         data,
-        backgroundColor: data.map(v => v > 0 ? 'rgba(245,158,11,0.7)' : 'rgba(203,213,225,0.3)'),
-        borderColor: data.map(v => v > 0 ? 'rgba(245,158,11,1)' : 'rgba(203,213,225,0.5)'),
+        backgroundColor: data.map(v => v > 0 ? 'oklch(76% 0.22 72 / 0.7)' : 'rgba(203,213,225,0.3)'),
+        borderColor: data.map(v => v > 0 ? 'oklch(76% 0.22 72)' : 'rgba(203,213,225,0.5)'),
         borderWidth: 2,
         borderRadius: 4,
         barPercentage: 0.6,
