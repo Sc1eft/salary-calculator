@@ -343,6 +343,17 @@ main {
   grid-template-columns: 1fr 1fr;
   gap: 14px;
 }
+.section-divider {
+  grid-column: 1 / -1;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  padding: 8px 0 4px;
+  border-bottom: 1px solid var(--border);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
 .setting-item label {
   display: block;
   font-size: 12px;
@@ -469,6 +480,10 @@ main {
 .timer-box.work .value { color: var(--blue); }
 .timer-box.break .value { color: var(--green); }
 .timer-box.overtime .value { color: var(--purple); }
+.timer-box.active { animation: breathe 2.5s ease-in-out infinite; }
+.timer-box.work.active { border-color: var(--blue); box-shadow: 0 0 20px rgba(37,99,235,0.08); }
+.timer-box.break.active { border-color: var(--green); box-shadow: 0 0 20px rgba(5,150,105,0.08); }
+.timer-box.overtime.active { border-color: var(--purple); box-shadow: 0 0 20px rgba(124,58,237,0.08); }
 
 .earned-box {
   text-align: center;
@@ -523,6 +538,23 @@ main {
 .earned-breakdown span { font-weight: 600; }
 .earned-breakdown .normal { color: var(--blue); }
 .earned-breakdown .overtime { color: var(--purple); }
+
+.earned-breakdown-bar {
+  display: flex;
+  height: 4px;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 10px;
+  background: var(--border);
+  gap: 2px;
+}
+.earned-breakdown-bar .bar-segment {
+  border-radius: 3px;
+  transition: flex 0.4s ease;
+  min-width: 0;
+}
+.earned-breakdown-bar .bar-segment.normal { background: var(--blue); }
+.earned-breakdown-bar .bar-segment.overtime { background: var(--purple); }
 
 .status-badge {
   display: inline-block;
@@ -720,8 +752,13 @@ main {
   text-align: center;
   font-size: 12px;
   color: var(--text-tertiary);
-  padding: 16px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
+.empty-emoji { font-size: 28px; line-height: 1; opacity: 0.6; }
 
 /* ========= Chart ========= */
 #chart-section canvas { max-height: 190px; }
@@ -730,7 +767,12 @@ main {
   padding: 28px 20px;
   color: var(--text-tertiary);
   font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
+.chart-skeleton { padding: 16px 0; }
 
 /* ========= Calendar History ========= */
 .cal-nav {
@@ -839,7 +881,7 @@ main {
 .cal-summary > div { text-align: center; }
 .cal-summary .cs-label { font-size: 11px; color: var(--text-tertiary); font-weight: 600; }
 .cal-summary .cs-value { font-size: 16px; font-weight: 800; color: var(--gold-dark); margin-top: 2px; }
-.history-empty { text-align: center; font-size: 13px; color: var(--text-tertiary); padding: 24px 12px; }
+.history-empty { text-align: center; font-size: 13px; color: var(--text-tertiary); padding: 24px 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
 
 /* ========= Achievements ========= */
 .badge-grid {
@@ -1360,7 +1402,11 @@ main {
   text-align: center;
   font-size: 12px;
   color: var(--text-tertiary);
-  padding: 16px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
 /* ========= Wishlist Images ========= */
 .wish-img-btn {
@@ -1523,6 +1569,53 @@ main {
   text-align: center;
   white-space: nowrap;
   max-width: 90vw;
+}
+.achievement-popup {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg-elevated);
+  border: 1.5px solid var(--gold);
+  border-radius: 16px;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 5000;
+  box-shadow: var(--shadow-lg), 0 0 24px rgba(245,158,11,0.15);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-out);
+  white-space: nowrap;
+}
+.achievement-popup.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+.achievement-popup .ap-icon { font-size: 32px; line-height: 1; }
+.achievement-popup .ap-text { font-size: 14px; font-weight: 700; color: var(--text); }
+.achievement-popup .ap-dismiss {
+  margin-left: 4px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--border) 25%, var(--bg-elevated) 50%, var(--border) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 /* ========= Manual OT toggle ========= */
@@ -1828,6 +1921,10 @@ input[type="number"] { -moz-appearance: textfield; }
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
 }
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.025); }
+}
 </style>
 </head>
 <body>
@@ -1915,6 +2012,10 @@ input[type="number"] { -moz-appearance: textfield; }
           <span class="normal" id="normal-earned">正常: ¥0.00</span>
           <span class="overtime" id="ot-earned">加班: ¥0.00</span>
         </div>
+        <div class="earned-breakdown-bar" id="earned-breakdown-bar" style="display:none;">
+          <div class="bar-segment normal" id="earned-bar-normal"></div>
+          <div class="bar-segment overtime" id="earned-bar-overtime"></div>
+        </div>
         <div class="status-badge idle" id="status-badge">⏸️ 未开始</div>
       </div>
 
@@ -1960,7 +2061,7 @@ input[type="number"] { -moz-appearance: textfield; }
         <button class="btn-outline-sm" id="btn-add-purchase" data-i18n="btnAdd">添加</button>
       </div>
       <div class="purchase-list" id="purchase-list">
-        <div class="purchase-empty">添加想买的东西，看看需要工作多久</div>
+        <div class="purchase-empty"><div class="empty-emoji">🛍️</div><div>添加想买的东西，看看需要工作多久</div></div>
       </div>
     </section>
 
@@ -1974,7 +2075,7 @@ input[type="number"] { -moz-appearance: textfield; }
         <button class="btn-outline-sm" id="btn-add-wish" data-i18n="btnAdd">添加</button>
       </div>
       <div class="wishlist-list" id="wishlist-list">
-        <div class="wish-empty">添加心愿，看看你的收入离目标还有多远</div>
+        <div class="wish-empty"><div class="empty-emoji">🌟</div><div>添加心愿，看看你的收入离目标还有多远</div></div>
       </div>
     </section>
   </div>
@@ -1984,7 +2085,11 @@ input[type="number"] { -moz-appearance: textfield; }
     <section class="card" id="chart-section">
       <h2 data-i18n="chartTitle">📊 收入趋势</h2>
       <canvas id="income-chart"></canvas>
+      <div class="chart-skeleton" id="chart-skeleton">
+        <div class="skeleton" style="height:160px;width:100%;"></div>
+      </div>
       <div class="chart-empty hidden" id="chart-empty">
+        <div class="empty-emoji">📊</div>
         <p data-i18n="chartEmpty">暂无数据，开始工作后将自动记录</p>
       </div>
     </section>
@@ -2000,7 +2105,10 @@ input[type="number"] { -moz-appearance: textfield; }
         <span data-i18n="dow1">一</span><span data-i18n="dow2">二</span><span data-i18n="dow3">三</span><span data-i18n="dow4">四</span><span data-i18n="dow5">五</span><span data-i18n="dow6">六</span><span data-i18n="dow7">日</span>
       </div>
       <div class="cal-grid" id="cal-grid"></div>
-      <div class="history-empty" id="history-empty" data-i18n="historyEmpty">暂无记录</div>
+      <div class="history-empty" id="history-empty">
+        <div class="empty-emoji">📅</div>
+        <div data-i18n="historyEmpty">暂无记录</div>
+      </div>
       <div class="cal-summary" id="cal-summary" style="display:none;">
         <div><div class="cs-label" data-i18n="calDays">工作天数</div><div class="cs-value" id="cal-days">0</div></div>
         <div><div class="cs-label" data-i18n="calIncome">总收入</div><div class="cs-value" id="cal-total">0.00</div></div>
@@ -2049,6 +2157,7 @@ input[type="number"] { -moz-appearance: textfield; }
       <div class="settings-panel" id="settings-panel">
         <h3 style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--text-secondary);" data-i18n="settingsTitle">⚙️ 高级设置</h3>
         <div class="settings-grid">
+          <div class="section-divider" data-i18n="sectWorkTime">⏰ 工作时间</div>
           <div class="setting-item">
             <label data-i18n="setDays">工作天数 / 月</label>
             <input type="number" id="set-work-days" value="22" min="1" max="31">
@@ -2065,6 +2174,7 @@ input[type="number"] { -moz-appearance: textfield; }
             <label data-i18n="setStart">上班时间</label>
             <input type="time" id="set-start-time" value="09:00">
           </div>
+          <div class="section-divider" data-i18n="sectOtRules">🌙 加班规则</div>
           <div class="setting-item">
             <label data-i18n="setOtWeekday">工作日加班倍率</label>
             <input type="number" id="set-ot-evening" value="1.5" min="1" max="5" step="0.1">
@@ -2073,6 +2183,7 @@ input[type="number"] { -moz-appearance: textfield; }
             <label data-i18n="setOtWeekend">周末加班倍率</label>
             <input type="number" id="set-ot-weekend" value="2.0" min="1" max="5" step="0.1">
           </div>
+          <div class="section-divider" data-i18n="sectTaxSocial">🧾 社保税务</div>
           <div class="setting-item" id="set-item-social">
             <label data-i18n="setSocial">社保比例</label>
             <select id="set-social-insurance">
@@ -2236,6 +2347,12 @@ input[type="number"] { -moz-appearance: textfield; }
       <button class="ob-skip" id="ob-skip" data-i18n="btnSkip">跳过引导</button>
     </div>
   </div>
+</div>
+
+<div class="achievement-popup hidden" id="achievement-popup">
+  <span class="ap-icon" id="ap-icon">🏆</span>
+  <span class="ap-text" id="ap-text"></span>
+  <button class="ap-dismiss" id="ap-dismiss">✕</button>
 </div>
 
 <div class="modal-overlay hidden" id="badge-unlock-modal">
@@ -2418,6 +2535,7 @@ const I18N = {
     taxDetail: '基于用户设定的社保/公积金比例估算',
     taxDetailLine: '社保{social}% · 公积金{fund}% · 税率 {taxPct}% · 每秒 ≈ {rate} 元 (到手)',
     settingsTitle: '⚙️ 高级设置',
+    sectWorkTime: '⏰ 工作时间', sectOtRules: '🌙 加班规则', sectTaxSocial: '🧾 社保税务',
     setDays: '工作天数 / 月', setHours: '每日工时', setLunch: '午休时间 (分钟)', setStart: '🕐 上班时间',
     setOtWeekday: '工作日加班倍率', setOtWeekend: '周末加班倍率',
     setSocial: '社保比例', setFund: '公积金比例', setTax: '个税起征点/月',
@@ -2585,6 +2703,7 @@ const I18N = {
     taxDetail: 'Estimated based on your social insurance and housing fund settings',
     taxDetailLine: 'Per sec ≈ ${rate} (take-home)',
     settingsTitle: '⚙️ Advanced Settings',
+    sectWorkTime: '⏰ Work Schedule', sectOtRules: '🌙 Overtime Rules', sectTaxSocial: '🧾 Tax & Insurance',
     setDays: 'Work Days / Month', setHours: 'Daily Hours', setLunch: 'Lunch Break (min)', setStart: '🕐 Start Time',
     setOtWeekday: 'Weekday OT Rate', setOtWeekend: 'Weekend OT Rate',
     setSocial: 'Social Ins. Rate', setFund: 'Housing Fund Rate', setTax: 'Tax Threshold/Month',
@@ -2852,6 +2971,9 @@ const breakTimer = $('break-timer');
 const earnedAmount = $('earned-amount');
 const normalEarned = $('normal-earned');
 const otEarned = $('ot-earned');
+const earnedBarNormal = $('earned-bar-normal');
+const earnedBarOt = $('earned-bar-overtime');
+const earnedBarWrap = $('earned-breakdown-bar');
 const statusBadge = $('status-badge');
 const btnStart = $('btn-start');
 const btnBreak = $('btn-break');
@@ -2874,6 +2996,7 @@ const purchaseList = $('purchase-list');
 // Chart & History
 const chartCanvas = $('income-chart');
 const chartEmpty = $('chart-empty');
+const chartSkeleton = $('chart-skeleton');
 
 // Wishlist
 const wishlistList = $('wishlist-list');
@@ -2917,6 +3040,10 @@ const badgeUnlockModal = $('badge-unlock-modal');
 const badgeUnlockIcon = $('badge-unlock-icon');
 const badgeUnlockName = $('badge-unlock-name');
 const btnCloseBadge = $('btn-close-badge');
+const achPopup = $('achievement-popup');
+const apIcon = $('ap-icon');
+const apText = $('ap-text');
+const apDismiss = $('ap-dismiss');
 
 // Tax / Insurance
 const taxDisplay = $('tax-display');
@@ -3742,12 +3869,33 @@ function updateDisplay() {
   normalEarned.textContent = t('normalLabel') + ': ' + cur(brk.normal);
   otEarned.textContent = t('otLabel') + ': ' + cur(brk.overtime);
 
+  // Update earnings breakdown bar
+  const totalEarn = brk.normal + brk.overtime;
+  if (totalEarn > 0) {
+    earnedBarNormal.style.flex = brk.normal / totalEarn;
+    earnedBarOt.style.flex = brk.overtime / totalEarn;
+    earnedBarWrap.style.display = '';
+  } else {
+    earnedBarNormal.style.flex = 1;
+    earnedBarOt.style.flex = 0;
+    earnedBarWrap.style.display = 'none';
+  }
+
   const pct = Math.min(100, (totalSec / CONFIG.targetDailySeconds) * 100);
   dailyProgress.style.width = pct + '%';
 }
 
 function updateUIState() {
   const s = state.sessionState;
+  // Breathing animation on active timer box
+  document.querySelectorAll('.timer-box').forEach(function(box) { box.classList.remove('active'); });
+  if (s === 'working') document.querySelector('.timer-box.work').classList.add('active');
+  else if (s === 'break') document.querySelector('.timer-box.break').classList.add('active');
+  // When in overtime period, also highlight overtime box
+  if (s === 'working' && isOvertimeSimple()) {
+    document.querySelector('.timer-box.overtime').classList.add('active');
+  }
+
   btnStart.classList.toggle('btn-inactive', s === 'working' || s === 'break');
   btnBreak.classList.toggle('btn-inactive', s !== 'working' && s !== 'break');
   btnEnd.classList.toggle('btn-inactive', s === 'idle' || s === 'ended');
@@ -3837,7 +3985,7 @@ function removePurchase(idx) {
 
 function renderPurchaseList() {
   if (state.purchaseItems.length === 0) {
-    purchaseList.innerHTML = '<div class="purchase-empty">' + t('purchaseEmpty') + '</div>';
+    purchaseList.innerHTML = '<div class="purchase-empty"><div class="empty-emoji">🛍️</div><div>' + t('purchaseEmpty') + '</div></div>';
     return;
   }
   const base = state.perSecondRate || 0.0001;
@@ -3978,7 +4126,7 @@ function renderWishList() {
   wishCount.textContent = items.length;
 
   if (items.length === 0) {
-    wishlistList.innerHTML = '<div class="wish-empty">' + t('wishEmpty') + '</div>';
+    wishlistList.innerHTML = '<div class="wish-empty"><div class="empty-emoji">🌟</div><div>' + t('wishEmpty') + '</div></div>';
     return;
   }
 
@@ -4262,18 +4410,37 @@ function checkAchievements() {
   renderAchievements();
   if (newBadges.length > 0) {
     save();
-    // Show first newly unlocked badge
     const nb = newBadges[0];
     const badgeIdx = ACHIEVEMENTS.indexOf(nb);
+    // Show popup with auto-dismiss
+    apIcon.textContent = nb.icon;
+    apText.textContent = t('achName' + badgeIdx);
+    achPopup.classList.remove('hidden');
+    achPopup.classList.add('show');
+    clearTimeout(achPopup._timer);
+    achPopup._timer = setTimeout(function() {
+      achPopup.classList.remove('show');
+      setTimeout(function() { achPopup.classList.add('hidden'); }, 350);
+    }, 3000);
+    // Keep modal for detail view
     badgeUnlockIcon.textContent = nb.icon;
     badgeUnlockName.textContent = t('achName' + badgeIdx) + ' — ' + t('achDesc' + badgeIdx);
-    badgeUnlockModal.classList.remove('hidden');
   }
 }
 
 btnCloseBadge.addEventListener('click', () => badgeUnlockModal.classList.add('hidden'));
 badgeUnlockModal.addEventListener('click', e => {
   if (e.target === badgeUnlockModal) badgeUnlockModal.classList.add('hidden');
+});
+apDismiss.addEventListener('click', function() {
+  achPopup.classList.remove('show');
+  clearTimeout(achPopup._timer);
+  setTimeout(function() { achPopup.classList.add('hidden'); }, 350);
+});
+/* Tap popup to see detail modal */
+achPopup.addEventListener('click', function(e) {
+  if (e.target === apDismiss) return;
+  badgeUnlockModal.classList.remove('hidden');
 });
 
 function renderAchievements() {
@@ -4295,11 +4462,16 @@ function renderChart() {
   const dates = Object.keys(state.records).sort();
   if (dates.length === 0) {
     chartCanvas.style.display = 'none';
+    chartSkeleton.style.display = 'none';
     chartEmpty.classList.remove('hidden');
     return;
   }
-  chartCanvas.style.display = 'block';
+  chartCanvas.style.display = 'none';
   chartEmpty.classList.add('hidden');
+  chartSkeleton.style.display = '';
+  // Use requestAnimationFrame to let the skeleton render before chart computation
+  requestAnimationFrame(function() {
+    setTimeout(function() {
 
   const recent = dates.slice(-14);
   const labels = recent.map(d => fmtDate(d));
@@ -4348,6 +4520,10 @@ function renderChart() {
         x: { grid: { display: false }, ticks: { font: { size: 11 } } },
       },
     },
+  });
+      chartSkeleton.style.display = 'none';
+      chartCanvas.style.display = 'block';
+    }, 50);
   });
 }
 
