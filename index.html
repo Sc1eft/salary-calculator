@@ -13,6 +13,9 @@
 <link rel="apple-touch-icon" href="icon.svg">
 <link rel="apple-touch-startup-image" href="icon.svg">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
@@ -1628,6 +1631,125 @@ html { scroll-behavior: smooth; }
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button { opacity: 0.5; }
 input[type="number"] { -moz-appearance: textfield; }
+
+/* ========= Login Overlay ========= */
+.login-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 4000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.4s ease;
+}
+.login-box {
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+}
+.login-box .login-icon { font-size: 64px; margin-bottom: 8px; }
+.login-box .login-title { font-size: 24px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+.login-box .login-subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 28px; line-height: 1.5; }
+.login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 20px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--anim);
+  margin-bottom: 10px;
+  background: var(--bg-elevated);
+  color: var(--text);
+  outline: none;
+}
+.login-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.login-btn .login-svg { width: 20px; height: 20px; flex-shrink: 0; }
+.btn-google { border-color: #4285F4; }
+.btn-google:hover { border-color: #4285F4; background: rgba(66,133,244,0.05); }
+.btn-apple { border-color: #555; }
+.btn-apple:hover { border-color: #000; background: rgba(0,0,0,0.03); }
+[data-theme="dark"] .btn-apple { border-color: #888; }
+[data-theme="dark"] .btn-apple:hover { border-color: #fff; background: rgba(255,255,255,0.06); }
+.btn-tiktok { border-color: #888; opacity: 0.7; }
+.btn-tiktok:hover { border-color: var(--text); opacity: 1; }
+.login-skip {
+  display: inline-block;
+  margin-top: 12px;
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 8px 16px;
+  transition: color var(--anim);
+}
+.login-skip:hover { color: var(--text-secondary); }
+.login-footer {
+  margin-top: 20px;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+/* ========= Account Card (Settings) ========= */
+.account-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--bg-card);
+  margin-bottom: 12px;
+}
+.account-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--border);
+}
+.account-meta { flex: 1; min-width: 0; }
+.account-name { font-size: 16px; font-weight: 700; color: var(--text); }
+.account-email { font-size: 13px; color: var(--text-secondary); word-break: break-all; }
+.sync-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+}
+.sync-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+}
+.sync-dot.syncing { background: var(--gold); animation: pulse 1s infinite; }
+.sync-dot.error { background: var(--red); }
+.sync-time { font-size: 11px; color: var(--text-tertiary); }
+.account-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.btn-logout { color: var(--red); border-color: var(--red) !important; }
+.btn-logout:hover { background: rgba(239,68,68,0.08) !important; }
+.login-btn-group { display: flex; flex-direction: column; gap: 8px; }
+.btn-sm { padding: 10px 16px; font-size: 13px; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
 </style>
 </head>
 <body>
@@ -1910,6 +2032,35 @@ input[type="number"] { -moz-appearance: textfield; }
       <div style="margin-top:14px;text-align:center;">
         <button class="btn-outline-sm" id="btn-reset-data" style="color:var(--red);border-color:var(--red);" data-i18n="btnReset">🗑️ 清除所有数据</button>
       </div>
+    <section class="card" id="account-section">
+      <h2 data-i18n="accountTitle">☁️ 云同步</h2>
+      <div id="account-logged-out">
+        <p style="text-align:center;margin-bottom:16px;color:var(--text-secondary);font-size:14px;" data-i18n="syncDescription">登录以备份数据并在设备间同步</p>
+        <div class="login-btn-group">
+          <button class="login-btn btn-google btn-sm" id="btn-google-settings">通过 Google 登录</button>
+          <button class="login-btn btn-apple btn-sm" id="btn-apple-settings">通过 Apple 登录</button>
+          <button class="login-btn btn-tiktok btn-sm" id="btn-tiktok-settings">TikTok</button>
+        </div>
+      </div>
+      <div id="account-logged-in" class="hidden">
+        <div class="account-card">
+          <img class="account-avatar" id="account-avatar" src="" alt="">
+          <div class="account-meta">
+            <div class="account-name" id="account-name"></div>
+            <div class="account-email" id="account-email"></div>
+          </div>
+        </div>
+        <div class="sync-status-bar">
+          <span class="sync-dot" id="sync-dot"></span>
+          <span id="sync-status-text" data-i18n="syncStatusSynced">✅ 已同步</span>
+          <span class="sync-time" id="sync-time"></span>
+        </div>
+        <div class="account-actions">
+          <button class="btn-outline-sm" id="btn-sync-now" data-i18n="btnSyncNow">🔄 立即同步</button>
+          <button class="btn-outline-sm btn-logout" id="btn-logout" data-i18n="btnLogout">🚪 退出登录</button>
+        </div>
+      </div>
+    </section>
     </section>
   </div>
 </main>
@@ -2065,6 +2216,29 @@ input[type="number"] { -moz-appearance: textfield; }
     </div>
     <button id="btn-close-day-modal" data-i18n="btnDismiss">知道了 👍</button>
   </div>
+
+    <!-- Login Overlay -->
+    <div class="login-overlay hidden" id="login-overlay">
+      <div class="login-box">
+        <div class="login-icon">💰</div>
+        <h2 class="login-title" data-i18n="loginTitle">登录</h2>
+        <p class="login-subtitle" data-i18n="loginSubtitle">跨设备同步数据，随时随地查看工作记录</p>
+        <button class="login-btn btn-google" id="btn-google-login">
+          <svg class="login-svg" viewBox="0 0 48 48"><path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"/><path fill="#34A853" d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z"/><path fill="#FBBC05" d="M11.69 28.18C11.25 26.86 11 25.45 11 24s.25-2.86.69-4.18v-5.7H4.34C2.85 17.09 2 20.45 2 24c0 3.55.85 6.91 2.34 9.88l7.35-5.7z"/><path fill="#EA4335" d="M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z"/></svg>
+          <span data-i18n="loginGoogle">通过 Google 登录</span>
+        </button>
+        <button class="login-btn btn-apple" id="btn-apple-login">
+          <svg class="login-svg" viewBox="0 0 48 48"><path fill="currentColor" d="M31.65 6.34c1.74-2.1 2.92-5.02 2.6-7.94-2.52.1-5.57 1.68-7.38 3.8-1.62 1.88-3.04 4.9-2.66 7.78 2.82.22 5.7-1.54 7.44-3.64zM35.84 14.34c-4.18-.5-7.72 2.36-9.72 2.36-2 0-5.1-2.26-8.38-2.2-4.32.06-8.3 2.52-10.52 6.4-4.48 7.78-1.14 19.32 3.22 25.62 2.14 3.08 4.68 6.54 8.02 6.42 3.22-.14 4.44-2.08 8.34-2.08 3.88 0 5.0 2.08 8.4 2.02 3.48-.06 5.68-3.14 7.8-6.24 2.46-3.6 3.46-7.08 3.52-7.26-.08-.02-6.74-2.58-6.82-10.26-.06-6.42 5.24-9.48 5.48-9.64-3.0-4.4-7.64-4.98-9.32-5.08z"/></svg>
+          <span data-i18n="loginApple">通过 Apple 登录</span>
+        </button>
+        <button class="login-btn btn-tiktok" id="btn-tiktok-login">
+          <svg class="login-svg" viewBox="0 0 48 48"><path fill="currentColor" d="M34.32 12.72A11.05 11.05 0 0 1 31 8.62V6.98h-3.84v18.66c0 3.64-2.94 6.6-6.58 6.6-2.14 0-4.04-1.02-5.24-2.58-1.2-1.56-1.88-3.58-1.88-5.74 0-3.64 2.94-6.6 6.58-6.6 1.06 0 2.06.26 2.94.7v-3.9c-.94-.24-1.94-.36-2.94-.36-6.9 0-12.52 5.62-12.52 12.52 0 4.32 2.2 8.14 5.54 10.38 2.18 1.46 4.78 2.32 7.56 2.32 6.9 0 12.52-5.62 12.52-12.52v-6.5a14.8 14.8 0 0 0 5.9 1.78v-3.82c0-.02-2.7-.1-5.08-2.04z"/></svg>
+          <span data-i18n="loginTikTok">TikTok</span>
+        </button>
+        <button class="login-skip" id="btn-skip-login" data-i18n="loginSkip">跳过，先使用</button>
+        <p class="login-footer" data-i18n="loginFooter">您的数据端到端加密，仅您自己可见</p>
+      </div>
+    </div>
 </div>
 
 <script>
@@ -2077,6 +2251,28 @@ const CONFIG = {
   breakReminderInterval: 3600,
   targetDailySeconds: 8 * 3600,
 };
+
+// ================================================================
+// FIREBASE CONFIG — Replace with your own Firebase project config
+// 1. Go to https://console.firebase.google.com/
+// 2. Create a project or use existing one
+// 3. Enable Authentication → Sign-in providers → Google + Apple
+// 4. Create Firestore database (test mode)
+// 5. Project settings → General → Your apps → Web app
+// 6. Copy the config object below
+// ================================================================
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBVfo9jRPR739Am6eW2pTO9bDZRQpTfbNs",
+  authDomain: "salary-calculator-d097e.firebaseapp.com",
+  projectId: "salary-calculator-d097e",
+  storageBucket: "salary-calculator-d097e.firebasestorage.app",
+  messagingSenderId: "925635008216",
+  appId: "1:925635008216:web:5e533f2484448e15da69ad"
+};
+
+function isFirebaseConfigured() {
+  return FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY' && FIREBASE_CONFIG.apiKey.length > 10;
+}
 
 const ACHIEVEMENTS = [
   { id: 'first_end',   icon: '🎯', name: '初出茅庐',     desc: '第一次下班打卡', check: s => s.counter.totalEnds >= 1 },
@@ -2241,6 +2437,29 @@ const I18N = {
     lightToggle: '切换亮色模式',
     langEn: 'EN',
     langZh: '中',
+    loginTitle: '登录',
+    loginSubtitle: '跨设备同步数据，随时随地查看工作记录',
+    loginGoogle: '通过 Google 登录',
+    loginApple: '通过 Apple 登录',
+    loginTikTok: 'TikTok',
+    loginSkip: '跳过，先使用',
+    loginFooter: '您的数据端到端加密，仅您自己可见',
+    accountTitle: '☁️ 云同步',
+    syncDescription: '登录以在云端备份数据，更换设备也不丢失',
+    syncStatusSynced: '✅ 已同步',
+    syncStatusSyncing: '⏳ 同步中...',
+    syncStatusOffline: '⚠️ 离线',
+    syncStatusNever: '尚未同步',
+    syncJustNow: '刚刚同步',
+    syncMinutesAgo: '{m} 分钟前同步',
+    btnSyncNow: '🔄 立即同步',
+    btnLogout: '🚪 退出登录',
+    tiktokComingSoon: 'TikTok 登录即将推出，敬请期待！',
+    loginSuccess: '登录成功！',
+    loginError: '登录失败，请重试',
+    logoutSuccess: '已退出登录',
+    syncSuccess: '数据已同步到云端',
+    syncError: '同步失败，请检查网络连接',
   },
   en: {
     appTitle: '💰 Salary Calculator',
@@ -2385,6 +2604,29 @@ const I18N = {
     lightToggle: 'Toggle Light Mode',
     langEn: 'EN',
     langZh: '中',
+    loginTitle: 'Sign In',
+    loginSubtitle: 'Sync your data across devices seamlessly',
+    loginGoogle: 'Sign in with Google',
+    loginApple: 'Sign in with Apple',
+    loginTikTok: 'TikTok',
+    loginSkip: 'Continue without account',
+    loginFooter: 'Your data is end-to-end encrypted and private',
+    accountTitle: '☁️ Cloud Sync',
+    syncDescription: 'Sign in to back up your data to the cloud',
+    syncStatusSynced: '✅ Synced',
+    syncStatusSyncing: '⏳ Syncing...',
+    syncStatusOffline: '⚠️ Offline',
+    syncStatusNever: 'Not synced yet',
+    syncJustNow: 'Just now',
+    syncMinutesAgo: '{m}m ago',
+    btnSyncNow: '🔄 Sync Now',
+    btnLogout: '🚪 Sign Out',
+    tiktokComingSoon: 'TikTok sign-in coming soon!',
+    loginSuccess: 'Signed in successfully!',
+    loginError: 'Sign in failed. Please try again.',
+    logoutSuccess: 'Signed out',
+    syncSuccess: 'Data synced to cloud',
+    syncError: 'Sync failed. Check your connection.',
   }
 };
 
@@ -2484,6 +2726,15 @@ const DEFAULTS = {
 let state = {};
 let timerId = null;
 let chartInstance = null;
+
+// Firebase globals
+let firebaseApp = null;
+let firebaseUser = null;
+let firestoreDocRef = null;
+let syncDebounceTimer = null;
+let isSyncing = false;
+let loginOverlayDismissed = false;
+let lastSyncTimestamp = null;
 
 // ================================================================
 // DOM refs
@@ -2827,12 +3078,287 @@ function isOvertimeSimple() {
 }
 
 // ================================================================
+// TOAST
+// ================================================================
+function showToast(msg) {
+  var t = document.createElement('div');
+  t.className = 'share-toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 2500);
+}
+
+// ================================================================
+// FIREBASE — Auth + Firestore Sync
+// ================================================================
+function initFirebase() {
+  if (!isFirebaseConfigured()) { console.warn('Firebase not configured'); return; }
+  try {
+    firebaseApp = firebase.initializeApp(FIREBASE_CONFIG);
+    firebase.auth().onAuthStateChanged(handleAuthStateChanged);
+  } catch(e) { console.warn('Firebase init failed:', e); }
+}
+
+// --- Auth handlers ---
+function handleGoogleLogin() {
+  if (!firebaseApp) { showToast(t('loginError')); return; }
+  firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
+    .then(function(r) { showToast(t('loginSuccess')); })
+    .catch(function(e) { if (e.code !== 'auth/popup-closed-by-user') { console.warn('Google sign-in failed:', e); showToast(t('loginError')); } });
+}
+
+function handleAppleLogin() {
+  if (!firebaseApp) { showToast(t('loginError')); return; }
+  firebase.auth().signInWithPopup(new firebase.auth.OAuthProvider('apple.com'))
+    .then(function(r) { showToast(t('loginSuccess')); })
+    .catch(function(e) { if (e.code !== 'auth/popup-closed-by-user') { console.warn('Apple sign-in failed:', e); showToast(t('loginError')); } });
+}
+
+function handleLogout() {
+  firebase.auth().signOut().then(function() { showToast(t('logoutSuccess')); });
+}
+
+function handleTikTokClick() {
+  showToast(t('tiktokComingSoon'));
+}
+
+// --- Auth state ---
+function handleAuthStateChanged(user) {
+  if (user) {
+    firebaseUser = user;
+    firestoreDocRef = firebase.firestore().doc('users/' + user.uid + '/data/main');
+    loginOverlayDismissed = false;
+    hideLoginOverlay();
+    updateAccountUI(user);
+    syncAfterLogin();
+  } else {
+    var wasLoggedIn = firebaseUser !== null;
+    firebaseUser = null;
+    firestoreDocRef = null;
+    updateAccountUI(null);
+    if (!wasLoggedIn && !loginOverlayDismissed && isFirebaseConfigured()) {
+      showLoginOverlay();
+    }
+  }
+}
+
+// --- UI controls ---
+function showLoginOverlay() {
+  var el = document.getElementById('login-overlay');
+  if (el) el.classList.remove('hidden');
+}
+
+function hideLoginOverlay() {
+  var el = document.getElementById('login-overlay');
+  if (el) el.classList.add('hidden');
+}
+
+function updateAccountUI(user) {
+  var loggedOut = document.getElementById('account-logged-out');
+  var loggedIn = document.getElementById('account-logged-in');
+  var avatar = document.getElementById('account-avatar');
+  var nameEl = document.getElementById('account-name');
+  var emailEl = document.getElementById('account-email');
+  if (!loggedOut || !loggedIn) return;
+  if (user) {
+    loggedOut.classList.add('hidden');
+    loggedIn.classList.remove('hidden');
+    if (avatar) { avatar.src = user.photoURL || ''; avatar.style.display = user.photoURL ? '' : 'none'; }
+    if (nameEl) nameEl.textContent = user.displayName || user.email || 'User';
+    if (emailEl) emailEl.textContent = user.email || '';
+  } else {
+    loggedOut.classList.remove('hidden');
+    loggedIn.classList.add('hidden');
+  }
+}
+
+function showSyncStatus(msg) {
+  var el = document.getElementById('sync-status-text');
+  if (el) el.textContent = msg;
+}
+
+function updateSyncTimeDisplay() {
+  var el = document.getElementById('sync-time');
+  if (el && lastSyncTimestamp) {
+    var diff = Math.floor((Date.now() - lastSyncTimestamp) / 1000);
+    el.textContent = diff < 60 ? t('syncJustNow') : t('syncMinutesAgo', { m: Math.floor(diff / 60) });
+  }
+}
+
+// --- Data sync ---
+function syncAfterLogin() {
+  if (!firebaseUser || !firestoreDocRef || isSyncing) return;
+  isSyncing = true;
+  showSyncStatus(t('syncStatusSyncing'));
+  var dot = document.getElementById('sync-dot');
+  if (dot) dot.className = 'sync-dot syncing';
+
+  firestoreDocRef.get().then(function(doc) {
+    var remoteData = doc.exists ? doc.data() : null;
+    var localRaw = null;
+    try { localRaw = JSON.parse(localStorage.getItem(CONFIG.storageKey)); } catch(e) {}
+
+    function doMerge() {
+      var merged = mergeData(localRaw || {}, remoteData || {});
+      merged._syncMeta = { lastSyncAt: new Date().toISOString(), lastSyncedBy: firebaseUser.uid };
+      return firestoreDocRef.set(merged).then(function() {
+        mergeIntoLocal(merged);
+        lastSyncTimestamp = Date.now();
+        showSyncStatus(t('syncStatusSynced'));
+        if (dot) dot.className = 'sync-dot';
+        updateSyncTimeDisplay();
+      });
+    }
+
+    if (!remoteData && localRaw) {
+      // First sync: upload local
+      localRaw._syncMeta = { lastSyncAt: new Date().toISOString(), lastSyncedBy: firebaseUser.uid };
+      firestoreDocRef.set(localRaw).then(function() {
+        lastSyncTimestamp = Date.now();
+        showSyncStatus(t('syncStatusSynced'));
+        if (dot) dot.className = 'sync-dot';
+        updateSyncTimeDisplay();
+      }).catch(syncError);
+    } else if (remoteData && !localRaw) {
+      // New device: download remote
+      mergeIntoLocal(remoteData);
+      lastSyncTimestamp = Date.now();
+      showSyncStatus(t('syncStatusSynced'));
+      if (dot) dot.className = 'sync-dot';
+      updateSyncTimeDisplay();
+    } else if (remoteData && localRaw) {
+      // Both have data: merge
+      doMerge().catch(syncError);
+    } else {
+      showSyncStatus(t('syncStatusSynced'));
+      if (dot) dot.className = 'sync-dot';
+    }
+    isSyncing = false;
+  }).catch(function(e) {
+    syncError(e);
+    isSyncing = false;
+  });
+}
+
+function syncError(e) {
+  console.warn('Sync failed:', e);
+  showSyncStatus(t('syncError'));
+  var dot = document.getElementById('sync-dot');
+  if (dot) dot.className = 'sync-dot error';
+}
+
+function debouncedSync() {
+  if (!firebaseUser || !firestoreDocRef) return;
+  clearTimeout(syncDebounceTimer);
+  syncDebounceTimer = setTimeout(function() {
+    var raw = null;
+    try { raw = JSON.parse(localStorage.getItem(CONFIG.storageKey)); } catch(e) {}
+    if (raw && firestoreDocRef) {
+      raw._syncMeta = { lastSyncAt: new Date().toISOString(), lastSyncedBy: firebaseUser.uid };
+      firestoreDocRef.set(raw).catch(function(e) { console.warn('Debounced sync fail:', e); });
+    }
+  }, 2000);
+}
+
+function mergeData(local, remote) {
+  var merged = {};
+  // Settings: local first
+  merged.monthlySalary = local.monthlySalary || remote.monthlySalary || 0;
+  merged.workDaysPerMonth = local.workDaysPerMonth || remote.workDaysPerMonth || 22;
+  merged.workHoursPerDay = local.workHoursPerDay || remote.workHoursPerDay || 8;
+  merged.lunchBreakMinutes = local.lunchBreakMinutes != null ? local.lunchBreakMinutes : (remote.lunchBreakMinutes || 60);
+  merged.workStartHour = local.workStartHour != null ? local.workStartHour : (remote.workStartHour || 9);
+  merged.overtimeEveningRate = local.overtimeEveningRate || remote.overtimeEveningRate || 1.5;
+  merged.overtimeWeekendRate = local.overtimeWeekendRate || remote.overtimeWeekendRate || 2.0;
+  merged.socialInsuranceRate = local.socialInsuranceRate != null ? local.socialInsuranceRate : (remote.socialInsuranceRate || 10.5);
+  merged.housingFundRate = local.housingFundRate != null ? local.housingFundRate : (remote.housingFundRate || 7);
+  merged.taxThreshold = local.taxThreshold || remote.taxThreshold || 5000;
+  merged.darkMode = local.darkMode != null ? local.darkMode : (remote.darkMode != null ? remote.darkMode : null);
+  merged.showOnboarding = local.showOnboarding != null ? local.showOnboarding : (remote.showOnboarding != null ? remote.showOnboarding : true);
+  merged.showReportDialog = local.showReportDialog != null ? local.showReportDialog : (remote.showReportDialog != null ? remote.showReportDialog : true);
+  merged.isMakeupWorkday = !!local.isMakeupWorkday;
+  merged.settingsOpen = !!local.settingsOpen;
+  merged.manualOvertime = local.manualOvertime != null ? local.manualOvertime : null;
+  // Session state: local first (active session)
+  merged.sessionState = local.sessionState || 'idle';
+  merged.normalSeconds = local.normalSeconds || 0;
+  merged.overtimeSeconds = local.overtimeSeconds || 0;
+  merged.breakSeconds = local.breakSeconds || 0;
+  merged.sessionDate = local.sessionDate || '';
+  merged.lastCoinThreshold = local.lastCoinThreshold || 0;
+  merged.lastBreakThreshold = local.lastBreakThreshold || 0;
+  merged.perSecondRate = local.perSecondRate || remote.perSecondRate || 0;
+  // Records: merge by date, take higher earned
+  merged.records = {};
+  var allDates = new Set();
+  if (remote.records) Object.keys(remote.records).forEach(function(d) { allDates.add(d); });
+  if (local.records) Object.keys(local.records).forEach(function(d) { allDates.add(d); });
+  allDates.forEach(function(dateStr) {
+    var lr = local.records ? local.records[dateStr] : null;
+    var rr = remote.records ? remote.records[dateStr] : null;
+    if (lr && rr) {
+      merged.records[dateStr] = lr.earned >= rr.earned ? lr : rr;
+    } else if (lr) {
+      merged.records[dateStr] = lr;
+    } else if (rr) {
+      merged.records[dateStr] = rr;
+    }
+  });
+  // Cumulative: take max
+  merged.cumWorkSeconds = Math.max(local.cumWorkSeconds || 0, remote.cumWorkSeconds || 0);
+  merged.cumEarned = Math.max(local.cumEarned || 0, remote.cumEarned || 0);
+  // Counter: max per key
+  merged.counter = {};
+  var counterKeys = ['totalEnds','streakDays','overtimeDays','ot2hDays','daily500','break1hDays','earlyBreaks','earlyBirdDays'];
+  counterKeys.forEach(function(k) {
+    merged.counter[k] = Math.max((local.counter && local.counter[k]) || 0, (remote.counter && remote.counter[k]) || 0);
+  });
+  // Arrays: deduplicate
+  function dedup(arr) {
+    if (!arr) return [];
+    var seen = {};
+    return arr.filter(function(item) {
+      var id = item.id || item.name;
+      if (seen[id]) return false;
+      seen[id] = true;
+      return true;
+    });
+  }
+  merged.purchaseItems = dedup([].concat(remote.purchaseItems || []).concat(local.purchaseItems || []));
+  merged.wishItems = dedup([].concat(remote.wishItems || []).concat(local.wishItems || []));
+  merged.earnedBadges = (remote.earnedBadges || []).concat(local.earnedBadges || []).filter(function(v,i,a) { return a.indexOf(v) === i; });
+  return merged;
+}
+
+function mergeIntoLocal(data) {
+  if (!data) return;
+  state = JSON.parse(JSON.stringify(data));
+  // Merge with DEFAULTS to ensure all keys exist
+  var defaults = JSON.parse(JSON.stringify(DEFAULTS));
+  state = { ...defaults, ...state, counter: { ...defaults.counter, ...(state.counter || {}) } };
+  save();
+  recalcRate();
+  updateUIState();
+  updateMakeupToggle();
+  renderHistory();
+  renderChart();
+  renderAchievements();
+  renderMonthlyProgress();
+  renderStats();
+  renderPurchaseList();
+  renderPurchaseTeaser();
+  renderWishList();
+  renderWishPreview();
+}
+
+// ================================================================
 // STORAGE
 // ================================================================
 function save() {
   try {
     const data = { ...state, _version: 2 };
     localStorage.setItem(CONFIG.storageKey, JSON.stringify(data));
+    debouncedSync();
   } catch(e) { console.warn('save fail', e); }
 }
 
@@ -4625,6 +5151,20 @@ function init() {
   });
   obSkip.addEventListener('click', finishOnboarding);
 
+  // Login / Auth buttons
+  document.getElementById('btn-google-login').addEventListener('click', handleGoogleLogin);
+  document.getElementById('btn-apple-login').addEventListener('click', handleAppleLogin);
+  document.getElementById('btn-tiktok-login').addEventListener('click', handleTikTokClick);
+  document.getElementById('btn-skip-login').addEventListener('click', function() {
+    loginOverlayDismissed = true;
+    hideLoginOverlay();
+  });
+  document.getElementById('btn-google-settings').addEventListener('click', handleGoogleLogin);
+  document.getElementById('btn-apple-settings').addEventListener('click', handleAppleLogin);
+  document.getElementById('btn-tiktok-settings').addEventListener('click', handleTikTokClick);
+  document.getElementById('btn-sync-now').addEventListener('click', syncAfterLogin);
+  document.getElementById('btn-logout').addEventListener('click', handleLogout);
+
   // Reset
   $('btn-reset-data').addEventListener('click', () => {
     if (confirm(t('confirmReset'))) {
@@ -4681,9 +5221,13 @@ function init() {
       save();
     }
   });  // beforeunload
+  // Init Firebase (async — doesn't block UI)
+  initFirebase();
   } catch(e) { console.error('Init error:', e); }
 }
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
+
+

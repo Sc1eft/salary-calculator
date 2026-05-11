@@ -51,6 +51,41 @@ npx http-server -p 8080
 - **CSS 自定义属性** — 亮色/暗色双主题
 - **PWA** — manifest.json + Service Worker 离线支持
 
+## ☁️ 云同步（可选）
+
+登录后可在不同设备间同步工作记录。需要配置 Firebase 项目：
+
+1. 前往 [Firebase Console](https://console.firebase.google.com/) 创建项目
+2. 启用 **Authentication** → **Google** 和 **Apple** 登录方式
+3. 创建 **Cloud Firestore** 数据库（选择测试模式）
+4. 在项目设置 → 通用 → 你的应用 → Web 应用中获取配置
+5. 打开 `index.html`，搜索 `FIREBASE_CONFIG`，替换为你的配置
+
+```javascript
+const FIREBASE_CONFIG = {
+  apiKey: "你的API_KEY",
+  authDomain: "你的项目.firebaseapp.com",
+  projectId: "你的项目ID",
+  storageBucket: "你的项目.appspot.com",
+  messagingSenderId: "你的发送者ID",
+  appId: "你的应用ID"
+};
+```
+
+推荐 Firestore 安全规则：
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/data/{document} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+```
+
+未配置 Firebase 时，应用完全离线可用，数据仅存储在本地 localStorage。
+
 ## 📦 项目结构
 
 ```
