@@ -36,13 +36,13 @@
   --text-xl: 2rem;
   --text-3xl: 3rem;
 
-  /* Brand — gold palette (vibrant gold) */
-  --gold: oklch(76% 0.22 72);
-  --gold-dark: oklch(60% 0.22 65);
-  --gold-deep: oklch(50% 0.18 60);
-  --gold-light: oklch(92% 0.1 95);
-  --gold-pale: oklch(97% 0.05 95);
-  --gold-glow: oklch(76% 0.22 72 / 0.25);
+  /* Brand — golden yellow palette */
+  --gold: oklch(78% 0.24 88);
+  --gold-dark: oklch(62% 0.22 82);
+  --gold-deep: oklch(50% 0.18 78);
+  --gold-light: oklch(93% 0.1 100);
+  --gold-pale: oklch(97% 0.05 100);
+  --gold-glow: oklch(78% 0.24 88 / 0.25);
 
   /* Functional */
   --blue: oklch(55% 0.2 260);
@@ -137,7 +137,7 @@
 }
 [data-theme="dark"] ::selection { background: rgba(245,158,11,0.3); }
 [data-theme="dark"] header {
-  background: linear-gradient(135deg, oklch(42% 0.16 55), oklch(35% 0.14 50));
+  background: linear-gradient(135deg, oklch(42% 0.18 78), oklch(35% 0.15 75));
 }
 [data-theme="dark"] header::before {
   background: radial-gradient(ellipse at 30% 50%, rgba(251,191,36,0.1) 0%, transparent 70%);
@@ -229,7 +229,7 @@ body::before {
 }
 
 header {
-  background: linear-gradient(135deg, oklch(60% 0.22 65), oklch(50% 0.18 60), oklch(42% 0.16 55));
+  background: linear-gradient(135deg, oklch(62% 0.22 82), oklch(50% 0.18 78), oklch(42% 0.16 75));
   background-size: 200% 200%;
   animation: headerShimmer 8s ease infinite;
   color: white;
@@ -2034,8 +2034,8 @@ input[type="number"] { -moz-appearance: textfield; }
           <svg width="100" height="100" viewBox="0 0 100 100">
             <defs>
               <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="oklch(76% 0.22 72)"/>
-                <stop offset="100%" stop-color="oklch(60% 0.22 65)"/>
+                <stop offset="0%" stop-color="oklch(78% 0.24 88)"/>
+                <stop offset="100%" stop-color="oklch(62% 0.22 82)"/>
               </linearGradient>
             </defs>
             <circle class="ring-bg" cx="50" cy="50" r="42"/>
@@ -4523,8 +4523,8 @@ function renderChart() {
       datasets: [{
         label: t('chartIncome'),
         data,
-        backgroundColor: data.map(v => v > 0 ? 'oklch(76% 0.22 72 / 0.7)' : 'rgba(203,213,225,0.3)'),
-        borderColor: data.map(v => v > 0 ? 'oklch(76% 0.22 72)' : 'rgba(203,213,225,0.5)'),
+        backgroundColor: data.map(v => v > 0 ? 'oklch(78% 0.24 88 / 0.7)' : 'rgba(203,213,225,0.3)'),
+        borderColor: data.map(v => v > 0 ? 'oklch(78% 0.24 88)' : 'rgba(203,213,225,0.5)'),
         borderWidth: 2,
         borderRadius: 4,
         barPercentage: 0.6,
