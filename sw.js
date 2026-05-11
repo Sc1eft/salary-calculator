@@ -1,4 +1,4 @@
-const CACHE = 'salary-calculator-v3';
+const CACHE = 'salary-calculator-v4';
 const URLS = [
   '/',
   'index.html',
