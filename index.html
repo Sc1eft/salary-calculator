@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>💰 工资计算器</title>
+<title>💰 赚钱计时器</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#F59E0B">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="工资计算器">
+<meta name="apple-mobile-web-app-title" content="赚钱计时器">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -1801,7 +1801,7 @@ input[type="number"] { -moz-appearance: textfield; }
 <header>
   <button class="lang-toggle" id="lang-toggle" title="English">EN</button>
 <button class="dark-toggle" id="dark-toggle" title="切换深色模式">🌙</button>
-  <h1 data-i18n="appTitle">💰 工资计算器</h1>
+  <h1 data-i18n="appTitle">💰 赚钱计时器</h1>
   <p data-i18n="appSubtitle">每一秒的努力都看得见</p>
 </header>
 
@@ -2191,7 +2191,7 @@ input[type="number"] { -moz-appearance: textfield; }
         <span class="ob-dot" data-ob="2"></span>
       </div>
       <div class="ob-icon" id="ob-icon">💰</div>
-      <h2 id="ob-title" data-i18n="onboardTitle">欢迎使用工资计算器</h2>
+      <h2 id="ob-title" data-i18n="onboardTitle">欢迎使用赚钱计时器</h2>
       <p id="ob-desc" data-i18n="onboardDesc">设置你的月薪，开始工作后每一秒都能看到收入增长，让努力变得看得见。</p>
       <button class="ob-btn" id="ob-btn" data-i18n="btnStartUse">开始使用</button>
       <button class="ob-skip" id="ob-skip" data-i18n="btnSkip">跳过引导</button>
@@ -2337,7 +2337,7 @@ const ACHIEVEMENTS = [
 let lang = localStorage.getItem('salary_lang') || 'en';
 const I18N = {
   zh: {
-    appTitle: '💰 工资计算器',
+    appTitle: '💰 赚钱计时器',
     appSubtitle: '每一秒的努力都看得见',
     tabTimer: '计时', tabGoals: '目标', tabHistory: '记录', tabInsights: '洞察', tabSettings: '设置',
     monthlyProgress: '📊 月进度',
@@ -2408,7 +2408,7 @@ const I18N = {
     dayEdit: '✏️ 编辑记录',
     dayWorkPH: '工作(分钟)', dayOtPH: '加班(分钟)', dayBreakPH: '休息(分钟)',
     btnSave: '保存',
-    onboardTitle: '欢迎使用工资计算器',
+    onboardTitle: '欢迎使用赚钱计时器',
     onboardDesc: '设置你的月薪，开始工作后每一秒都能看到收入增长，让努力变得看得见。',
     btnStartUse: '开始使用', btnSkip: '跳过引导',
     unlockTitle: '🎊 解锁新成就！',
@@ -2432,10 +2432,10 @@ const I18N = {
     onbTitle2: '追踪数据，发现规律',
     onbDesc2: '日历视图记录每天的工作，还有统计洞察帮你了解自己的收入趋势和加班情况。',
     btnNext: '下一步', btnEarn: '开始赚钱！',
-    shareTitle: '工资计算器',
-    shareDaily: '🎉 今日搬砖报告！\n📅 {date}\n💵 总收入：¥{total}\n⏱ 工作：{h}h {m}m{affordable}{otLine}\n🏆 超过了全国 {pct}% 的打工人\n⚡ 我每秒值¥{rate}，你的呢？\n💰 工资计算器 — 看看你的时间值多少钱',
+    shareTitle: '赚钱计时器',
+    shareDaily: '🎉 今日搬砖报告！\n📅 {date}\n💵 总收入：¥{total}\n⏱ 工作：{h}h {m}m{affordable}{otLine}\n🏆 超过了全国 {pct}% 的打工人\n⚡ 我每秒值¥{rate}，你的呢？\n💰 赚钱计时器 — 看看你的时间值多少钱',
     shareOtLine: '\n🌙 加班 {min} 分钟，超过了 {pct}% 的打工人',
-    shareStats: '📊 我的搬砖成就\n💵 累计收入：¥{total}\n📅 工作 {days} 天\n📈 日均 ¥{avg}\n🏆 单日最高 ¥{max}（{date}）{otLine}\n🏆 超过了全国 {pct}% 的打工人\n⚡ 每秒值 ¥{rate}\n💰 工资计算器 — 看看你的时间值多少钱',
+    shareStats: '📊 我的搬砖成就\n💵 累计收入：¥{total}\n📅 工作 {days} 天\n📈 日均 ¥{avg}\n🏆 单日最高 ¥{max}（{date}）{otLine}\n🏆 超过了全国 {pct}% 的打工人\n⚡ 每秒值 ¥{rate}\n💰 赚钱计时器 — 看看你的时间值多少钱',
     shareStatsOt: '\n🌙 日均加班 {min} 分钟，超过了 {pct}% 的打工人',
     toastCopied: '已复制到剪贴板',
     toastNoEarn: '还没有收入，先上班吧！',
@@ -2458,7 +2458,7 @@ const I18N = {
     csvHeader: '日期,正常工时(分钟),加班工时(分钟),休息(分钟),收入',
     fmtHM: '{h}小时{m}分钟', fmtM: '{m}分钟',
     unitDay: '天', unitSec: '/秒',
-    canvTitle: '工资计算器',
+    canvTitle: '赚钱计时器',
     canvSubtitle: '今日搬砖报告',
     canvRate: '时薪 ¥{hourly} | 每秒 ¥{second}',
     canvWork: '⏱ 工作时长',
@@ -2474,7 +2474,7 @@ const I18N = {
     canvPctNone: '超过了全国 {pct}% 的打工人',
     canvOtPct: '加班时长超过 {pct}% 的打工人，注意休息！',
     canvOtPct2: '加班时长超过 {pct}% 的打工人',
-    canvWatermark: '💰 工资计算器',
+    canvWatermark: '💰 赚钱计时器',
     darkToggle: '切换深色模式',
     lightToggle: '切换亮色模式',
     langEn: 'EN',
@@ -2504,7 +2504,7 @@ const I18N = {
     syncError: '同步失败，请检查网络连接',
   },
   en: {
-    appTitle: '💰 Salary Calculator',
+    appTitle: '💰 Money Timer',
     appSubtitle: 'Every second of effort counts',
     tabTimer: 'Timer', tabGoals: 'Goals', tabHistory: 'History', tabInsights: 'Insights', tabSettings: 'Settings',
     monthlyProgress: '📊 Monthly Progress',
@@ -2575,7 +2575,7 @@ const I18N = {
     dayEdit: '✏️ Edit Record',
     dayWorkPH: 'Work (min)', dayOtPH: 'OT (min)', dayBreakPH: 'Break (min)',
     btnSave: 'Save',
-    onboardTitle: 'Welcome to Salary Calculator',
+    onboardTitle: 'Welcome to Money Timer',
     onboardDesc: 'Set your monthly salary and watch your income grow every second. Every effort becomes visible.',
     btnStartUse: 'Get Started', btnSkip: 'Skip',
     unlockTitle: '🎊 Achievement Unlocked!',
@@ -2599,10 +2599,10 @@ const I18N = {
     onbTitle2: 'Track Data, Discover Patterns',
     onbDesc2: 'Calendar view tracks daily work with insights on income trends and overtime patterns.',
     btnNext: 'Next', btnEarn: 'Start Earning!',
-    shareTitle: 'Salary Calculator',
-    shareDaily: '🎉 Today\'s Work Report!\n📅 {date}\n💵 Total: ${total}\n⏱ Work: {h}h {m}m{affordable}{otLine}\n🏆 Surpassed {pct}% of workers\n⚡ I earn ${rate}/s, what about you?\n💰 Salary Calculator — See what your time is worth',
+    shareTitle: 'Money Timer',
+    shareDaily: '🎉 Today\'s Work Report!\n📅 {date}\n💵 Total: ${total}\n⏱ Work: {h}h {m}m{affordable}{otLine}\n🏆 Surpassed {pct}% of workers\n⚡ I earn ${rate}/s, what about you?\n💰 Money Timer — See what your time is worth',
     shareOtLine: '\n🌙 OT {min}min, surpassed {pct}% of workers',
-    shareStats: '📊 My Work Achievements\n💵 Total Income: ${total}\n📅 {days} days worked\n📈 Daily Avg: ${avg}\n🏆 Best Day: ${max} ({date}){otLine}\n🏆 Surpassed {pct}% of workers\n⚡ I earn ${rate}/s\n💰 Salary Calculator — See what your time is worth',
+    shareStats: '📊 My Work Achievements\n💵 Total Income: ${total}\n📅 {days} days worked\n📈 Daily Avg: ${avg}\n🏆 Best Day: ${max} ({date}){otLine}\n🏆 Surpassed {pct}% of workers\n⚡ I earn ${rate}/s\n💰 Money Timer — See what your time is worth',
     shareStatsOt: '\n🌙 Daily OT avg {min}min, surpassed {pct}% of workers',
     toastCopied: 'Copied to clipboard',
     toastNoEarn: 'No earnings yet. Start working first!',
@@ -2625,7 +2625,7 @@ const I18N = {
     csvHeader: 'Date,Normal Work(min),Overtime(min),Break(min),Income',
     fmtHM: '{h}h {m}m', fmtM: '{m}m',
     unitDay: 'd', unitSec: '/sec',
-    canvTitle: 'Salary Calculator',
+    canvTitle: 'Money Timer',
     canvSubtitle: 'Today\'s Work Report',
     canvRate: 'Hourly ${hourly} | Per Sec ${second}',
     canvWork: '⏱ Work Duration',
@@ -2641,7 +2641,7 @@ const I18N = {
     canvPctNone: 'Surpassed {pct}% of workers',
     canvOtPct: 'Overtime exceeds {pct}% of workers, take rest!',
     canvOtPct2: 'Overtime exceeds {pct}% of workers',
-    canvWatermark: '💰 Salary Calculator',
+    canvWatermark: '💰 Money Timer',
     darkToggle: 'Toggle Dark Mode',
     lightToggle: 'Toggle Light Mode',
     langEn: 'EN',
