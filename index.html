@@ -1950,47 +1950,6 @@ input[type="number"] { -moz-appearance: textfield; }
 <main>
   <!-- ====== Tab: Timer ====== -->
   <div class="tab-content active" id="tab-timer">
-    <section class="card" id="progress-section">
-      <h2 data-i18n="monthlyProgress">📊 月进度</h2>
-      <div class="monthly-progress">
-        <div class="ring-container" id="ring-container">
-          <svg width="100" height="100" viewBox="0 0 100 100">
-            <defs>
-              <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#F59E0B"/>
-                <stop offset="100%" stop-color="#D97706"/>
-              </linearGradient>
-            </defs>
-            <circle class="ring-bg" cx="50" cy="50" r="42"/>
-            <circle class="ring-fg" id="ring-fg" cx="50" cy="50" r="42"
-              stroke-dasharray="263.89" stroke-dashoffset="263.89"/>
-          </svg>
-          <div class="ring-center">
-            <span class="pct" id="ring-pct">0%</span>
-            <span class="pct-label" data-i18n="pctLabel">完成</span>
-          </div>
-        </div>
-        <div class="monthly-stats">
-          <div class="stat-row">
-            <span class="stat-label" data-i18n="statMonth">本月收入</span>
-            <span class="stat-value gold" id="month-earned">0.00</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label" data-i18n="statTarget">月薪目标</span>
-            <span class="stat-value" id="month-target">0</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label" data-i18n="statDays">工作天数</span>
-            <span class="stat-value" id="month-days">0 天</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label" data-i18n="statRate">每秒费率</span>
-            <span class="stat-value" id="month-rate">0 元</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <section class="card" id="tracker-section">
       <div class="timer-row">
         <div class="timer-box work">
@@ -2050,6 +2009,47 @@ input[type="number"] { -moz-appearance: textfield; }
         <span class="small"> 点击查看全部换算 →</span>
       </div>
       <div id="coin-container"></div>
+    </section>
+
+    <section class="card" id="progress-section">
+      <h2 data-i18n="monthlyProgress">📊 月进度</h2>
+      <div class="monthly-progress">
+        <div class="ring-container" id="ring-container">
+          <svg width="100" height="100" viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#F59E0B"/>
+                <stop offset="100%" stop-color="#D97706"/>
+              </linearGradient>
+            </defs>
+            <circle class="ring-bg" cx="50" cy="50" r="42"/>
+            <circle class="ring-fg" id="ring-fg" cx="50" cy="50" r="42"
+              stroke-dasharray="263.89" stroke-dashoffset="263.89"/>
+          </svg>
+          <div class="ring-center">
+            <span class="pct" id="ring-pct">0%</span>
+            <span class="pct-label" data-i18n="pctLabel">完成</span>
+          </div>
+        </div>
+        <div class="monthly-stats">
+          <div class="stat-row">
+            <span class="stat-label" data-i18n="statMonth">本月收入</span>
+            <span class="stat-value gold" id="month-earned">0.00</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label" data-i18n="statTarget">月薪目标</span>
+            <span class="stat-value" id="month-target">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label" data-i18n="statDays">工作天数</span>
+            <span class="stat-value" id="month-days">0 天</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label" data-i18n="statRate">每秒费率</span>
+            <span class="stat-value" id="month-rate">0 元</span>
+          </div>
+        </div>
+      </div>
     </section>
   </div>
 
