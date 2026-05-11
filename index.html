@@ -3332,6 +3332,25 @@ function showToast(msg) {
 }
 
 // ================================================================
+// SOUND — Button click feedback
+// ================================================================
+function playClickSound() {
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = 900;
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.05);
+  } catch(e) {}
+}
+
+// ================================================================
 // FIREBASE — Auth + Firestore Sync
 // ================================================================
 function initFirebase() {
@@ -5427,6 +5446,14 @@ function init() {
   // Tab switching
   document.querySelectorAll('.tab-btn').forEach(function(btn) {
     btn.addEventListener('click', function() { switchTab(this.dataset.tab); });
+  });
+
+  // Global button click sound + haptic feedback
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('button, .tab-btn, .badge-item')) {
+      playClickSound();
+      try { navigator.vibrate(10); } catch(e) {}
+    }
   });
 
   // Purchase
