@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -1871,7 +1871,7 @@ input[type="number"] { -moz-appearance: textfield; }
             <label data-i18n="setOtWeekend">周末加班倍率</label>
             <input type="number" id="set-ot-weekend" value="2.0" min="1" max="5" step="0.1">
           </div>
-          <div class="setting-item">
+          <div class="setting-item" id="set-item-social">
             <label data-i18n="setSocial">社保比例</label>
             <select id="set-social-insurance">
               <option value="0" data-i18n="selNotCalc">不计算</option>
@@ -1881,7 +1881,7 @@ input[type="number"] { -moz-appearance: textfield; }
               <option value="11">11%</option>
             </select>
           </div>
-          <div class="setting-item">
+          <div class="setting-item" id="set-item-fund">
             <label data-i18n="setFund">公积金比例</label>
             <select id="set-housing-fund">
               <option value="0" data-i18n="selNotCalc">不计算</option>
@@ -1892,7 +1892,7 @@ input[type="number"] { -moz-appearance: textfield; }
               <option value="12">12%</option>
             </select>
           </div>
-          <div class="setting-item">
+          <div class="setting-item" id="set-item-tax">
             <label data-i18n="setTax">个税起征点/月</label>
             <input type="number" id="set-tax-threshold" value="5000" min="0" max="20000" step="500">
           </div>
@@ -2283,7 +2283,7 @@ const I18N = {
     salaryInfo: 'Based on {days}d × {hours}h, ≈ ¥{rate}/sec',
     taxGross: 'Gross Salary', taxSocial: 'Social Ins.', taxFund: 'Housing Fund', taxIncome: 'Income Tax', taxTakehome: '≈ Take-home Pay',
     taxDetail: 'Estimated based on your social insurance and housing fund settings',
-    taxDetailLine: 'Social {social}% · Fund {fund}% · Tax {taxPct}% · Per sec ≈ ¥{rate} (take-home)',
+    taxDetailLine: 'Per sec ≈ ¥{rate} (take-home)',
     settingsTitle: '⚙️ Advanced Settings',
     setDays: 'Work Days / Month', setHours: 'Daily Hours', setLunch: 'Lunch Break (min)', setStart: 'Start Time',
     setOtWeekday: 'Weekday OT Rate', setOtWeekend: 'Weekend OT Rate',
@@ -2407,6 +2407,13 @@ function applyLang() {
   document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
     el.placeholder = t(el.dataset.i18nPlaceholder);
   });
+  // Toggle tax settings visibility
+  var setSocial = document.getElementById('set-item-social');
+  var setFund = document.getElementById('set-item-fund');
+  var setTax = document.getElementById('set-item-tax');
+  [setSocial, setFund, setTax].forEach(function(el) {
+    if (el) el.classList.toggle('hidden', lang === 'en');
+  });
 }
 
 function setLang(l) {
@@ -2417,6 +2424,7 @@ function setLang(l) {
   renderActiveTab();
   updateUIState();
   updateMakeupToggle();
+  recalcRate();
   var lt = document.getElementById('lang-toggle');
   if (lt) { lt.textContent = t('lang' + (l === 'en' ? 'Zh' : 'En')); lt.title = l === 'en' ? '中文' : 'English'; }
   applyDarkMode();
@@ -3754,6 +3762,7 @@ function showDayDetail(dateStr) {
 // ================================================================
 function calcTakehome(gross) {
   if (!gross || gross <= 0) return { gross: 0, socialInsurance: 0, housingFund: 0, insurance: 0, taxable: 0, tax: 0, takehome: 0 };
+  if (lang === 'en') return { gross: gross, socialInsurance: 0, housingFund: 0, insurance: 0, taxable: 0, tax: 0, takehome: gross };
   const siRate = (state.socialInsuranceRate || 0) / 100;
   const hfRate = (state.housingFundRate || 0) / 100;
   const threshold = state.taxThreshold || 5000;
@@ -3785,7 +3794,17 @@ function updateTaxDisplay() {
   taxIncome.textContent = '- ' + cur(th.tax);
   taxTakehome.textContent = cur(th.takehome);
   const effectiveRate = th.takehome / (state.workDaysPerMonth * state.workHoursPerDay * 3600);
-  taxDetail.textContent = t('taxDetailLine', { social: state.socialInsuranceRate, fund: state.housingFundRate, taxPct: (th.tax / Math.max(1, th.taxable) * 100).toFixed(1), rate: effectiveRate.toFixed(5) });
+  if (lang === 'en') {
+    taxSocialInsurance.closest('.tax-row').style.display = 'none';
+    taxHousingFund.closest('.tax-row').style.display = 'none';
+    taxIncome.closest('.tax-row').style.display = 'none';
+    taxDetail.textContent = t('taxDetailLine', { rate: effectiveRate.toFixed(5) });
+  } else {
+    taxSocialInsurance.closest('.tax-row').style.display = '';
+    taxHousingFund.closest('.tax-row').style.display = '';
+    taxIncome.closest('.tax-row').style.display = '';
+    taxDetail.textContent = t('taxDetailLine', { social: state.socialInsuranceRate, fund: state.housingFundRate, taxPct: (th.tax / Math.max(1, th.taxable) * 100).toFixed(1), rate: effectiveRate.toFixed(5) });
+  }
 }
 
 // ================================================================
