@@ -3376,32 +3376,36 @@ function initFirebase() {
 // --- Auth handlers ---
 const GOOGLE_CLIENT_ID = '925635008216-blle35orn7cu18crr2002jklpn6tnp52.apps.googleusercontent.com';
 
+// Check for Google OAuth redirect result (id_token in URL hash)
+(function checkGoogleOAuth() {
+  var hash = window.location.hash;
+  if (hash && hash.indexOf('id_token=') !== -1) {
+    var params = new URLSearchParams(hash.substring(1));
+    var idToken = params.get('id_token');
+    if (idToken) {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+      if (typeof firebase !== 'undefined' && firebase.auth) {
+        var credential = firebase.auth.GoogleAuthProvider.credential(idToken);
+        firebase.auth().signInWithCredential(credential).catch(function(e) {
+          showToast('登录错误: ' + e.message);
+        });
+      }
+    }
+  }
+})();
+
 function handleGoogleLogin() {
   if (!firebaseApp) { showToast(t('loginError')); return; }
-  if (typeof google !== 'undefined' && google.accounts) {
-    try {
-      var client = google.accounts.oauth2.initTokenClient({
-        client_id: GOOGLE_CLIENT_ID,
-        scope: 'openid email profile',
-        callback: function(response) {
-          if (response && response.id_token) {
-            var credential = firebase.auth.GoogleAuthProvider.credential(response.id_token);
-            firebase.auth().signInWithCredential(credential).catch(function(e) {
-              showToast('登录错误: ' + e.message);
-            });
-          }
-        },
-        error_callback: function() {
-          // Popup blocked (e.g. iOS PWA) → fall back to redirect
-          firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
-        },
-      });
-      client.requestAccessToken();
-      return;
-    } catch(e) {}
-  }
-  // GIS not available → use redirect fallback
-  firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+  // Redirect directly to Google OAuth (implicit flow) — no Firebase handler in the chain
+  var redirectUri = window.location.href.split('#')[0].split('?')[0];
+  var nonce = Math.random().toString(36).substring(2, 15);
+  var authUrl = 'https://accounts.google.com/o/oauth2/v2/auth?' +
+    'client_id=' + encodeURIComponent(GOOGLE_CLIENT_ID) +
+    '&response_type=id_token%20token' +
+    '&redirect_uri=' + encodeURIComponent(redirectUri) +
+    '&scope=' + encodeURIComponent('openid email profile') +
+    '&nonce=' + encodeURIComponent(nonce);
+  window.location.href = authUrl;
 }
 
 function handleAppleLogin() {
