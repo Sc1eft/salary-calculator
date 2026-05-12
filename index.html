@@ -3367,6 +3367,7 @@ function initFirebase() {
     // Handle redirect sign-in result (more reliable than popup across browsers)
     firebase.auth().getRedirectResult().catch(function(e) {
       console.error('Redirect sign-in error:', e.code, e.message);
+      showToast('登录错误: ' + e.message);
     });
   } catch(e) { console.warn('Firebase init failed:', e); }
 }
