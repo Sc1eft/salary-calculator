@@ -3385,7 +3385,9 @@ var _adsensePushed = false;
 function pushAdsense() {
   if (_adsensePushed) return;
   _adsensePushed = true;
-  try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
+  setTimeout(function() {
+    try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
+  }, 300);
 }
 
 // ================================================================
