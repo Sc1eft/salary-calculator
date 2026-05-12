@@ -1,21 +1,12 @@
-const CACHE = 'salary-calculator-v5';
+const CACHE = 'salary-calculator-v6';
 const URLS = [
   '/',
   'index.html',
   'manifest.json',
-  'icon.svg',
-  'https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js',
-  'https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js',
-  'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js',
-  'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js'
+  'icon.svg'
 ];
 
-self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open(CACHE).then((cache) =>
-      Promise.allSettled(URLS.map((u) => cache.add(u).catch(() => {})))
-    )
-  );
+self.addEventListener('install', () => {
   self.skipWaiting();
 });
 
