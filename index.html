@@ -15,6 +15,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7936110306715031" crossorigin="anonymous"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { touch-action: manipulation; }
@@ -396,6 +397,19 @@ main {
 .setting-item input { -webkit-appearance: none; appearance: none; }
 .setting-item input[type="time"] { min-height: 44px; font-family: inherit; }
 .setting-item select { appearance: auto; }
+
+.ad-container {
+  margin: 16px 0;
+  min-height: 100px;
+  text-align: center;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+[data-theme="dark"] .ad-container { background: rgba(15,23,42,0.3); }
 
 .appearance-row {
   display: flex;
@@ -2277,6 +2291,17 @@ input[type="number"] { -moz-appearance: textfield; }
         </div>
       </div>
     </section>
+
+      <!-- AdSense Banner -->
+      <div class="ad-container">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-7936110306715031"
+             data-ad-slot="0000000000"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      </div>
     </section>
   </div>
 </main>

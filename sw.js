@@ -1,4 +1,4 @@
-const CACHE = 'salary-calculator-v4';
+const CACHE = 'salary-calculator-v5';
 const URLS = [
   '/',
   'index.html',
@@ -7,7 +7,8 @@ const URLS = [
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js',
   'https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js',
   'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js',
-  'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js'
+  'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js',
+  'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'
 ];
 
 self.addEventListener('install', (e) => {
