@@ -7,13 +7,14 @@ const URLS = [
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js',
   'https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js',
   'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js',
-  'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js',
-  'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'
+  'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js'
 ];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(URLS))
+    caches.open(CACHE).then((cache) =>
+      Promise.allSettled(URLS.map((u) => cache.add(u).catch(() => {})))
+    )
   );
   self.skipWaiting();
 });
