@@ -1,10 +1,4 @@
-const CACHE = 'salary-calculator-v6';
-const URLS = [
-  '/',
-  'index.html',
-  'manifest.json',
-  'icon.svg'
-];
+const CACHE = 'salary-calculator-v7';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(Promise.resolve());
@@ -22,6 +16,15 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   e.respondWith(
-    caches.match(e.request).then((r) => r || fetch(e.request))
+    fetch(e.request)
+      .then(function(res) {
+        return caches.open(CACHE).then(function(cache) {
+          if (e.request.method === 'GET') cache.put(e.request, res.clone());
+          return res;
+        });
+      })
+      .catch(function() {
+        return caches.match(e.request);
+      })
   );
 });
