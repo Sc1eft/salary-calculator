@@ -19,6 +19,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7936110306715031" crossorigin="anonymous"></script>
+<script src="https://accounts.google.com/gsi/client"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { touch-action: manipulation; }
@@ -3373,8 +3374,33 @@ function initFirebase() {
 }
 
 // --- Auth handlers ---
+const GOOGLE_CLIENT_ID = '925635008216-blle35orn7cu18crr2002jklpn6tnp52.apps.googleusercontent.com';
+
 function handleGoogleLogin() {
   if (!firebaseApp) { showToast(t('loginError')); return; }
+  if (typeof google !== 'undefined' && google.accounts) {
+    try {
+      var client = google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: 'openid email profile',
+        callback: function(response) {
+          if (response && response.id_token) {
+            var credential = firebase.auth.GoogleAuthProvider.credential(response.id_token);
+            firebase.auth().signInWithCredential(credential).catch(function(e) {
+              showToast('登录错误: ' + e.message);
+            });
+          }
+        },
+        error_callback: function() {
+          // Popup blocked (e.g. iOS PWA) → fall back to redirect
+          firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+        },
+      });
+      client.requestAccessToken();
+      return;
+    } catch(e) {}
+  }
+  // GIS not available → use redirect fallback
   firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
 }
 
