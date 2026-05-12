@@ -3370,6 +3370,15 @@ function initFirebase() {
       console.error('Redirect sign-in error:', e.code, e.message);
       showToast('登录错误: ' + e.message);
     });
+    // Process pending Google OAuth id_token from URL hash
+    if (window._pendingGoogleIdToken) {
+      var token = window._pendingGoogleIdToken;
+      window._pendingGoogleIdToken = null;
+      var credential = firebase.auth.GoogleAuthProvider.credential(token);
+      firebase.auth().signInWithCredential(credential).catch(function(e) {
+        showToast('登录错误: ' + e.message);
+      });
+    }
   } catch(e) { console.warn('Firebase init failed:', e); }
 }
 
@@ -3377,21 +3386,19 @@ function initFirebase() {
 const GOOGLE_CLIENT_ID = '871724592259-finajugj3vsvf1j6168qhn1563ajdmjr.apps.googleusercontent.com';
 
 // Check for Google OAuth redirect result (id_token in URL hash)
+// Store token and process after Firebase initializes
 (function checkGoogleOAuth() {
-  var hash = window.location.hash;
-  if (hash && hash.indexOf('id_token=') !== -1) {
-    var params = new URLSearchParams(hash.substring(1));
-    var idToken = params.get('id_token');
-    if (idToken) {
-      history.replaceState(null, '', window.location.pathname + window.location.search);
-      if (typeof firebase !== 'undefined' && firebase.auth) {
-        var credential = firebase.auth.GoogleAuthProvider.credential(idToken);
-        firebase.auth().signInWithCredential(credential).catch(function(e) {
-          showToast('登录错误: ' + e.message);
-        });
+  try {
+    var hash = window.location.hash;
+    if (hash && hash.indexOf('id_token=') !== -1) {
+      var params = new URLSearchParams(hash.substring(1));
+      var idToken = params.get('id_token');
+      if (idToken) {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+        window._pendingGoogleIdToken = idToken;
       }
     }
-  }
+  } catch(e) { console.warn('OAuth hash parse error:', e); }
 })();
 
 function handleGoogleLogin() {
