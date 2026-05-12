@@ -6,7 +6,8 @@ const URLS = [
   'icon.svg'
 ];
 
-self.addEventListener('install', () => {
+self.addEventListener('install', (e) => {
+  e.waitUntil(Promise.resolve());
   self.skipWaiting();
 });
 

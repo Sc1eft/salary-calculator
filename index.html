@@ -3373,16 +3373,15 @@ function initFirebase() {
 }
 
 // --- Auth handlers ---
-function popupOrRedirect(provider) {
+function handleGoogleLogin() {
   if (!firebaseApp) { showToast(t('loginError')); return; }
-  firebase.auth().signInWithPopup(provider).catch(function(e) {
-    // Popup failed — likely in PWA or iOS, fall back to redirect
-    firebase.auth().signInWithRedirect(provider);
-  });
+  firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
 }
 
-function handleGoogleLogin() { popupOrRedirect(new firebase.auth.GoogleAuthProvider()); }
-function handleAppleLogin() { popupOrRedirect(new firebase.auth.OAuthProvider('apple.com')); }
+function handleAppleLogin() {
+  if (!firebaseApp) { showToast(t('loginError')); return; }
+  firebase.auth().signInWithRedirect(new firebase.auth.OAuthProvider('apple.com'));
+}
 
 function handleLogout() {
   firebase.auth().signOut().then(function() { showToast(t('logoutSuccess')); });
