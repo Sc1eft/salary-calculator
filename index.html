@@ -3385,9 +3385,16 @@ var _adsensePushed = false;
 function pushAdsense() {
   if (_adsensePushed) return;
   _adsensePushed = true;
-  setTimeout(function() {
-    try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
-  }, 300);
+  var el = document.getElementById('adsense-container');
+  if (!el) return;
+  var tries = 0;
+  (function wait() {
+    if (el.offsetWidth > 0) {
+      try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
+    } else if (tries++ < 20) {
+      setTimeout(wait, 100);
+    }
+  })();
 }
 
 // ================================================================
