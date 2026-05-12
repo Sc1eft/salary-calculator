@@ -401,19 +401,6 @@ main {
 .setting-item input[type="time"] { min-height: 44px; font-family: inherit; }
 .setting-item select { appearance: auto; }
 
-.ad-container {
-  margin: 16px 0;
-  min-height: 100px;
-  text-align: center;
-  overflow: hidden;
-  border-radius: var(--radius);
-  background: var(--bg-elevated);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-[data-theme="dark"] .ad-container { background: rgba(15,23,42,0.3); }
-
 .appearance-row {
   display: flex;
   gap: 8px;
@@ -2294,17 +2281,6 @@ input[type="number"] { -moz-appearance: textfield; }
         </div>
       </div>
     </section>
-
-      <!-- AdSense Banner -->
-      <div class="ad-container" id="adsense-container">
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-7936110306715031"
-             data-ad-slot="0000000000"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-      </div>
-    </section>
   </div>
 </main>
 
@@ -3254,7 +3230,6 @@ function renderActiveTab() {
       break;
     case 'settings':
       updateTaxDisplay();
-      pushAdsense();
       break;
   }
 }
@@ -3379,22 +3354,6 @@ function playClickSound() {
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.05);
   } catch(e) {}
-}
-
-var _adsensePushed = false;
-function pushAdsense() {
-  if (_adsensePushed) return;
-  _adsensePushed = true;
-  var el = document.getElementById('adsense-container');
-  if (!el) return;
-  var tries = 0;
-  (function wait() {
-    if (el.offsetWidth > 0) {
-      try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
-    } else if (tries++ < 20) {
-      setTimeout(wait, 100);
-    }
-  })();
 }
 
 // ================================================================
