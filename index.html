@@ -967,13 +967,13 @@ main {
   will-change: transform, opacity;
 }
 @keyframes coinFly {
-  0% { transform: translate(0,0) scale(0.5) rotate(0deg); opacity: 1; }
-  20% { opacity: 1; }
+  0% { transform: translate(0,0) scale(0.3) rotate(0deg); opacity: 1; }
+  15% { transform: translate(calc(var(--dx)*.15),calc(var(--dy)*.15)) scale(1.8) rotate(calc(var(--rot)*.15)); opacity: 1; }
   100% { transform: translate(var(--dx),var(--dy)) scale(1.2) rotate(var(--rot)); opacity: 0; }
 }
 .sparkle {
   position: absolute;
-  width: 6px; height: 6px;
+  width: 10px; height: 10px;
   border-radius: 50%;
   pointer-events: none;
   animation: sparkle 0.8s ease-out forwards;
@@ -987,51 +987,54 @@ main {
   z-index: 1001;
 }
 @keyframes coinFall {
-  0% { top: -15px; transform: rotate(0deg); opacity: 0.6; }
-  10% { top: 0; opacity: 1; }
-  100% { top: calc(100% + 10px); transform: rotate(var(--rot)); opacity: 0; }
+  0% { top: -15px; transform: rotate(0deg) scale(0.5); opacity: 0.3; }
+  5% { top: 5px; transform: rotate(10deg) scale(1.3); opacity: 1; }
+  15% { top: 15px; transform: rotate(-5deg) scale(1); }
+  100% { top: calc(100% + 10px); transform: rotate(var(--rot)) scale(0.4); opacity: 0; }
 }
 /* 10-yuan big coin drop */
 .coin-drop {
   position: absolute;
   pointer-events: none;
-  animation: coinDrop 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: coinDrop 2.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   will-change: top, transform, opacity;
   z-index: 1002;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
 }
 @keyframes coinDrop {
-  0% { top: -30px; transform: scale(0.3) rotate(0deg); opacity: 0; }
-  15% { top: 10px; transform: scale(1.4) rotate(0deg); opacity: 1; }
-  50% { top: 50%; transform: scale(1.1) rotate(var(--rot)); opacity: 0.9; }
-  100% { top: calc(100% + 20px); transform: scale(0.6) rotate(var(--rot)); opacity: 0; }
+  0% { top: -40px; transform: scale(0.2) rotate(0deg); opacity: 0; }
+  10% { top: 5%; transform: scale(1.6) rotate(0deg); opacity: 1; }
+  25% { top: 20%; transform: scale(1.3) rotate(var(--rot)); }
+  60% { top: 55%; transform: scale(1.1) rotate(var(--rot)); opacity: 0.9; }
+  100% { top: calc(100% + 30px); transform: scale(0.5) rotate(var(--rot)); opacity: 0; }
 }
 /* 100-yuan coin rain */
 .coin-rain {
   position: absolute;
   pointer-events: none;
-  animation: coinRain 3s ease-in forwards;
+  animation: coinRain 3.5s ease-in forwards;
   will-change: top, transform, opacity;
   z-index: 1001;
 }
 @keyframes coinRain {
-  0% { top: -20px; opacity: 0; transform: rotate(0deg); }
-  5% { top: -5px; opacity: 0.9; }
-  80% { top: 60%; opacity: 0.7; }
-  100% { top: calc(100% + 15px); opacity: 0; transform: rotate(var(--rot)); }
+  0% { top: -30px; opacity: 0; transform: rotate(0deg) scale(0.3); }
+  3% { top: -5px; opacity: 1; transform: rotate(0deg) scale(1.3); }
+  10% { top: 10%; transform: scale(1); }
+  80% { top: 60%; opacity: 0.8; transform: rotate(var(--rot)) scale(0.9); }
+  100% { top: calc(100% + 20px); opacity: 0; transform: rotate(var(--rot)) scale(0.3); }
 }
 @keyframes sparkle {
   0% { transform: translate(0,0) scale(0); opacity: 1; }
-  50% { transform: translate(var(--sx),var(--sy)) scale(1); opacity: 0.8; }
+  50% { transform: translate(var(--sx),var(--sy)) scale(1.2); opacity: 0.8; }
   100% { transform: translate(var(--sx),var(--sy)) scale(0); opacity: 0; }
 }
 .flash-overlay {
   position: fixed;
   inset: 0;
-  background: radial-gradient(circle, rgba(245,158,11,0.3) 0%, transparent 60%);
+  background: radial-gradient(circle, rgba(245,158,11,0.5) 0%, rgba(250,204,21,0.2) 40%, transparent 70%);
   pointer-events: none;
   z-index: 999;
-  animation: flashFade 1s ease-out forwards;
+  animation: flashFade 1.2s ease-out forwards;
 }
 @keyframes flashFade {
   0% { opacity: 1; }
@@ -1875,8 +1878,16 @@ input[type="number"] { -moz-appearance: textfield; }
 .btn-apple:hover { border-color: #000; background: rgba(0,0,0,0.03); }
 [data-theme="dark"] .btn-apple { border-color: #888; }
 [data-theme="dark"] .btn-apple:hover { border-color: #fff; background: rgba(255,255,255,0.06); }
-.btn-tiktok { border-color: #888; opacity: 0.7; }
-.btn-tiktok:hover { border-color: var(--text); opacity: 1; }
+.btn-wechat { border-color: #07C160; }
+.btn-wechat:hover { border-color: #06AD56; background: rgba(7,193,96,0.05); }
+[data-theme="dark"] .btn-wechat:hover { background: rgba(7,193,96,0.12); }
+.btn-qq { border-color: #12B7F5; }
+.btn-qq:hover { border-color: #0FA3DC; background: rgba(18,183,245,0.05); }
+[data-theme="dark"] .btn-qq:hover { background: rgba(18,183,245,0.12); }
+.lang-zh-only { display: none; }
+.lang-en-only { display: none; }
+html[lang="zh-CN"] .lang-zh-only { display: flex; }
+html[lang="en"] .lang-en-only { display: flex; }
 .login-skip {
   display: inline-block;
   margin-top: 12px;
@@ -1894,6 +1905,48 @@ input[type="number"] { -moz-appearance: textfield; }
   font-size: 11px;
   color: var(--text-tertiary);
   line-height: 1.4;
+}
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0;
+  color: var(--text-tertiary);
+  font-size: 12px;
+}
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.login-email-form { margin-bottom: 10px; }
+.login-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 10px;
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  transition: border-color var(--anim);
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+.login-input:focus { border-color: var(--accent); }
+.login-email-btns { display: flex; gap: 8px; }
+.login-email-btns .login-btn { flex: 1; }
+.btn-email { border-color: var(--accent); }
+.btn-email:hover { border-color: var(--accent); background: rgba(99,102,241,0.05); }
+[data-theme="dark"] .btn-email:hover { background: rgba(99,102,241,0.15); }
+.login-email-error {
+  font-size: 13px;
+  color: var(--red);
+  margin-top: -4px;
+  margin-bottom: 10px;
+  text-align: center;
 }
 /* ========= Account Card (Settings) ========= */
 .account-card {
@@ -2258,9 +2311,9 @@ input[type="number"] { -moz-appearance: textfield; }
       <div id="account-logged-out">
         <p style="text-align:center;margin-bottom:16px;color:var(--text-secondary);font-size:14px;" data-i18n="syncDescription">登录以备份数据并在设备间同步</p>
         <div class="login-btn-group">
-          <button class="login-btn btn-google btn-sm" id="btn-google-settings">通过 Google 登录</button>
-          <button class="login-btn btn-apple btn-sm" id="btn-apple-settings">通过 Apple 登录</button>
-          <button class="login-btn btn-tiktok btn-sm" id="btn-tiktok-settings">TikTok</button>
+          <button class="login-btn btn-google btn-sm lang-en-only" id="btn-google-settings"><span data-i18n="loginGoogle">Sign in with Google</span></button>
+          <button class="login-btn btn-apple btn-sm lang-en-only" id="btn-apple-settings"><span data-i18n="loginApple">Sign in with Apple</span></button>
+          <button class="login-btn btn-email btn-sm" id="btn-email-settings"><span data-i18n="loginEmail">📧 邮箱登录</span></button>
         </div>
       </div>
       <div id="account-logged-in" class="hidden">
@@ -2446,18 +2499,24 @@ input[type="number"] { -moz-appearance: textfield; }
         <div class="login-icon">💰</div>
         <h2 class="login-title" data-i18n="loginTitle">登录</h2>
         <p class="login-subtitle" data-i18n="loginSubtitle">跨设备同步数据，随时随地查看工作记录</p>
-        <button class="login-btn btn-google" id="btn-google-login">
+        <button class="login-btn btn-google lang-en-only" id="btn-google-login">
           <svg class="login-svg" viewBox="0 0 48 48"><path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"/><path fill="#34A853" d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z"/><path fill="#FBBC05" d="M11.69 28.18C11.25 26.86 11 25.45 11 24s.25-2.86.69-4.18v-5.7H4.34C2.85 17.09 2 20.45 2 24c0 3.55.85 6.91 2.34 9.88l7.35-5.7z"/><path fill="#EA4335" d="M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z"/></svg>
-          <span data-i18n="loginGoogle">通过 Google 登录</span>
+          <span data-i18n="loginGoogle">Sign in with Google</span>
         </button>
-        <button class="login-btn btn-apple" id="btn-apple-login">
+        <button class="login-btn btn-apple lang-en-only" id="btn-apple-login">
           <svg class="login-svg" viewBox="0 0 48 48"><path fill="currentColor" d="M31.65 6.34c1.74-2.1 2.92-5.02 2.6-7.94-2.52.1-5.57 1.68-7.38 3.8-1.62 1.88-3.04 4.9-2.66 7.78 2.82.22 5.7-1.54 7.44-3.64zM35.84 14.34c-4.18-.5-7.72 2.36-9.72 2.36-2 0-5.1-2.26-8.38-2.2-4.32.06-8.3 2.52-10.52 6.4-4.48 7.78-1.14 19.32 3.22 25.62 2.14 3.08 4.68 6.54 8.02 6.42 3.22-.14 4.44-2.08 8.34-2.08 3.88 0 5.0 2.08 8.4 2.02 3.48-.06 5.68-3.14 7.8-6.24 2.46-3.6 3.46-7.08 3.52-7.26-.08-.02-6.74-2.58-6.82-10.26-.06-6.42 5.24-9.48 5.48-9.64-3.0-4.4-7.64-4.98-9.32-5.08z"/></svg>
-          <span data-i18n="loginApple">通过 Apple 登录</span>
+          <span data-i18n="loginApple">Sign in with Apple</span>
         </button>
-        <button class="login-btn btn-tiktok" id="btn-tiktok-login">
-          <svg class="login-svg" viewBox="0 0 48 48"><path fill="currentColor" d="M34.32 12.72A11.05 11.05 0 0 1 31 8.62V6.98h-3.84v18.66c0 3.64-2.94 6.6-6.58 6.6-2.14 0-4.04-1.02-5.24-2.58-1.2-1.56-1.88-3.58-1.88-5.74 0-3.64 2.94-6.6 6.58-6.6 1.06 0 2.06.26 2.94.7v-3.9c-.94-.24-1.94-.36-2.94-.36-6.9 0-12.52 5.62-12.52 12.52 0 4.32 2.2 8.14 5.54 10.38 2.18 1.46 4.78 2.32 7.56 2.32 6.9 0 12.52-5.62 12.52-12.52v-6.5a14.8 14.8 0 0 0 5.9 1.78v-3.82c0-.02-2.7-.1-5.08-2.04z"/></svg>
-          <span data-i18n="loginTikTok">TikTok</span>
-        </button>
+        <div class="login-divider"><span data-i18n="loginOr">— 或 —</span></div>
+        <div class="login-email-form" id="login-email-form">
+          <input type="email" class="login-input" id="login-email-input" placeholder="" data-i18n-placeholder="emailPlaceholder" autocomplete="email">
+          <input type="password" class="login-input" id="login-password-input" placeholder="" data-i18n-placeholder="passwordPlaceholder" autocomplete="current-password">
+          <div class="login-email-btns">
+            <button class="login-btn btn-email" id="btn-email-login"><span data-i18n="loginEmail">📧 邮箱登录</span></button>
+            <button class="login-btn btn-email" id="btn-email-register"><span data-i18n="registerEmail">📝 注册账号</span></button>
+          </div>
+          <p class="login-email-error hidden" id="login-email-error"></p>
+        </div>
         <button class="login-skip" id="btn-skip-login" data-i18n="loginSkip">跳过，先使用</button>
         <p class="login-footer" data-i18n="loginFooter">您的数据端到端加密，仅您自己可见</p>
       </div>
@@ -2515,7 +2574,7 @@ const ACHIEVEMENTS = [
 // ================================================================
 // I18N
 // ================================================================
-let lang = localStorage.getItem('salary_lang') || 'en';
+let lang = localStorage.getItem('salary_lang') || 'zh';
 const I18N = {
   zh: {
     appTitle: '💰 赚钱计时器',
@@ -2665,7 +2724,11 @@ const I18N = {
     loginSubtitle: '跨设备同步数据，随时随地查看工作记录',
     loginGoogle: '通过 Google 登录',
     loginApple: '通过 Apple 登录',
-    loginTikTok: 'TikTok',
+    loginEmail: '📧 邮箱登录',
+    registerEmail: '📝 注册账号',
+    loginOr: '— 或 —',
+    emailPlaceholder: '邮箱地址',
+    passwordPlaceholder: '密码（至少6位）',
     loginSkip: '跳过，先使用',
     loginFooter: '您的数据端到端加密，仅您自己可见',
     accountTitle: '☁️ 云同步',
@@ -2678,7 +2741,7 @@ const I18N = {
     syncMinutesAgo: '{m} 分钟前同步',
     btnSyncNow: '🔄 立即同步',
     btnLogout: '🚪 退出登录',
-    tiktokComingSoon: 'TikTok 登录即将推出，敬请期待！',
+    comingSoon: '即将推出，敬请期待！',
     loginSuccess: '登录成功！',
     loginError: '登录失败，请重试',
     logoutSuccess: '已退出登录',
@@ -2833,7 +2896,11 @@ const I18N = {
     loginSubtitle: 'Sync your data across devices seamlessly',
     loginGoogle: 'Sign in with Google',
     loginApple: 'Sign in with Apple',
-    loginTikTok: 'TikTok',
+    loginEmail: '📧 Email Login',
+    registerEmail: '📝 Register',
+    loginOr: '— or —',
+    emailPlaceholder: 'Email address',
+    passwordPlaceholder: 'Password (min 6 chars)',
     loginSkip: 'Continue without account',
     loginFooter: 'Your data is end-to-end encrypted and private',
     accountTitle: '☁️ Cloud Sync',
@@ -2846,7 +2913,7 @@ const I18N = {
     syncMinutesAgo: '{m}m ago',
     btnSyncNow: '🔄 Sync Now',
     btnLogout: '🚪 Sign Out',
-    tiktokComingSoon: 'TikTok sign-in coming soon!',
+    comingSoon: 'Coming soon!',
     loginSuccess: 'Signed in successfully!',
     loginError: 'Sign in failed. Please try again.',
     logoutSuccess: 'Signed out',
@@ -3424,8 +3491,37 @@ function handleLogout() {
   firebase.auth().signOut().then(function() { showToast(t('logoutSuccess')); });
 }
 
-function handleTikTokClick() {
-  showToast(t('tiktokComingSoon'));
+function handleEmailLogin() {
+  if (!firebaseApp) { showToast(t('loginError')); return; }
+  var email = document.getElementById('login-email-input').value.trim();
+  var pass = document.getElementById('login-password-input').value;
+  var errEl = document.getElementById('login-email-error');
+  if (!email || !pass) { errEl.textContent = t('loginError'); errEl.classList.remove('hidden'); return; }
+  errEl.classList.add('hidden');
+  firebase.auth().signInWithEmailAndPassword(email, pass).then(function() {
+    document.getElementById('login-email-input').value = '';
+    document.getElementById('login-password-input').value = '';
+  }).catch(function(e) {
+    errEl.textContent = t('loginError') + ': ' + e.message;
+    errEl.classList.remove('hidden');
+  });
+}
+
+function handleEmailRegister() {
+  if (!firebaseApp) { showToast(t('loginError')); return; }
+  var email = document.getElementById('login-email-input').value.trim();
+  var pass = document.getElementById('login-password-input').value;
+  var errEl = document.getElementById('login-email-error');
+  if (!email || !pass) { errEl.textContent = t('loginError'); errEl.classList.remove('hidden'); return; }
+  if (pass.length < 6) { errEl.textContent = t('loginError') + ': Password must be at least 6 characters'; errEl.classList.remove('hidden'); return; }
+  errEl.classList.add('hidden');
+  firebase.auth().createUserWithEmailAndPassword(email, pass).then(function() {
+    document.getElementById('login-email-input').value = '';
+    document.getElementById('login-password-input').value = '';
+  }).catch(function(e) {
+    errEl.textContent = t('registerEmail') + ': ' + e.message;
+    errEl.classList.remove('hidden');
+  });
 }
 
 // --- Auth state ---
@@ -4302,12 +4398,12 @@ function checkCoinEffect() {
 }
 
 function createSmallCoin() {
-  const emojis = ['🪙', '🪙', '🪙', '💰', '💎', '🥇'];
+  const emojis = ['🪙', '🪙', '🪙', '💰', '💰', '💎', '🥇', '🌟', '✨'];
   const c = document.createElement('div');
   c.className = 'coin-fall';
   c.textContent = emojis[Math.floor(Math.random() * emojis.length)];
   c.style.left = (Math.random() < 0.5 ? Math.random() * 12 : 88 + Math.random() * 12) + '%';
-  c.style.fontSize = (14 + Math.random() * 10) + 'px';
+  c.style.fontSize = (18 + Math.random() * 16) + 'px';
   c.style.setProperty('--rot', (Math.random() * 360 - 180) + 'deg');
   c.style.animationDuration = (2 + Math.random() * 1) + 's';
   coinContainer.appendChild(c);
@@ -4315,15 +4411,15 @@ function createSmallCoin() {
 }
 
 function createBigCoinCelebration() {
-  const emojis = ['🪙', '🪙', '💰', '💰', '💎', '🥇', '🥇'];
-  const n = 6 + Math.floor(Math.random() * 4);
+  const emojis = ['🪙', '🪙', '💰', '💰', '💰', '💎', '💎', '🥇', '🥇', '🌟'];
+  const n = 10 + Math.floor(Math.random() * 6);
   for (let i = 0; i < n; i++) {
     const c = document.createElement('div');
     c.className = 'coin-drop';
     c.textContent = emojis[Math.floor(Math.random() * emojis.length)];
     // Alternate between left and right edges
     c.style.left = (i % 2 === 0 ? Math.random() * 15 : 85 + Math.random() * 15) + '%';
-    c.style.fontSize = (28 + Math.random() * 12) + 'px';
+    c.style.fontSize = (32 + Math.random() * 18) + 'px';
     c.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
     c.style.animationDelay = (Math.random() * 0.6) + 's';
     coinContainer.appendChild(c);
@@ -4332,20 +4428,20 @@ function createBigCoinCelebration() {
 }
 
 function createCoinRain() {
-  const emojis = ['🪙', '🪙', '🪙', '🪙', '💰', '💰', '💎', '💎', '🥇', '🥇', '🥇'];
-  const n = 30 + Math.floor(Math.random() * 25);
+  const emojis = ['🪙', '🪙', '🪙', '🪙', '💰', '💰', '💰', '💎', '💎', '🥇', '🥇', '🥇', '🌟', '🌟'];
+  const n = 40 + Math.floor(Math.random() * 30);
   for (let i = 0; i < n; i++) {
     const c = document.createElement('div');
     c.className = 'coin-rain';
     c.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-    // Spread across left edge (0-20%) and right edge (80-100%)
-    c.style.left = (Math.random() < 0.5 ? Math.random() * 20 : 80 + Math.random() * 20) + '%';
-    c.style.fontSize = (16 + Math.random() * 24) + 'px';
+    // Spread across full width
+    c.style.left = (Math.random() * 100) + '%';
+    c.style.fontSize = (20 + Math.random() * 28) + 'px';
     c.style.setProperty('--rot', (Math.random() * 1080 - 540) + 'deg');
-    c.style.animationDelay = (Math.random() * 1.5) + 's';
+    c.style.animationDelay = (Math.random() * 2) + 's';
     c.style.animationDuration = (2.5 + Math.random() * 1.5) + 's';
     coinContainer.appendChild(c);
-    setTimeout(function() { if (c.parentNode) c.remove(); }, 5000);
+    setTimeout(function() { if (c.parentNode) c.remove(); }, 6000);
   }
 }
 
@@ -4353,12 +4449,12 @@ function createCoinExplosion() {
   const rect = coinContainer.getBoundingClientRect();
   const cx = rect.width / 2;
   const cy = rect.height / 2;
-  const n = 20 + Math.floor(Math.random() * 15);
+  const n = 30 + Math.floor(Math.random() * 20);
 
   const flash = document.createElement('div');
   flash.className = 'flash-overlay';
   document.body.appendChild(flash);
-  setTimeout(() => flash.remove(), 1000);
+  setTimeout(() => flash.remove(), 1500);
 
   const min = state.lastCoinThreshold * 10;
   const brk = getEarnedBreakdown();
@@ -4366,37 +4462,37 @@ function createCoinExplosion() {
   toast.className = 'coin-toast';
   toast.textContent = t('toastCoin', { min: min, earned: cur(brk.total) });
   document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 2500);
+  setTimeout(() => toast.remove(), 3000);
 
-  const emojis = ['🪙','💰','✨','🌟','💛','🏆'];
+  const emojis = ['🪙','💰','💰','✨','🌟','💛','🏆','🎉','🥇'];
   for (let i = 0; i < n; i++) {
     const c = document.createElement('div');
     c.className = 'coin';
     c.textContent = emojis[Math.floor(Math.random() * emojis.length)];
     const a = Math.random() * Math.PI * 2;
-    const d = 100 + Math.random() * 250;
+    const d = 120 + Math.random() * 300;
     c.style.left = cx + 'px';
     c.style.top = cy + 'px';
     c.style.setProperty('--dx', Math.cos(a) * d + 'px');
-    c.style.setProperty('--dy', Math.sin(a) * d - 150 + 'px');
+    c.style.setProperty('--dy', Math.sin(a) * d - 180 + 'px');
     c.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
-    c.style.fontSize = (24 + Math.random() * 24) + 'px';
+    c.style.fontSize = (28 + Math.random() * 28) + 'px';
     coinContainer.appendChild(c);
-    setTimeout(() => c.remove(), 1500);
+    setTimeout(() => c.remove(), 1800);
   }
 
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < 20; i++) {
     const s = document.createElement('div');
     s.className = 'sparkle';
     const a = Math.random() * Math.PI * 2;
-    const d = 40 + Math.random() * 120;
+    const d = 50 + Math.random() * 160;
     s.style.left = cx + 'px';
     s.style.top = cy + 'px';
     s.style.setProperty('--sx', Math.cos(a) * d + 'px');
     s.style.setProperty('--sy', Math.sin(a) * d + 'px');
-    s.style.background = ['#FDE68A','#F59E0B','#FCD34D','#FFF'][Math.floor(Math.random() * 4)];
+    s.style.background = ['#FDE68A','#F59E0B','#FCD34D','#FFF','#FFD700'][Math.floor(Math.random() * 5)];
     coinContainer.appendChild(s);
-    setTimeout(() => s.remove(), 800);
+    setTimeout(() => s.remove(), 1000);
   }
 }
 
@@ -5618,14 +5714,24 @@ function init() {
   // Login / Auth buttons
   document.getElementById('btn-google-login').addEventListener('click', handleGoogleLogin);
   document.getElementById('btn-apple-login').addEventListener('click', handleAppleLogin);
-  document.getElementById('btn-tiktok-login').addEventListener('click', handleTikTokClick);
+  document.getElementById('btn-email-login').addEventListener('click', handleEmailLogin);
+  document.getElementById('btn-email-register').addEventListener('click', handleEmailRegister);
+  // Enter key triggers login
+  document.getElementById('login-password-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') handleEmailLogin();
+  });
+  document.getElementById('login-email-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') handleEmailLogin();
+  });
   document.getElementById('btn-skip-login').addEventListener('click', function() {
     loginOverlayDismissed = true;
     hideLoginOverlay();
   });
   document.getElementById('btn-google-settings').addEventListener('click', handleGoogleLogin);
   document.getElementById('btn-apple-settings').addEventListener('click', handleAppleLogin);
-  document.getElementById('btn-tiktok-settings').addEventListener('click', handleTikTokClick);
+  document.getElementById('btn-email-settings').addEventListener('click', function() {
+    showLoginOverlay();
+  });
   document.getElementById('btn-sync-now').addEventListener('click', syncAfterLogin);
   document.getElementById('btn-logout').addEventListener('click', handleLogout);
 

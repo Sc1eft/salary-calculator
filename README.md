@@ -61,7 +61,7 @@ npx http-server -p 8080
 登录后可在不同设备间同步工作记录。需要配置 Firebase 项目：
 
 1. 前往 [Firebase Console](https://console.firebase.google.com/) 创建项目
-2. 启用 **Authentication** → **Google** 和 **Apple** 登录方式
+2. 启用 **Authentication** → **Google**、**Apple** 和 **Email/Password** 登录方式
 3. 创建 **Cloud Firestore** 数据库（选择测试模式）
 4. 在项目设置 → 通用 → 你的应用 → Web 应用中获取配置
 5. 打开 `index.html`，搜索 `FIREBASE_CONFIG`，替换为你的配置
@@ -91,6 +91,18 @@ service cloud.firestore {
 
 未配置 Firebase 时，应用完全离线可用，数据仅存储在本地 localStorage。
 
+## 📧 邮箱登录（Email/Password）
+
+微信和 QQ 登录需要开发者账号资质认证（营业执照），因此改用 **邮箱密码登录**，由 Firebase Auth 原生支持，无需额外服务端。
+
+### 开启邮箱登录
+
+1. 前往 [Firebase Console](https://console.firebase.google.com/) → Authentication → Sign-in method
+2. 启用 **Email/Password** 提供商
+3. 保存即可
+
+用户在登录界面的邮箱表单中可以直接 **登录** 或 **注册** 新账号。
+
 ## 📦 项目结构
 
 ```
@@ -99,6 +111,8 @@ salary-calculator/
 ├── manifest.json    # PWA 配置
 ├── sw.js            # Service Worker
 ├── icon.svg         # PWA 图标（金色 ¥）
+├── firebase.json    # Firebase 项目配置
+├── functions/       # （可选的微信/QQ OAuth Cloud Functions，需营业执照）
 └── README.md        # 本文件
 ```
 
